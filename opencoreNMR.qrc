@@ -1,0 +1,40 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/zoomin.png</file>
+        <file>images/zoomout.png</file>
+        <file>images/a01.png</file>
+        <file>images/abs.png</file>
+        <file>images/imag.png</file>
+        <file>images/real.png</file>
+        <file>images/abs2.png</file>
+        <file>images/imag2.png</file>
+        <file>images/real2.png</file>
+        <file>images/run.png</file>
+        <file>images/stop.png</file>
+        <file>images/rubberBand.png</file>
+        <file>images/cursor1.png</file>
+        <file>images/dango.png</file>
+        <file>images/welcomeDango.png</file>
+        <file>images/pulseProgram.png</file>
+        <file>images/process.png</file>
+        <file>images/nmrExp.png</file>
+        <file>images/hammer1.png</file>
+        <file>images/lightningBolt.png</file>
+        <file>images/splashScreen.png</file>
+        <file>images/arrow.png</file>
+        <file>images/down1.png</file>
+        <file>images/up1.png</file>
+        <file>images/bitLines.png</file>
+        <file>images/hExpand.png</file>
+        <file>images/hShrink.png</file>
+        <file>images/left2.png</file>
+        <file>images/right2.png</file>
+        <file>images/appIcon.png</file>
+        <file>images/thickker.png</file>
+        <file>images/thinner.png</file>
+        <file>images/export.png</file>
+        <file>images/run_rs.png</file>
+        <file>images/stop_rs.png</file>
+        <file>images/export2.png</file>
+    </qresource>
+</RCC>
