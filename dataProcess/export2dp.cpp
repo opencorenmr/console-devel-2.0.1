@@ -60,7 +60,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1, int sf2,
 
     out << "[Contours]" << "\r\n";
     out << "Linear" << "\r\n";
-    out << " + : 10" << "\r\n";
+    out << " + : 5" << "\r\n";
     out << " - : 0" << "\r\n";
     out << "High= 0.99" << "\r\n";
     out << "Low = 0.05" << "\r\n";
