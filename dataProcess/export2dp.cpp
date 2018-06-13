@@ -15,7 +15,8 @@ KExport2DP::~KExport2DP()
     ;
 }
 
-bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1, int sf2, int ef2)
+bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
+                         int line, double contL, double contH)
 {
     double max=0.0, min=0.0, base=0.0;
     int f1, f2;
@@ -36,6 +37,23 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1, int sf2,
          return false;
     }
 
+    bool get1=getMaxMinParameter(fid_2d, &max, &min, &base, &f1, &f2);
+    if(get1==false) return false;
+
+    double befMax = max;
+    int i, j;
+
+    if(befMax<10e4){
+        for(i=0;i<fid_2d->FID.size();i++){
+            for(j=0;j<fid_2d->FID.size();j++){
+                fid_2d->FID[i]->real->sig[j] = fid_2d->FID[i]->real->sig[j] * 10e4;
+            }
+        }
+    }
+
+    contL = contL / 100;
+    contH = contH / 100;
+
     //--------write parameter for contour plot-----------
     QTextStream out(&file);
     out << "[Points]" << "\r\n";
@@ -45,11 +63,12 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1, int sf2,
     out << "[Area]" << "\r\n";
     out << "F1 = " << QString::number(sf1) << "\r\n";
     out << "to = " << QString::number(ef1) << "\r\n";
-    out << "F2 = " << QString::number(sf2) << "\r\n";
-    out << "to = " << QString::number(ef2) << "\r\n";
+    out << "F2 = " << QString::number(sf1) << "\r\n";
+    out << "to = " << QString::number(ef1) << "\r\n";
 
-    bool get=getMaxMinParameter(fid_2d, &max, &min, &base, &f1, &f2);
-    if(get==false) return false;
+    bool get2=getMaxMinParameter(fid_2d, &max, &min, &base, &f1, &f2);
+
+    if(get2==false) return false;
 
     out << "[Max and Min]" << "\r\n";
     out << "Max = " << QString::number(max,'E',14) <<"\r\n";
@@ -60,10 +79,10 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1, int sf2,
 
     out << "[Contours]" << "\r\n";
     out << "Linear" << "\r\n";
-    out << " + : 10" << "\r\n";
+    out << " + : " << QString::number(line) << "\r\n";
     out << " - : 0" << "\r\n";
-    out << "High= 0.99" << "\r\n";
-    out << "Low = 0.05" << "\r\n";
+    out << "High= " << QString::number(contH) << "\r\n";
+    out << "Low = " << QString::number(contL) << "\r\n";
 
     out << "[t1/f1]" << "\r\n";
     out << "Width   = " << QString::number(1.0e6 / fid_2d->dw()) <<"\r\n";
