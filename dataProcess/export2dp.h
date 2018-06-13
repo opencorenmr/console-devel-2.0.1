@@ -16,7 +16,8 @@ public:
     fidDomain::AxisDomain axisDomain() {return FAxisDomain;}
     void setAxisDomain(fidDomain::AxisDomain ad) {FAxisDomain=ad;}
 
-    bool process(TFID_2D *fid_2d, QString fn, int sf1, int ef1, int sf2, int ef2);
+    bool process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
+                 int line, double contL, double contH);
 
 private:
     bool getMaxMinParameter(TFID_2D *fid_2d, double *max, double *min,
