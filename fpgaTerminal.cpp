@@ -663,6 +663,19 @@ void TfpgaTerminal::onArrayPromptReceived()
         nmrData->Writesm2pFile(sm2p);
     nmrData->WriteoppFile(opp);
 
+
+
+    //
+    //  TODO (20180612) asci data save
+    //     filename candidate: path + base + "_" + arrayCounter.currentCountString() + ".smd"
+    //
+
+
+
+
+
+
+
    // update variable
    expSettings->arrayWidget->arrayCounter.increment(ppg);
    updateVariableTable();
@@ -1193,6 +1206,15 @@ void TfpgaTerminal::onReadyPromptReceived()
 
     if(QFile::exists(aopp)) QFile::rename(aopp,opp); // path+base+"_array.opp"
     else nmrData->WriteoppFile(opp);
+
+
+    //
+    //  TODO (20180612) asci data save
+    //     filename candidate: path + base + "_" + QString::Number(arrayCounter.count()) + ".smd" ?
+    //
+
+
+
 
     disableSaveButton();
 
