@@ -380,6 +380,42 @@ bool TFID_2D::Writesm2pFile(QString fn)
     return true;
 }
 
+bool TFID_2D::WriteopaFile(QString fn, QIODevice::OpenModeFlag flag)
+{
+    QMutexLocker locker(&mutex);
+
+    QFile file(fn);
+    if (!file.open(flag | QIODevice::Text))
+    {
+         errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         return false;
+    }
+
+    QTextStream out(&file);
+//    out << "point=" << QString::number(al()) << "\r\n";
+//    out << "dw=" << QString::number(dw(),'g',12) << "\r\n";
+//    out << "sf1=" << QString::number(sf1(),'g',12) << "\r\n";
+//    out << "#\r\n";
+//    for(int i=0; i<comments.size(); i++) out << comments.at(i);
+
+    for(int i=0; i<FID.size(); i++)
+    {
+        for(int k=0; k<FID.at(i)->al(); k++)
+        {
+           out << QString::number(FID.at(i)->real->sig.at(k),'g',12)
+               << " "
+               << QString::number(FID.at(i)->imag->sig.at(k),'g',12)
+               << "\n";
+        } // k
+        out << "\n";
+    } // i
+
+
+    file.close();
+    return true;
+
+}
+
 bool TFID_2D::ReadopdFile(QString fn)
 {
     QMutexLocker locker(&mutex);

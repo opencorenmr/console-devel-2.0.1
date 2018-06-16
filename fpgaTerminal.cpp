@@ -653,6 +653,7 @@ void TfpgaTerminal::onArrayPromptReceived()
         QString sm2d = path+base+"_array.sm2d";
         QString sm2p = path+base+"_array.sm2p";
 
+
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
         if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
@@ -664,12 +665,12 @@ void TfpgaTerminal::onArrayPromptReceived()
     nmrData->WriteoppFile(opp);
 
 
-
-    //
-    //  TODO (20180612) asci data save
-    //     filename candidate: path + base + "_" + arrayCounter.currentCountString() + ".smd"
-    //
-
+    if(expSettings->saveAsciCheckBox->isChecked())
+    {
+        QString opa = path+base+"_array.opa";
+        if(QFile::exists(opa)) nmrData->WriteopaFile(opa,QIODevice::Append);
+        else nmrData->WriteopaFile(opa);
+    }
 
 
 
@@ -1973,6 +1974,8 @@ void TfpgaTerminal::onSaveButtonClicked()
     QString opd = path+base+"_unfinished.opd";
     QString opp = path+base+"_unfinished.opp";
     QString aopd = path+base+"_array.opd";
+    QString opa = path+base+"_unfinished.opa";
+    QString aopa = path+base+"_array.opa";
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
@@ -1997,6 +2000,19 @@ void TfpgaTerminal::onSaveButtonClicked()
             QMessageBox::warning(this,tr(""),tr("<p>Failed to save data: ") + opd );
             return;
         }
+
+        if(this->expSettings->saveAsciCheckBox->isChecked())
+        {
+          if(!nmrData->WriteopaFile(opa))
+          {
+             QMessageBox::warning(this,tr(""),tr("<p>Failed to save data: ") + opa );
+             return;
+          }
+
+        }
+
+
+
         expSettings->onJobSaveButtonClicked();
         if(!expSettings->ok) return;
 
@@ -2040,6 +2056,19 @@ void TfpgaTerminal::onSaveButtonClicked()
             // We do not overwrite the parameter file, to retain any modifications made by other applications,
             // such as TakeNMR.
         }
+
+
+    if(expSettings->saveAsciCheckBox->isChecked())
+    {
+        if(QFile::exists(opa)) QFile::remove(opa);
+        if(QFile::exists(aopa))
+        {
+            QFile::copy(aopa,opa);
+            nmrData->WriteopaFile(opa,QIODevice::Append);
+
+        }
+
+    }
     disableSaveButton();
 
 }
