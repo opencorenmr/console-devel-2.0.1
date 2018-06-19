@@ -1139,6 +1139,8 @@ void TfpgaTerminal::onReadyPromptReceived()
     QString opp = path+base+".opp";
     QString aopd = path+base+"_array.opd";
     QString aopp = path+base+"_array.opp";
+    QString opa = path+base+".opa";
+    QString aopa = path+base+"_array.opa";
 
     if(QFile::exists(opd))
     {
@@ -1180,6 +1182,18 @@ void TfpgaTerminal::onReadyPromptReceived()
             return;
         }
 
+
+        if(expSettings->saveAsciCheckBox->isChecked())
+        {
+          if(!nmrData->WriteopaFile(opa))
+          {
+            QMessageBox::warning(this,tr(""),tr("<p>Failed to save data: ") + opa);
+            mutex.unlock();
+            return;
+          }
+        }
+
+
         disableSaveButton();
       //  if(QFile::exists(path+base+"_unfinished.sm2d")) QFile::remove(path+base+"_unfinished.sm2d");
       //  if(QFile::exists(path+base+"_unfinished.sm2p")) QFile::remove(path+base+"_unfinished.sm2p");
@@ -1209,10 +1223,13 @@ void TfpgaTerminal::onReadyPromptReceived()
     else nmrData->WriteoppFile(opp);
 
 
-    //
-    //  TODO (20180612) asci data save
-    //     filename candidate: path + base + "_" + QString::Number(arrayCounter.count()) + ".smd" ?
-    //
+    // Array && ascii
+    if(expSettings->saveAsciCheckBox->isChecked())
+    {
+        if(QFile::exists(aopa)) nmrData->WriteopaFile(aopa,QIODevice::Append);
+        else nmrData->WriteopaFile(aopa);
+        QFile::rename(aopa,opa);
+    }
 
 
 

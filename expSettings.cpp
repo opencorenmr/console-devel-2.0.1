@@ -206,7 +206,7 @@ void TExpSettings::createWidgets()
 
       nameLineEdit = new QLineEdit; nameLineEdit->setText("Untitled");
       dataSaveButton = new QPushButton(tr("Save Data")); dataSaveButton->setEnabled(false);
-      saveAsciCheckBox = new QCheckBox(tr("Save asci data")); saveAsciCheckBox->setChecked(false);
+      saveAsciCheckBox = new QCheckBox(tr("Save ascii data")); saveAsciCheckBox->setChecked(false);
       obsFreqLineEdit = new QLineEdit; obsFreqLineEdit->setText("10.0");
       obsFreqCheckBox = new QCheckBox(tr("Choose from frequency variables"));
       obsFreqComboBox = new QComboBox;
