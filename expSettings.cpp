@@ -206,7 +206,7 @@ void TExpSettings::createWidgets()
 
       nameLineEdit = new QLineEdit; nameLineEdit->setText("Untitled");
       dataSaveButton = new QPushButton(tr("Save Data")); dataSaveButton->setEnabled(false);
-      saveAsciCheckBox = new QCheckBox(tr("Save ascii data")); saveAsciCheckBox->setChecked(false);
+      saveAsciiCheckBox = new QCheckBox(tr("Save ascii data")); saveAsciiCheckBox->setChecked(false);
       obsFreqLineEdit = new QLineEdit; obsFreqLineEdit->setText("10.0");
       obsFreqCheckBox = new QCheckBox(tr("Choose from frequency variables"));
       obsFreqComboBox = new QComboBox;
@@ -250,7 +250,7 @@ void TExpSettings::createWidgets()
       fileManageLayout->addWidget(new QLabel(tr("Job Name")),1,0);
       fileManageLayout->addWidget(nameLineEdit,1,1);
       fileManageLayout->addWidget(dataSaveButton,1,2);
-      fileManageLayout->addWidget(saveAsciCheckBox,1,3);
+      fileManageLayout->addWidget(saveAsciiCheckBox,1,3);
       fileManageLayout->addLayout(obsFreqLayout,2,0,1,4);
       fileManageLayout->addWidget(new QLabel(tr("Comment")),3,0);
       fileManageLayout->addWidget(commentTextEdit,4,0,1,4);
@@ -260,7 +260,7 @@ void TExpSettings::createWidgets()
       jobLayout->addStretch();
       jobLayout->addWidget(jobSaveButton);
       jobLayout->addWidget(jobQueueButton);
-      fileManageLayout->addLayout(jobLayout,5,0,1,3);
+      fileManageLayout->addLayout(jobLayout,5,0,1,4);
 
     fileLayout->addWidget(fileManageWidget);
 
@@ -373,7 +373,7 @@ void TExpSettings::readJob(QString fileName)
 
       pathLineEdit->setText(grandParentPath);
       nameLineEdit->setText(settings.value("nameLineEdit").toString());
-      saveAsciCheckBox->setChecked(settings.value("saveAsciCheckBox").toBool());
+      saveAsciiCheckBox->setChecked(settings.value("saveAsciiCheckBox").toBool());
       obsFreqLineEdit->setText(settings.value("obsFreqLineEdit").toString());
       obsFreqCheckBox->setChecked(settings.value("obsFreqCheckBox").toBool());
       int obsFreqComboBoxValue=settings.value("obsFreqComboBox").toInt();
@@ -883,7 +883,7 @@ void TExpSettings::writeJob(QString fileName)
       settings.setValue("ppgFilename", fInfo.fileName()); // We save the file name without path.
       //settings.setValue("pathLineEdit", pathLineEdit->text()); commented out (path should be that of the job file)
       settings.setValue("nameLineEdit", nameLineEdit->text());
-      settings.setValue("saveAsviCheckBox",saveAsciCheckBox->isChecked());
+      settings.setValue("saveAsciiCheckBox",saveAsciiCheckBox->isChecked());
       settings.setValue("obsFreqLineEdit",obsFreqLineEdit->text());
       settings.setValue("obsFreqCheckBox",obsFreqCheckBox->isChecked());
       settings.setValue("obsFreqComboBox",obsFreqComboBox->currentIndex());

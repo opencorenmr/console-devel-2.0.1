@@ -665,7 +665,7 @@ void TfpgaTerminal::onArrayPromptReceived()
     nmrData->WriteoppFile(opp);
 
 
-    if(expSettings->saveAsciCheckBox->isChecked())
+    if(expSettings->saveAsciiCheckBox->isChecked())
     {
         QString opa = path+base+"_array.opa";
         if(QFile::exists(opa)) nmrData->WriteopaFile(opa,QIODevice::Append);
@@ -1183,7 +1183,7 @@ void TfpgaTerminal::onReadyPromptReceived()
         }
 
 
-        if(expSettings->saveAsciCheckBox->isChecked())
+        if(expSettings->saveAsciiCheckBox->isChecked())
         {
           if(!nmrData->WriteopaFile(opa))
           {
@@ -1224,7 +1224,7 @@ void TfpgaTerminal::onReadyPromptReceived()
 
 
     // Array && ascii
-    if(expSettings->saveAsciCheckBox->isChecked())
+    if(expSettings->saveAsciiCheckBox->isChecked())
     {
         if(QFile::exists(aopa)) nmrData->WriteopaFile(aopa,QIODevice::Append);
         else nmrData->WriteopaFile(aopa);
@@ -2018,7 +2018,7 @@ void TfpgaTerminal::onSaveButtonClicked()
             return;
         }
 
-        if(this->expSettings->saveAsciCheckBox->isChecked())
+        if(this->expSettings->saveAsciiCheckBox->isChecked())
         {
           if(!nmrData->WriteopaFile(opa))
           {
@@ -2075,7 +2075,7 @@ void TfpgaTerminal::onSaveButtonClicked()
         }
 
 
-    if(expSettings->saveAsciCheckBox->isChecked())
+    if(expSettings->saveAsciiCheckBox->isChecked())
     {
         if(QFile::exists(opa)) QFile::remove(opa);
         if(QFile::exists(aopa))
