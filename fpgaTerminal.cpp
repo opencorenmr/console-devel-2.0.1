@@ -1159,6 +1159,13 @@ void TfpgaTerminal::onReadyPromptReceived()
         sm2p=path+base+"_"+QString::number(k)+".sm2p";
     }
 
+    if(QFile::exists(opa))
+    {
+        int k=1;
+        while(QFile::exists(path+base+"_"+QString::number(k)+".opa")) k++;
+        opa=path+base+"_"+QString::number(k)+".opa";
+    }
+
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
     if(!arrayQ)
