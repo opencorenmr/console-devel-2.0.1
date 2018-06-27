@@ -211,6 +211,8 @@ void KExportWidget::performExport2DFile()
     if(contL==0 || contL < 1.0){contL=5.0;}
     if(contH==0 || contH > 99.0){contH=99.0;}
 
+    if(contL<=contH){contL=5.0; contH=99.0;}
+
 
     if(sf1<ef1 && contL<contH)
     {
