@@ -64,7 +64,7 @@ void KExportWidget::createPanel()
         gridLayout1->addWidget(contNumberLineEdit,1,1,1,1);
         gridLayout1->addWidget(new QLabel(tr("Cont. Range (%)")),2,0,1,1);
         gridLayout1->addWidget(contLowLineEdit,2,1,1,1);
-        gridLayout1->addWidget(new QLabel(tr("-")),2,2,1,1);
+        gridLayout1->addWidget(new QLabel(tr("to")),2,2,1,1);
         gridLayout1->addWidget(contHighLineEdit,2,3,1,1);
         gridLayout1->addWidget(export2DButton,3,0,1,4);
     groupBox1->setLayout(gridLayout1);
@@ -211,7 +211,7 @@ void KExportWidget::performExport2DFile()
     if(contL==0 || contL < 1.0){contL=5.0;}
     if(contH==0 || contH > 99.0){contH=99.0;}
 
-    if(contL<=contH){contL=5.0; contH=99.0;}
+    if(contL>=contH){contL=5.0; contH=99.0;}
 
 
     if(sf1<ef1 && contL<contH)
