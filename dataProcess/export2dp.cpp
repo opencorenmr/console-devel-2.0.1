@@ -42,6 +42,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
 
     double befMax = max;
     int i, j;
+    bool multiplied = false;
 
     if(befMax<10e4){
         for(i=0;i<fid_2d->FID.size();i++){
@@ -49,6 +50,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
                 fid_2d->FID[i]->real->sig[j] = fid_2d->FID[i]->real->sig[j] * 10e4;
             }
         }
+        multiplied = true;
     }
 
     contL = contL / 100;
@@ -114,6 +116,9 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
     out << "No Mirror" << "\r\n";
     out << "BlackLine" << "\r\n";
     out << "Norm_Line" << "\r\n";
+    if(multiplied){
+        out << "# multiplied 100000";
+    }
 
     file.close();
 
