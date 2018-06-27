@@ -293,7 +293,7 @@ void TProcessPanelWidget::createWidgets()
                                     << "exportData"
                                     << "Create FID"
                                     << "Math"
-                                    << "FID Simulation"
+                                    //<< "FID Simulation"
                                     << "Peak"
                                     );
 #else
@@ -309,7 +309,7 @@ void TProcessPanelWidget::createWidgets()
                                     << "exportData"
                                     << "Create FID"
                                     << "Math"
-                                    << "FID Simulation"
+                                    //<< "FID Simulation"
                                     << "Peak"
                                     );
 #endif
@@ -356,8 +356,8 @@ void TProcessPanelWidget::createWidgets()
       //CovarianceWidget->setApplyToSelectable(false);
     exportWidget = new KExportWidget;
       exportWidget->setAncestor(this);
-    fidSimulationWidget = new KFidSimulationWidget;
-      fidSimulationWidget->setAncestor(this);
+    //fidSimulationWidget = new KFidSimulationWidget;
+    //  fidSimulationWidget->setAncestor(this);
 
     createFIDWidget = new TCreateFIDWidget;
       createFIDWidget->setFID2D(FID_2D);
@@ -390,7 +390,7 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(exportWidget);
     stackedWidget->addWidget(createFIDWidget);
     stackedWidget->addWidget(FIDMathWidget);
-    stackedWidget->addWidget(fidSimulationWidget);
+    //stackedWidget->addWidget(fidSimulationWidget);
     stackedWidget->addWidget(peakPickWidget);
 
     QHBoxLayout *layout1 = new QHBoxLayout;

@@ -122,15 +122,6 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
 
     file.close();
 
-    if(befMax<10e4){
-        for(i=0;i<fid_2d->FID.size();i++){
-            for(j=0;j<fid_2d->FID.size();j++){
-                fid_2d->FID[i]->real->sig[j] = fid_2d->FID[i]->real->sig[j] / 10e4;
-            }
-        }
-        multiplied = true;
-    }
-
     return true;
 }
 
