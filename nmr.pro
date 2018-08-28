@@ -68,7 +68,10 @@ SOURCES += main.cpp\
     dataProcess/export2dp.cpp \
     dataProcess/covariance.cpp \
     dataProcess/covarianceWidget.cpp \
-    dataProcess/svd.cpp
+    dataProcess/svd.cpp \
+    dataProcess/peakPickWidget.cpp \
+    dataProcess/peakPick.cpp
+
 
 
 linux: SOURCES += gpib488console.cpp
@@ -129,7 +132,10 @@ HEADERS  += mainwindow.h \
     dataProcess/export2dp.h \
     dataProcess/covariance.h \
     dataProcess/covarianceWidget.h \
-    dataProcess/svd.h
+    dataProcess/svd.h \
+    dataProcess/peakPickWidget.h \
+    dataProcess/peakPick.h
+
 
 
 linux: HEADERS += gpib488console.h

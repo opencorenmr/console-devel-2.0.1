@@ -199,12 +199,14 @@ class TFID_2D
     bool Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
     bool Writesm2Files(QString fn);
 
+
     bool ReadoppFile(QString fn);
     bool ReadopdFile(QString fn);
     bool ReadopFiles(QString fn);
     bool WriteoppFile(QString fn);
     bool WriteopdFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
     bool WriteopFiles(QString fn);
+    bool WriteopaFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly); // asci
 
     int currentFID() {return FCurrentFID;}
     void setCurrentFID(int k) {if((k>=0) && (k<FID.size())) FCurrentFID=k; else FCurrentFID=0;}

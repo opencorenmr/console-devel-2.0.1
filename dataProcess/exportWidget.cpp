@@ -30,12 +30,15 @@ void KExportWidget::createWidgets()
     exportOpFileButton = new QPushButton(tr("export .opp & .opd"));
     exportSm2FileButton = new QPushButton(tr("export .sm2p & .sm2d"));
     exportCSVButton = new QPushButton(tr("export .csv"));
-    export2DButton = new QPushButton(tr("export .2dp & .2dd"));
+    export2DButton = new QPushButton(tr("export .2dp and .2dd for takeNMR"));
 
     startf1LineEdit = new QLineEdit();
     endf1LineEdit = new QLineEdit();
     startf2LineEdit = new QLineEdit();
     endf2LineEdit = new QLineEdit();
+    contNumberLineEdit = new QLineEdit();
+    contHighLineEdit = new QLineEdit();
+    contLowLineEdit = new QLineEdit();
     //exportFirstButton = new QPushButton(tr("First Array value"));
     //exportDiagButton = new QPushButton(tr("Diagonal value"));
 }
@@ -53,19 +56,20 @@ void KExportWidget::createPanel()
 
     QGroupBox *groupBox1 = new QGroupBox(tr("export 2D data"));
         QGridLayout *gridLayout1 = new QGridLayout;
-        gridLayout1->addWidget(new QLabel(tr("Display Area ")),0,0,1,1);
-        gridLayout1->addWidget(new QLabel(tr("F1")),1,0,1,1);
-        gridLayout1->addWidget(startf1LineEdit,1,1,1,1);
-        gridLayout1->addWidget(new QLabel(tr("-")),1,2,1,1);
-        gridLayout1->addWidget(endf1LineEdit,1,3,1,1);
-        gridLayout1->addWidget(new QLabel(tr("F2")),2,0,1,1);
-        gridLayout1->addWidget(startf2LineEdit,2,1,1,1);
-        gridLayout1->addWidget(new QLabel(tr("-")),2,2,1,1);
-        gridLayout1->addWidget(endf2LineEdit,2,3,1,1);
-        gridLayout1->addWidget(export2DButton,3,1,1,3);
+        gridLayout1->addWidget(new QLabel(tr("Area")),0,0,1,1);
+        gridLayout1->addWidget(startf1LineEdit,0,1,1,1);
+        gridLayout1->addWidget(new QLabel(tr("-")),0,2,1,1);
+        gridLayout1->addWidget(endf1LineEdit,0,3,1,1);
+        gridLayout1->addWidget(new QLabel(tr("Cont. Line")),1,0,1,1);
+        gridLayout1->addWidget(contNumberLineEdit,1,1,1,1);
+        gridLayout1->addWidget(new QLabel(tr("Cont. Range (%)")),2,0,1,1);
+        gridLayout1->addWidget(contLowLineEdit,2,1,1,1);
+        gridLayout1->addWidget(new QLabel(tr("to")),2,2,1,1);
+        gridLayout1->addWidget(contHighLineEdit,2,3,1,1);
+        gridLayout1->addWidget(export2DButton,3,0,1,4);
     groupBox1->setLayout(gridLayout1);
 
-    mainLayout->addWidget(groupBox0);
+    //mainLayout->addWidget(groupBox0);
     mainLayout->addWidget(groupBox1);
 
     mainLayout->addStretch();
@@ -181,6 +185,47 @@ void KExportWidget::performExport2DFile()
     QString data2dp = path_1+base+".2DP";
     QString data2dd = path_1+base+".2DD";
 
+
+    //-------------------------------------
+
+    //----export contour parameter as *.2DP------------
+
+    int sf1, ef1;
+    int line;
+    double contL, contH;
+
+    QString s = startf1LineEdit->text();
+    sf1 = s.toInt();
+    s = endf1LineEdit->text();
+    ef1 = s.toInt();
+    s = contNumberLineEdit->text();
+    line = s.toInt();
+    s = contLowLineEdit->text();
+    contL = s.toDouble();
+    s = contHighLineEdit->text();
+    contH = s.toDouble();
+
+    if(sf1==0 || sf1 < 0){sf1=1;}
+    if(ef1==0 || ef1 > ancestor()->FID_2D->FID.size()){ef1=ancestor()->FID_2D->FID.size();}
+    if(line<1 || line>100){line=5;}
+    if(contL==0 || contL < 1.0){contL=5.0;}
+    if(contH==0 || contH > 99.0){contH=99.0;}
+
+    if(contL>=contH){contL=5.0; contH=99.0;}
+
+
+    if(sf1<ef1 && contL<contH)
+    {
+        bool ok;
+        KExport2DP *exp = new KExport2DP;
+        ok=exp->process(ancestor()->FID_2D, data2dp, sf1, ef1, line, contL, contH);
+        if(!ok)
+        {
+          delete exp;
+          return;
+        }
+    }
+
     //----export binary as *.2DD------------
     QFile file(data2dd);
     QIODevice::OpenModeFlag flag=QIODevice::WriteOnly;
@@ -203,38 +248,5 @@ void KExportWidget::performExport2DFile()
     }
 
     file.close();
-
-
-    //-------------------------------------
-
-    //----export contour parameter as *.2DP------------
-
-    int sf1, ef1, sf2, ef2;
-
-    QString s = startf1LineEdit->text();
-    sf1 = s.toInt();
-    s = endf1LineEdit->text();
-    ef1 = s.toInt();
-    s = startf2LineEdit->text();
-    sf2 = s.toInt();
-    s = endf2LineEdit->text();
-    ef2 = s.toInt();
-
-    if(sf1==0 || sf1 < 0){sf1=1;}
-    if(sf2==0 || sf2 < 0){sf2=1;}
-    if(ef1==0 || ef1 > ancestor()->FID_2D->FID.size()){ef1=ancestor()->FID_2D->FID.size();}
-    if(ef2==0 || ef2 > ancestor()->FID_2D->al())      {ef2=ancestor()->FID_2D->al();}
-
-    if(sf1<ef1 && sf2<ef2)
-    {
-        bool ok;
-        KExport2DP *exp = new KExport2DP;
-        ok=exp->process(ancestor()->FID_2D, data2dp, sf1, ef1, sf2, ef2);
-        if(!ok)
-        {
-          delete exp;
-          return;
-        }
-    }
 
 }

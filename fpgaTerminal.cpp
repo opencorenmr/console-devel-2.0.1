@@ -653,6 +653,7 @@ void TfpgaTerminal::onArrayPromptReceived()
         QString sm2d = path+base+"_array.sm2d";
         QString sm2p = path+base+"_array.sm2p";
 
+
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
         if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
@@ -662,6 +663,19 @@ void TfpgaTerminal::onArrayPromptReceived()
 
         nmrData->Writesm2pFile(sm2p);
     nmrData->WriteoppFile(opp);
+
+
+    if(expSettings->saveAsciiCheckBox->isChecked())
+    {
+        QString opa = path+base+"_array.opa";
+        if(QFile::exists(opa)) nmrData->WriteopaFile(opa,QIODevice::Append);
+        else nmrData->WriteopaFile(opa);
+    }
+
+
+
+
+
 
    // update variable
    expSettings->arrayWidget->arrayCounter.increment(ppg);
@@ -1125,6 +1139,8 @@ void TfpgaTerminal::onReadyPromptReceived()
     QString opp = path+base+".opp";
     QString aopd = path+base+"_array.opd";
     QString aopp = path+base+"_array.opp";
+    QString opa = path+base+".opa";
+    QString aopa = path+base+"_array.opa";
 
     if(QFile::exists(opd))
     {
@@ -1141,6 +1157,13 @@ void TfpgaTerminal::onReadyPromptReceived()
         while(QFile::exists(path+base+"_"+QString::number(k)+".sm2d")) k++;
         sm2d=path+base+"_"+QString::number(k)+".sm2d";
         sm2p=path+base+"_"+QString::number(k)+".sm2p";
+    }
+
+    if(QFile::exists(opa))
+    {
+        int k=1;
+        while(QFile::exists(path+base+"_"+QString::number(k)+".opa")) k++;
+        opa=path+base+"_"+QString::number(k)+".opa";
     }
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
@@ -1165,6 +1188,18 @@ void TfpgaTerminal::onReadyPromptReceived()
             mutex.unlock();
             return;
         }
+
+
+        if(expSettings->saveAsciiCheckBox->isChecked())
+        {
+          if(!nmrData->WriteopaFile(opa))
+          {
+            QMessageBox::warning(this,tr(""),tr("<p>Failed to save data: ") + opa);
+            mutex.unlock();
+            return;
+          }
+        }
+
 
         disableSaveButton();
       //  if(QFile::exists(path+base+"_unfinished.sm2d")) QFile::remove(path+base+"_unfinished.sm2d");
@@ -1193,6 +1228,18 @@ void TfpgaTerminal::onReadyPromptReceived()
 
     if(QFile::exists(aopp)) QFile::rename(aopp,opp); // path+base+"_array.opp"
     else nmrData->WriteoppFile(opp);
+
+
+    // Array && ascii
+    if(expSettings->saveAsciiCheckBox->isChecked())
+    {
+        if(QFile::exists(aopa)) nmrData->WriteopaFile(aopa,QIODevice::Append);
+        else nmrData->WriteopaFile(aopa);
+        QFile::rename(aopa,opa);
+    }
+
+
+
 
     disableSaveButton();
 
@@ -1951,6 +1998,8 @@ void TfpgaTerminal::onSaveButtonClicked()
     QString opd = path+base+"_unfinished.opd";
     QString opp = path+base+"_unfinished.opp";
     QString aopd = path+base+"_array.opd";
+    QString opa = path+base+"_unfinished.opa";
+    QString aopa = path+base+"_array.opa";
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
@@ -1975,6 +2024,19 @@ void TfpgaTerminal::onSaveButtonClicked()
             QMessageBox::warning(this,tr(""),tr("<p>Failed to save data: ") + opd );
             return;
         }
+
+        if(this->expSettings->saveAsciiCheckBox->isChecked())
+        {
+          if(!nmrData->WriteopaFile(opa))
+          {
+             QMessageBox::warning(this,tr(""),tr("<p>Failed to save data: ") + opa );
+             return;
+          }
+
+        }
+
+
+
         expSettings->onJobSaveButtonClicked();
         if(!expSettings->ok) return;
 
@@ -2018,6 +2080,19 @@ void TfpgaTerminal::onSaveButtonClicked()
             // We do not overwrite the parameter file, to retain any modifications made by other applications,
             // such as TakeNMR.
         }
+
+
+    if(expSettings->saveAsciiCheckBox->isChecked())
+    {
+        if(QFile::exists(opa)) QFile::remove(opa);
+        if(QFile::exists(aopa))
+        {
+            QFile::copy(aopa,opa);
+            nmrData->WriteopaFile(opa,QIODevice::Append);
+
+        }
+
+    }
     disableSaveButton();
 
 }

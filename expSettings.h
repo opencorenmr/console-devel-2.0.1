@@ -126,6 +126,7 @@ public:
 
     QTabWidget *optionTab;
     QLineEdit *pathLineEdit, *nameLineEdit, *obsFreqLineEdit;
+    QCheckBox *saveAsciiCheckBox;
     QCheckBox *obsFreqCheckBox;
     QComboBox *obsFreqComboBox;
     QPushButton *setDirButton;

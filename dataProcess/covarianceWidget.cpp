@@ -51,7 +51,7 @@ void KCovarianceWidget::createPanel()
       QGridLayout *gridLayout1 = new QGridLayout;
       gridLayout1->addWidget(new QLabel(tr("calculation")),0,0,1,1);
       gridLayout1->addWidget(svdSettingComboBox,0,1,1,2);
-      gridLayout1->addWidget(imagKeepCheckBox,1,0,1,1);
+      //gridLayout1->addWidget(imagKeepCheckBox,1,0,1,1);
       gridLayout1->addWidget(svdButton,1,2,1,1);
     groupBox1->setLayout(gridLayout1);
 
@@ -123,12 +123,7 @@ void KCovarianceWidget::performSVD()
         svd->setInnerProduct(true);
     }
 
-    if(imagKeepCheckBox->isChecked())
-    {
-        svd->setImagKeep(true);
-    } else {
-        svd->setImagKeep(false);
-    }
+    svd->setImagKeep(true);
 
     ok=svd->process(ancestor()->FID_2D);
     if(!ok)

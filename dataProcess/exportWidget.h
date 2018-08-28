@@ -26,6 +26,12 @@ public:
 
     QLineEdit *startf1LineEdit;
     QLineEdit *endf1LineEdit;
+
+    QLineEdit *contNumberLineEdit;
+
+    QLineEdit *contHighLineEdit;
+    QLineEdit *contLowLineEdit;
+
     QLineEdit *startf2LineEdit;
     QLineEdit *endf2LineEdit;
     //QPushButton *exportFirstButton;
