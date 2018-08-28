@@ -1170,7 +1170,7 @@ void Plotter::moveRight()
     dx=-1;
     if(xini+dx<0) {xfin=xfin-xini; xini=0;}
     else if(xfin+dx>fid->al()-1) {xini=fid->al()-1-(xfin-xini); xfin=fid->al()-1;}
-    else xini+=dx;xfin+=dx;
+    else {xini+=dx;xfin+=dx;}
     refreshPixmap();
 
 }
@@ -1182,7 +1182,7 @@ void Plotter::moveLeft()
     dx=1;
     if(xini+dx<0) {xfin=xfin-xini; xini=0;}
     else if(xfin+dx>fid->al()-1) {xini=fid->al()-1-(xfin-xini); xfin=fid->al()-1;}
-    else xini+=dx;xfin+=dx;
+    else {xini+=dx;xfin+=dx;}
     refreshPixmap();
 }
 
@@ -1230,7 +1230,7 @@ void Plotter::keyPressEvent(QKeyEvent *event)
             dx=10;
             if(xini+dx<0) {xfin=xfin-xini; xini=0;}
             else if(xfin+dx>fid->al()-1) {xini=fid->al()-1-(xfin-xini); xfin=fid->al()-1;}
-            else xini+=dx;xfin+=dx;
+            else {xini+=dx;xfin+=dx;}
 //            zoomStack[curZoom].scroll(-1,0);
           }
             refreshPixmap();
@@ -1246,7 +1246,7 @@ void Plotter::keyPressEvent(QKeyEvent *event)
             dx=-10;
             if(xini+dx<0) {xfin=xfin-xini; xini=0;}
             else if(xfin+dx>fid->al()-1) {xini=fid->al()-1-(xfin-xini); xfin=fid->al()-1;}
-            else xini+=dx;xfin+=dx;
+            else {xini+=dx;xfin+=dx;}
            // zoomStack[curZoom].scroll(+1,0);
           }
             refreshPixmap();
