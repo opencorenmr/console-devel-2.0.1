@@ -73,12 +73,10 @@ bool KSVD::svdProcess(TFID_2D *fid_2d)
         for(int i=0; i<fidal; i++){
 #ifdef __APPLE__
             a[i*fidsize+k].r = fid_2d->FID.at(k)->real->sig.at(i);
-            if(imagKeep()){a[i*fidsize+k].i = fid_2d->FID.at(k)->imag->sig.at(i);}
-            else          {a[i*fidsize+k].i = 0.0;}
+            a[i*fidsize+k].i = fid_2d->FID.at(k)->imag->sig.at(i);
 #else
             __real__(a[i*fidsize+k]) = fid_2d->FID.at(k)->real->sig.at(i);
-            if(imagKeep()){__imag__(a[i*fidsize+k]) = fid_2d->FID.at(k)->imag->sig.at(i);}
-            else          {__imag__(a[i*fidsize+k]) = 0.0;}
+            __imag__(a[i*fidsize+k]) = fid_2d->FID.at(k)->imag->sig.at(i);
 #endif
         }
     }
