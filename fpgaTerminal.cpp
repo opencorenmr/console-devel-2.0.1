@@ -980,7 +980,8 @@ void TfpgaTerminal::FTDIOpen()
           FPGAStatusTextEdit->insertPlainText("Error: no reply from FPGA.\n");
           FPGAStatusTextEdit->moveCursor(QTextCursor::End);
 
-          return;}
+          return;
+      }
 
 
       tThread.send("v");
