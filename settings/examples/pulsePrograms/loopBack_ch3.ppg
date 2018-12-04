@@ -1,0 +1,36 @@
+version=2.0;
+uses = defaultGates.gate;
+transform F3Freq=#-180;
+CLK=160;
+
+freq f3=299.52; 
+amp a=100; 
+
+const int AD9858_2GHz_DISABLE=16472; 
+
+aux PD=0.1s(Pulse delay); 
+aux NA=100(Total scans); 
+aux ND=4(Dummy scans); 
+aux DW=1.1u(Dwell time); 
+aux AL=800(Acq. length); 
+
+phaselist pl1=(ch3; x,-x);
+acqphase=x,-x;
+
+start
+  pulse(50n; F3FreqRST)
+  pulse(50n; F3Freq(setup; AD9858_2GHz_DISABLE))
+  delay(10m)
+  pulse(5000n; F3Freq(f3))
+  delay(1m)
+Init
+  pulse(1m;      RG)
+  pulse(50n; ST, RG)
+  loop(2)
+    pulse[100](dw*100; F3Amp(#), F3Phase(#/100*360*8), pl1, F3_Gate, RG)  
+    pulse[100](dw*100; F3Amp(100-#), F3Phase(#/100*360*4), pl1, F3_Gate, RG)  
+    pulse[100](dw*100; F3Amp(abs(a*sinc((#-50)/50*4*3.141592))), pl1, F3_Gate, RG)  
+    pulse[100](dw*100; F3IQ(a*sinc((#-50)/50*4*3.141592),0), pl1, F3_Gate, RG)
+  endLoop  
+  delay(1m)
+relax   

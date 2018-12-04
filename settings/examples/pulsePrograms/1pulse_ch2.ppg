@@ -1,0 +1,34 @@
+version=2.0;
+uses = defaultGates.gate;
+transform F2Freq=#+180;
+CLK=160;
+
+freq f2=75.51; 
+amp a=40; 
+time pw1=5u; 
+time rd=5u(receiver delay); 
+time ad=5u(acquisition delay); 
+const int AD9858_2GHZ_DISABLE=16472; 
+
+aux PD=0.1s(Pulse Delay); 
+aux NA=100(Number of Accum); 
+aux DW=5u(DWell time); 
+aux AL=1024(Acquisition Length); 
+aux ND=0(Number of Dummy scans); 
+
+phaselist pList=(ch2; x,y,-x,-y);
+acqphase=x,y,-x,-y;
+
+start
+  pulse(50n; F2FreqRST)
+  pulse(50n; F2Freq(setup;AD9858_2GHz_DISABLE))
+  delay(1m)
+  pulse(5000n; F2Freq(f2))
+  delay(1m)
+Init
+  pulse(10u;                           F2_Unblank)
+  pulse(pw1; F2Amp(a), pList, F2_Gate, F2_Unblank)
+  pulse(rd)
+  pulse(ad; RG)
+  pulse(dw*al;  ST, RG)
+relax   
