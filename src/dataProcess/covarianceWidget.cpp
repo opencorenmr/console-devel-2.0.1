@@ -31,7 +31,6 @@ void KCovarianceWidget::createWidgets()
   covarianceComboBox->addItems(QStringList() << "Covariance" << "Inner-Product");
   imagKeepCovCheckBox = new QCheckBox(tr("Keep imaginary"));
   covarianceButton = new QPushButton(tr("Apply"));
-
   rootMatrixButton = new QPushButton(tr("Root"));
 }
 
