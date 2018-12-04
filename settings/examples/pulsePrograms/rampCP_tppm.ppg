@@ -1,0 +1,77 @@
+version=2.0;
+
+uses=defaultGates.gate;
+
+transform F1Freq=#+180;
+transform F3Freq=#-180;
+transform F3Amp=1.1057*#-0.00637*pow(#,2)+3.385E-5*pow(#,3);
+
+CLK=160;
+
+//---------- frequency variables ----------
+freq f1 = 75.322603;
+freq f3 = 299.52332;
+
+//---------- amplitude variables ----------
+amp aXCP = 68.0;
+amp aH90 = 100;
+amp aHCP = 53.7;
+amp aHWidth = 10;
+amp aHDec = 100;
+//---------- phase variables ----------
+phase ph1 = 0;
+phase ph2 = 10;
+//----------- time variables ------------
+time pw1 = 2.5u (1H 90 deg. pulse width);
+time pw_tppm = 5u;
+time ct = 0.2m (contact time);
+time rd = 10u (Receiver delay);
+time ad = 10u (acquisition delay);
+
+//----- loop variables -----
+
+//----- int variable -----
+
+int nRamp=11;
+const int AD9858_2GHz_DISABLE = 16472;
+
+//-----  aux parameters  -----
+aux PD=2s;
+aux NA=8;
+aux nd=0;
+aux DW=20u;
+aux AL=2048;
+
+//----- phase cycle  -----
+
+phaselist @pl1=(ch3; y,-y);
+acqphase=x,-x;
+
+// - Any command before "start" should finish with a semicolon (;).
+
+start   //--- Implementation begins with a "start" command. ---
+  // [0]
+  pulse(50n; F1FreqRST, F3FreqRST)
+  pulse(50n; F1Freq(setup; AD9858_2GHz_DISABLE),
+             F3Freq(setup; AD9858_2GHz_DISABLE))
+
+  delay(1u)
+  pulse(1u; F1Freq(f1), F3Freq(f3))
+
+
+Init
+  pulse(10u;                      F1_Unblank, F3_Unblank)
+  pulse(pw1;                      F1_Unblank, F3Amp(aH90), @pl1, F3_Gate, F3_Unblank)
+  pulse[nRamp](ct; F1Amp(aXCP), F1_Gate, F1_Unblank, 
+               F3Amp(aHCP+aHWidth*(-0.5+#/10)), F3_Gate, F3_Unblank)
+  async(tppm)
+  pulse(rd)
+  pulse(ad;        RG)
+  pulse(dw*al; ST, RG)
+  sync(3)
+relax   
+
+async(3;tppm)
+  pulse(pw_tppm;  F3Phase(ph1), F3Amp(aHDec), F3_Gate, F3_Unblank)
+  pulse(pw_tppm;  F3Phase(ph2), F3Amp(aHDec), F3_Gate, F3_Unblank)
+continue

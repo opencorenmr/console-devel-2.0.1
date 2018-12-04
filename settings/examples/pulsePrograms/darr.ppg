@@ -1,0 +1,107 @@
+version=2.0;
+
+uses=defaultGates.gate;
+
+{ For the transmitter in channel 1, we apply 180 MHz down-conversion.
+{ Accordingly, DDS frequency should be carrier frequency plus 180 (MHz) 
+transform F1Freq=#+180;
+{ For the transmitter in channel 3, we apply 180 MHz up-conversion.
+{ Accordingly, DDS frequency should be carrier frequency minus 180 (MHz) 
+transform F3Freq=#-180;
+{ Conversion rule from nutation frequency (in kHz) to rf amplitude
+{ The formula depends on the devices in use, 
+{ including the power amp, the probe, filters, cables, and so on.
+transform F3Amp=1.1057*#-0.00637*pow(#,2)+3.385E-5*pow(#,3);
+
+CLK=160;
+
+{---------- frequency variables ----------
+freq f1 = 75.322603;
+freq f3 = 299.52332;
+
+{---------- amplitude variables ----------
+amp aXCP = 68.0;
+amp aX90 = 68.0;
+amp aH90 = 100;
+amp aHCP = 61;
+amp aHWidth = 10;
+amp aHDarr = 11;
+amp aHDec = 100;
+{---------- phase variables ----------
+phase ph1 = 0;
+phase ph2 = 10;
+{----------- time variables ------------
+time pw90X = 5u;
+time t1 = 50u;
+time tMix = 5m;
+time pw1 = 2.5u (1H 90 deg. pulse width);
+time pw_tppm = 5u;
+time ct = 2m (contact time);
+time rd = 10u (Receiver delay);
+time ad = 10u (acquisition delay);
+
+{----- loop variables -----
+
+{----- int variable -----
+
+const int AD9858_2GHz_DISABLE = 16472;
+
+{-----  aux parameters  -----
+aux PD=2s;
+aux NA=20;
+aux nd=0;
+aux DW=20u;
+aux AL=2048;
+
+{----- phase cycle  -----
+phaselist plH1=(ch3; y,y,-y,-y);
+phaselist plC1=(ch1; y,x);
+phaselist plC2=(ch1; x,x,x,x,-x,-x,-x,-x);
+acqphase=x,x,x,x,-x,-x,-x,-x;
+
+{ - Any command before "start" should finish with a semicolon (;).
+
+start   {--- Implementation begins with a "start" command. ---
+
+  pulse(50n; F1FreqRST, F3FreqRST)
+  pulse(50n; F1Freq(setup; AD9858_2GHz_DISABLE),
+             F3Freq(setup; AD9858_2GHz_DISABLE))
+
+  delay(1u)
+  pulse(1u; F1Freq(f1), F3Freq(f3))
+
+
+Init
+{ Our power amplifier need to be unblanked 10 us in advance
+  pulse(10u;            F1_Unblank, F3_Unblank)
+{ 1H 90 deg. pulse
+  pulse(pw1;            F1_Unblank, F3Amp(aH90), F3Phase(90), F3_Gate, F3_Unblank)
+{ CP with ramped irradiation on the 1H channel
+  pulse[11](ct; F1Amp(aXCP), F1_Gate, F1_Unblank, 
+               F3Amp(aHCP+aHWidth*(-0.5+#/10)), F3_Gate, F3_Unblank)
+{ asynchronous TPPM decouple
+  async(tppm)
+{ evolution in the indirect (t1) dimension
+  pulse(t1; F1_Unblank)
+{ 1H channel is restored to synchronous operation
+  sync(3)
+{ Transverse 13C magnetization is flipped to the z axis
+  pulse(pw90X; plc1, F1Amp(aX90), F1_Gate, F1_Unblank)
+{ 13C-13C exchange under DARR irradiation.
+{ 1H nutation frequency should be adjusted to the MAS frequency
+  pulse(tMix-10u;        F3Amp(aHDarr), F3_Gate, F3_Unblank)
+  pulse(10u; F1_Unblank, F3Amp(aHDarr), F3_Gate, F3_Unblank)
+{ Finally, 13C magnetization is observed under TPPM decoupling
+  pulse(pw90X; plc2, F1Amp(aX90), F1_Gate, F1_Unblank)
+  async(tppm)
+  pulse(rd)
+  pulse(ad;        RG)
+  pulse(dw*al; ST, RG)
+  sync(3)
+  delay(1m)
+relax   
+
+async(3;tppm)
+  pulse(pw_tppm;  F3Phase(ph1), F3Amp(aHDec), F3_Gate, F3_Unblank)
+  pulse(pw_tppm;  F3Phase(ph2), F3Amp(aHDec), F3_Gate, F3_Unblank)
+continue
