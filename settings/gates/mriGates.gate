@@ -1,0 +1,502 @@
+
+[F1PHASE]
+caption = RF phase for channel 1
+channel = 1
+bitLength = 10
+kind = phase
+f1phase_0 = 0
+f1phase_1 = 1
+f1phase_2 = 2
+f1phase_3 = 3
+f1phase_4 = 4
+f1phase_5 = 5
+f1phase_6 = 6
+f1phase_7 = 7
+f1phase_8 = 8
+f1phase_9 = 9
+
+[F2PHASE]
+caption = RF phase for channel 2
+channel = 2
+bitLength = 10
+kind = phase
+f2phase_0 = 0
+f2phase_1 = 1
+f2phase_2 = 2
+f2phase_3 = 3
+f2phase_4 = 4
+f2phase_5 = 5
+f2phase_6 = 6
+f2phase_7 = 7
+f2phase_8 = 8
+f2phase_9 = 9
+
+[F3PHASE]
+caption = RF phase for channel 3
+channel = 3
+bitLength = 10
+kind = phase
+f3phase_0 = 0
+f3phase_1 = 1
+f3phase_2 = 2
+f3phase_3 = 3
+f3phase_4 = 4
+f3phase_5 = 5
+f3phase_6 = 6
+f3phase_7 = 7
+f3phase_8 = 8
+f3phase_9 = 9
+
+[f1amp]
+caption = RF amplitude for channel 1
+channel = 1
+bitlength = 10
+kind = amplitude
+f1amp_0 = 19
+f1amp_1 = 20
+f1amp_2 = 21
+f1amp_3 = 22
+f1amp_4 = 23
+f1amp_5 = 24
+f1amp_6 = 25
+f1amp_7 = 26
+f1amp_8 = 27
+f1amp_9 = 28
+
+[f2amp]
+caption = RF amplitude for channel 2
+channel = 2
+bitlength = 10
+kind = amplitude
+f2amp_0 = 19
+f2amp_1 = 20
+f2amp_2 = 21
+f2amp_3 = 22
+f2amp_4 = 23
+f2amp_5 = 24
+f2amp_6 = 25
+f2amp_7 = 26
+f2amp_8 = 27
+f2amp_9 = 28
+
+[f3amp]
+caption = RF amplitude for channel 3
+channel = 3
+bitlength = 10
+kind = amplitude
+f3amp_0 = 19
+f3amp_1 = 20
+f3amp_2 = 21
+f3amp_3 = 22
+f3amp_4 = 23
+f3amp_5 = 24
+f3amp_6 = 25
+f3amp_7 = 26
+f3amp_8 = 27
+f3amp_9 = 28
+
+[f1iq]
+kind = rfiq
+channel = 1
+amp = f1amp
+phase = f1phase
+
+[GX]
+caption = Gradient (X)
+channel = 2
+bitlength = 10
+kind = integer
+GX_0 = 19
+GX_1 = 20
+GX_2 = 21
+GX_3 = 22
+GX_4 = 23
+GX_5 = 24
+GX_6 = 25
+GX_7 = 26
+GX_8 = 27
+GX_9 = 28
+
+[GY]
+caption = Gradient (Y)
+channel = 3
+bitlength = 10
+kind = integer
+GY_0 = 19
+GY_1 = 20
+GY_2 = 21
+GY_3 = 22
+GY_4 = 23
+GY_5 = 24
+GY_6 = 25
+GY_7 = 26
+GY_8 = 27
+GY_9 = 28
+
+[GZ]
+caption = Gradient (Z)
+channel = 3
+bitlength = 10
+kind = integer
+GZ_0 = 32
+GZ_1 = 33
+GZ_2 = 34
+GZ_3 = 35
+GZ_4 = 36
+GZ_5 = 37
+GZ_6 = 38
+GZ_7 = 39
+GZ_8 = 40
+GZ_9 = 41
+
+
+[F1Freq]
+caption = frequency for channel 1
+kind = AD9858
+bitLength=16
+channel = 1
+F1Freq_0=29
+F1Freq_1=30
+F1Freq_2=31
+F1Freq_3=32
+F1Freq_4=33
+F1Freq_5=34
+F1Freq_6=35
+F1Freq_7=36
+F1Freq_8=37
+F1Freq_9=38
+F1Freq_10=39
+F1Freq_11=40
+F1Freq_12=41
+F1Freq_13=42
+F1Freq_14=43
+F1Freq_15=45
+
+
+[F1FreqPS]
+caption = AD9858 Profile Select for channel 1
+channel = 1
+bitLength = 2
+kind = logic_vector
+F1FreqPS_0 = 47
+F1FreqPS_1 = 46
+
+
+[F1FreqRST]
+channel = 1
+bitLength = 1
+kind = logic
+F1FreqRST_0 = 48
+
+[F2Freq]
+caption = frequency for channel 2
+kind = AD9858
+bitLength=16
+channel = 2
+F2Freq_0=29
+F2Freq_1=30
+F2Freq_2=31
+F2Freq_3=32
+F2Freq_4=33
+F2Freq_5=34
+F2Freq_6=35
+F2Freq_7=36
+F2Freq_8=37
+F2Freq_9=38
+F2Freq_10=39
+F2Freq_11=40
+F2Freq_12=41
+F2Freq_13=42
+F2Freq_14=43
+F2Freq_15=45
+
+[F2FreqPS]
+caption = AD9858 Profile Select for channel 2
+channel = 2
+bitLength = 2
+kind = logic_vector
+F2FreqPS_0 = 47
+F2FreqPS_1 = 46
+
+[F2FreqRST]
+channel = 2
+bitLength = 1
+kind = logic
+F2FreqRST_0 = 48
+
+
+
+[F3FreqPS]
+caption = AD9858 Profile Select for channel 3
+channel = 3
+bitLength = 2
+kind = logic_vector
+F3FreqPS_0 = 47
+F3FreqPS_1 = 46
+
+[F3FreqRST]
+channel = 3
+bitLength = 1
+kind = logic
+F3FreqRST_0 = 48
+
+[F1_Gate]
+channel = 1
+bitLength = 1
+kind = logic
+F1_Gate_0 = 54
+
+[F2_Gate]
+channel = 2
+bitLength = 1
+kind = logic
+F2_Gate_0 = 54
+
+[F3_Gate]
+channel = 3
+bitLength = 1
+kind = logic
+F3_Gate_0 = 54
+
+[F1_UNBLANK]
+channel = 1
+bitLength = 1
+kind = logic
+F1_UNBLANK_0 = 55
+
+[F2_UNBLANK]
+channel = 2
+bitLength = 1
+kind = logic
+F2_UNBLANK_0 = 55
+
+[F3_UNBLANK]
+channel = 3
+bitLength = 1
+kind = logic
+F3_UNBLANK_0 = 55
+
+[ST]
+channel = 1
+bitLength = 1
+kind = logic
+ST_0 = 59
+
+[ACQ_PHASE_CS]
+channel = 1
+bitLength = 1
+kind = logic
+ACQ_PHASE_CS_0 = 60
+
+[ACQ_PHASE]
+channel = 1
+bitLength = 2
+kind = logic_vector
+ACQ_PHASE_0 = 0
+ACQ_PHASE_1 = 1
+
+
+[F1PhaseList]
+channel = 1
+bitLength = 4
+kind = logic_vector
+F1PhaseList_0 = 10
+F1PhaseList_1 = 11
+F1PhaseList_2 = 12
+F1PhaseList_3 = 51
+
+[F1TogglePhase]
+channel = 1
+bitLength = 1
+kind = logic
+F1TogglePhase_0 = 13
+
+[F1phaseMode]
+channel = 1
+bitLength = 2
+kind = logic_vector
+F1phaseMode_0 = 14
+F1phaseMode_1 = 15
+
+[F1phaseCommand]
+channel = 1
+bitLength = 1
+kind = logic
+F1phaseCommand_0 = 16
+
+[F1PhasePointer_Init]
+channel = 1
+bitLength = 1
+kind = logic
+F1PhasePointer_Init_0 = 17
+
+[F1PhaseCycle_Init]
+channel = 1
+bitLength = 1
+kind = logic
+F1PhaseCycle_Init_0 = 18
+
+[F1PhaseListLength]
+channel = 1
+bitLength = 10
+kind = logic_vector
+F1PhaseListLength_0 = 0
+F1PhaseListLength_1 = 1
+F1PhaseListLength_2 = 2
+F1PhaseListLength_3 = 3
+F1PhaseListLength_4 = 4
+F1PhaseListLength_5 = 5
+F1PhaseListLength_6 = 6
+F1PhaseListLength_7 = 7
+F1PhaseListLength_8 = 8
+F1PhaseListLength_9 = 9
+
+[F1TTL1]
+channel = 1
+bitLength = 1
+kind = logic
+F1TTL1_0 = 53
+
+[RG]
+channel = 1
+bitLength = 1
+kind = logic
+RG_0 = 52
+
+
+
+[F2PhaseList]
+channel = 2
+bitLength = 4
+kind = logic_vector
+F2PhaseList_0 = 10
+F2PhaseList_1 = 11
+F2PhaseList_2 = 12
+F2PhaseList_3 = 51
+
+[F2TogglePhase]
+channel = 2
+bitLength = 1
+kind = logic
+F2TogglePhase_0 = 13
+
+[F2phaseMode]
+channel = 2
+bitLength = 2
+kind = logic_vector
+F2phaseMode_0 = 14
+F2phaseMode_1 = 15
+
+[F2phaseCommand]
+channel = 2
+bitLength = 1
+kind = logic
+F2phaseCommand_0 = 16
+
+[F2PhasePointer_Init]
+channel = 2
+bitLength = 1
+kind = logic
+F2PhasePointer_Init_0 = 17
+
+[F2PhaseCycle_Init]
+channel = 2
+bitLength = 1
+kind = logic
+F2PhaseCycle_Init_0 = 18
+
+[F2PhaseListLength]
+channel = 2
+bitLength = 10
+kind = logic_vector
+F2PhaseListLength_0 = 0
+F2PhaseListLength_1 = 1
+F2PhaseListLength_2 = 2
+F2PhaseListLength_3 = 3
+F2PhaseListLength_4 = 4
+F2PhaseListLength_5 = 5
+F2PhaseListLength_6 = 6
+F2PhaseListLength_7 = 7
+F2PhaseListLength_8 = 8
+F2PhaseListLength_9 = 9
+
+[F2TTL1]
+channel = 2
+bitLength = 1
+kind = logic
+F2TTL1_0 = 53
+
+[F2TTL2]
+channel = 2
+bitLength = 1
+kind = logic
+F2TTL2_0 = 52
+
+
+
+[F3PhaseList]
+channel = 3
+bitLength = 4
+kind = logic_vector
+F3PhaseList_0 = 10
+F3PhaseList_1 = 11
+F3PhaseList_2 = 12
+F3PhaseList_3 = 51
+
+[F3TogglePhase]
+channel = 3
+bitLength = 1
+kind = logic
+F3TogglePhase_0 = 13
+
+[F3phaseMode]
+channel = 3
+bitLength = 2
+kind = logic_vector
+F3phaseMode_0 = 14
+F3phaseMode_1 = 15
+
+[F3phaseCommand]
+channel = 3
+bitLength = 1
+kind = logic
+F3phaseCommand_0 = 16
+
+[F3PhasePointer_Init]
+channel = 3
+bitLength = 1
+kind = logic
+F3PhasePointer_Init_0 = 17
+
+[F3PhaseCycle_Init]
+channel = 3
+bitLength = 1
+kind = logic
+F3PhaseCycle_Init_0 = 18
+
+[F3PhaseListLength]
+channel = 3
+bitLength = 10
+kind = logic_vector
+F3PhaseListLength_0 = 0
+F3PhaseListLength_1 = 1
+F3PhaseListLength_2 = 2
+F3PhaseListLength_3 = 3
+F3PhaseListLength_4 = 4
+F3PhaseListLength_5 = 5
+F3PhaseListLength_6 = 6
+F3PhaseListLength_7 = 7
+F3PhaseListLength_8 = 8
+F3PhaseListLength_9 = 9
+
+[F3TTL1]
+channel = 3
+bitLength = 1
+kind = logic
+F3TTL1_0 = 53
+
+[F3TTL2]
+channel = 3
+bitLength = 1
+kind = logic
+F3TTL2_0 = 52

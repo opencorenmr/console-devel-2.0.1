@@ -1,0 +1,76 @@
+// 
+version=2.0;
+
+// defaultGates.gate is located in the "gates" folder in the application directory.
+uses = defaultGates.gate;
+
+// We DDS(II) signal is to be up-converted with an intermediate frequency of 180 MHz.
+transform F3Freq=#-180;
+transform F3Amp = 1.257*#
+                 -0.03912*#*#
+                 +0.001103*pow(#,3)
+                 -1.410e-5*pow(#,4)
+                 +6.708E-8*pow(#,5);
+
+{------  PPG Clock frequency 
+CLK=160;
+
+{---------- frequency variable ----------
+freq f3=300.48575; 
+
+{---------- amplitude variable ----------
+double aHScale=0.975; 
+amp a=100; 
+
+{---------- phase variable ----------
+
+{----------- time variables ------------
+time pw1=2.5u; 
+time rd=5u(receiver delay); 
+time ad=5u(acquisition delay); 
+
+{----- loop variables -----
+
+{----- int variable -----
+
+{----- double variable -----
+
+// This is not going to be altered, and thus is declared with "const".
+const int AD9858_2GHZ_DISABLE=16472; 
+
+{-----  aux parameters  -----
+aux PD=2s(Pulse Delay); 
+aux NA=4(Number of Accum); 
+aux DW=5u(DWell time); 
+aux AL=2048(Acquisition Length); 
+aux ND=1(Number of Dummy scans); 
+
+{----- phase cycle  -----
+
+phaselist @pl1=(ch3; x,-x);
+acqphase=x,-x;
+
+{
+{ - Any command before "start" should finish with a semicolon (;).
+{
+
+start   {--- Implementation begins with a "start" command. ---
+
+{  AD9858 (DDS chip) initialization
+{  We use a 1 GHz clock, and disable 2 GHz divider, 
+  pulse(50n; F3FreqRST)
+  pulse(50n; F3Freq(setup;AD9858_2GHz_DISABLE))
+
+{-----------------------------------------------------------------------
+  delay(1m)
+  pulse(5000n; F3Freq(f3))
+  delay(1m)
+{---------------------------------------------------
+
+Init
+  pulse(10u;                     F3_Unblank)
+  pulse(pw1; F3Amp(aHScale*a), @pl1, F3_Gate, F3_Unblank)
+  pulse(rd)
+  pulse(ad; RG)
+  pulse(dw*al;  ST, RG)
+relax   
