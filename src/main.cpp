@@ -3,7 +3,7 @@
 #include <QSplashScreen>
 #include <QFileInfo>
 #include <QMessageBox>
-
+#include <QInputDialog>
 
 
 
@@ -46,6 +46,35 @@ int main(int argc, char *argv[])
         QString pr=QString(process->readAll());
         if(!pr.isEmpty())
         {
+/*
+            bool ok;
+            QString password = QInputDialog::getText(&w, QObject::tr("QInputDialog::getText()"),
+                                                     QObject::tr("Admin password"), QLineEdit::Password,
+                                                     QDir::home().dirName(), &ok);
+
+        //    QString password = "rootPassword"; //could be asked with QInputDialog::getText(...)
+            QString cmd = QString("sudo -S kextunload -bundle com.apple.driver.AppleUSBFTDI");
+            FILE *pipe = popen(cmd.toStdString().c_str(), "w");
+            if(pipe != nullptr)
+            {
+                fprintf(pipe, "%s\n", password.toStdString().c_str());
+                if (ferror(pipe))
+                {
+                    qDebug() << "Failed to write to pipe";
+                }
+                else
+                {
+                    qDebug() << "Written to pipe";
+                }
+            }
+            else
+            {
+               qDebug() << "Failed to open pipe";
+            }
+            qDebug() << "Pipe returned : " << pclose(pipe);
+
+*/
+
             splash->finish(&w);
             QMessageBox::warning(&w,QObject::tr(""),
                                QObject::tr("<p>Built-in VCP driver detected."

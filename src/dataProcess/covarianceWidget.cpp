@@ -63,7 +63,7 @@ void KCovarianceWidget::createPanel()
       //gridLayout2->addWidget(rootMatrixButton,2,2,1,1);
     groupBox2->setLayout(gridLayout2);
 
-      mainLayout->addWidget(groupBox0);
+      //mainLayout->addWidget(groupBox0);
       mainLayout->addWidget(groupBox1);
       //mainLayout->addWidget(groupBox2);
 
