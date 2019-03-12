@@ -52,7 +52,9 @@ class TFID
     ~TFID() {delete real; delete imag; delete abs;}
 
     THalfFID *real,*imag,*abs;
-    TDomain domain;
+    TDomain domain() {return FDomain;}
+    void setDomain(TDomain domain) {FDomain=domain;}
+
     xUnit xunit;
 
     bool isEmpty() {return FisEmpty;}
@@ -147,6 +149,8 @@ class TFID
     double Fdx;            // no metric prefix!
 
     QMutex mutex;
+
+    TDomain FDomain;
 
 };
 

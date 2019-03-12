@@ -145,7 +145,7 @@ void TCreateFIDWidget::createFIDFromAsci()
         // << FID_2D->FID[0]->imag->sig[k];
     }
     FID_2D->FID[0]->updateAbs();
-    FID_2D->FID[0]->domain=TFID::TimeDomain;
+    FID_2D->FID[0]->setDomain(TFID::TimeDomain);
     FID_2D->FID[0]->setEmpty(false);
 
    // qDebug() << QString(Q_FUNC_INFO) << "update request";

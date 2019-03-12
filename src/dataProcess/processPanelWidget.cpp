@@ -193,7 +193,7 @@ void TProcessFileWidget::openFile()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-     updateRequest();
+     emit updateRequest();
 
      fidSetted=true;
 
@@ -439,20 +439,22 @@ void TProcessPanelWidget::clearProcessOperations()
 
 void TProcessPanelWidget::initializePlotter()
 {
-// qDebug() << QString(Q_FUNC_INFO) << FID_2D->al();
+// qDebug() << QString(Q_FUNC_INFO) << plotters->FIDPlotters.size();
+
     for(int k=0; k<plotters->FIDPlotters.size(); k++)
     {
         plotters->FIDPlotters[k]->plotter->xini=0;
         plotters->FIDPlotters[k]->plotter->xfin=FID_2D->al()-1;
         plotters->FIDPlotters[k]->plotter->setScale(1/FID_2D->FID[0]->abs->absMax());
-
         plotters->FIDPlotters[k]->FIDSelectSpinBox->setMinimum(1);
         plotters->FIDPlotters[k]->FIDSelectSpinBox->setMaximum(FID_2D->FID.size());
 
         //plotters->FIDPlotters[k]->setVCursor(plotters->FIDPlotters[k]->vCursorAction->isChecked());
 
     }
-    plotters->update();
+
+
+// plotters->update();  // commented out 12 Mar 2019 (KT)
 
 }
 
@@ -480,6 +482,10 @@ void TProcessPanelWidget::initialize()
 // qDebug() << QString(Q_FUNC_INFO) << "0";
     initializePlotter();
 // qDebug() << QString(Q_FUNC_INFO) << "1";
+
+    axisFormatWidget->domainComboBox->setCurrentIndex(0);
+    axisFormatWidget->axisStyle->setDomain("time");
+    axisFormatWidget->init();
     axisFormatWidget->refresh();
     phaseWidget->setFID2D(FID_2D);
     phaseWidget->phase0ValueDoubleSpinBox->setValue(0);

@@ -1450,8 +1450,8 @@ void Plotter::drawXTicks(QPainter *painter)
     tick=tic(x1,x2);
     if(x1>x2) tick*=-1.0;
 
- //qDebug() << QString(Q_FUNC_INFO) << xini << xfin
- //         << x1 << x2 << "tick: " << tick;
+// qDebug() << QString(Q_FUNC_INFO) << xini << xfin
+//          << x1 << x2 << "tick: " << tick;
 
     double xIniVal = fid->xInitialValue()/TMetricPrefix::Decimal(fid->plotMetricPrefix.prefix());
 
@@ -1791,7 +1791,7 @@ void Plotter::drawFID(QPainter *painter)
 
     painter->setClipRect(rect.adjusted(+1,+1,-1,-1));
 
-    if(fid->domain==TFID::FrequencyDomain) setVOffset(rect.height()*0.4); else setVOffset(0);
+    if(fid->domain()==TFID::FrequencyDomain) setVOffset(rect.height()*0.4); else setVOffset(0);
 
     if(plotFormat()==CartesianPlot)
     {

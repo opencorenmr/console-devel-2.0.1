@@ -140,7 +140,7 @@ HEADERS  += mainwindow.h \
 
 linux: HEADERS += gpib488console.h
 
-mac: QMAKE_MAC_SDK = macosx10.13
+mac: QMAKE_MAC_SDK = macosx10.14
 mac: ICON = images/opencoreNMR.icns
 
 mac:INCLUDEPATH += /usr/local/include
