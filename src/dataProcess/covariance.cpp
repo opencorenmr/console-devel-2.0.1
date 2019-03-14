@@ -75,7 +75,7 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
       {
           fid_2d->FID.append(new TFID(n_al));
           fid_2d->FID.last()->setEmpty(false);
-          fid_2d->FID.last()->domain=fid_2d->FID.first()->domain;
+          fid_2d->FID.last()->setDomain(fid_2d->FID.first()->domain());
           fid_2d->FID.last()->setXAxisLabel(fid_2d->FID.first()->xAxisLabel());
           fid_2d->FID.last()->setXAxisUnitSymbol(fid_2d->FID.first()->xAxisUnitSymbol());
           fid_2d->FID.last()->setDW(fid_2d->FID.first()->dw());

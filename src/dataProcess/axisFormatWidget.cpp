@@ -312,12 +312,12 @@ void TAxisFormatWidget::init()
       if(!ancestor()->FID_2D->FID.isEmpty())
       {
         setReferenceSpinBox->setMaximum(ancestor()->FID_2D->al()-1);
-        domainComboBox->setCurrentIndex(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->domain);
+        domainComboBox->setCurrentIndex(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->domain());
 
-    //    qDebug() << QString(Q_FUNC_INFO) << "0";
-        if(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->domain==TFID::TimeDomain)
+//    qDebug() << QString(Q_FUNC_INFO) << "0";
+        if(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->domain()==TFID::TimeDomain)
             setReferenceSpinBox->setValue(0);
-        else if(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->domain==TFID::FrequencyDomain)
+        else if(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->domain()==TFID::FrequencyDomain)
             setReferenceSpinBox->setValue(ancestor()->FID_2D->al()/2);
 
         referenceValueLineEdit->setText("0");

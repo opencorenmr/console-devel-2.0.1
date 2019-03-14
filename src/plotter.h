@@ -18,6 +18,7 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QPlainTextEdit>
+#include <QPushButton>
 
 #include "fid.h"
 #include "dataProcess/processOperations.h"
@@ -57,6 +58,7 @@ public:
     QSpinBox *xIniSpinBox,*xFinSpinBox;
     QLineEdit *xIniValLineEdit,*xFinValLineEdit;
     QLabel *xIniUnitLabel,*xFinUnitLabel;
+    QPushButton *xFullRangePushButton;
 
     QPlainTextEdit *deltaInfoTextEdit;
    // QSpinBox *xPosSpinBox;
@@ -399,6 +401,7 @@ public slots:
     void exportImage();
     void update();
     void setVCursor(bool b);
+    void xFullRangePlot();
 
 private slots:
     void setRubberBand(bool b);
