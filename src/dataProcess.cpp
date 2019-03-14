@@ -173,7 +173,7 @@ void TprocessTerminal::readFID()
 
 void TprocessTerminal::plotUpdate()
 {
-  if(FID_2D->FID.at(FID_2D->currentFID())->domain==TFID::TimeDomain)
+  if(FID_2D->FID.at(FID_2D->currentFID())->domain()==TFID::TimeDomain)
   {
     fp->realAction->setChecked(true);
     fp->imagAction->setChecked(true);
