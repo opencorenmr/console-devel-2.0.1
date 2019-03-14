@@ -323,6 +323,8 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
     xIniUnitLabel=new QLabel;
     xFinUnitLabel=new QLabel;
 
+    xFullRangePushButton=new QPushButton(tr("Full Range"));
+
     //xPosSpinBox=new QSpinBox; xPosSpinBox->setMinimum(0);
 
     QStackedLayout *stackedLayout = new QStackedLayout;
@@ -361,6 +363,7 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
       QHBoxLayout *hLayout2=new QHBoxLayout;
       hLayout2->addWidget(xFinValLineEdit); hLayout2->addWidget(xFinUnitLabel);
     vLayout2->addLayout(hLayout2);
+    vLayout2->addWidget(xFullRangePushButton);
     vLayout2->addStretch();
 //    vLayout2->addWidget(new QLabel("soon."));
 
@@ -527,6 +530,7 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     connect(plotter,SIGNAL(plotRangeInfo(QStringList)),plotterDetails,SLOT(setPlotRangeInfo(QStringList)));
     connect(plotterDetails,SIGNAL(xPlotRangeUpdateRequest(int,int)),plotter,SLOT(updatePlotRange(int,int)));
     connect(plotterDetails,SIGNAL(xCursorPositionUpdateRequest(int)),plotter,SLOT(updateXCursorPosition(int)));
+    connect(plotterDetails->xFullRangePushButton,SIGNAL(clicked()),this,SLOT(xFullRangePlot()));
 
     connect(penWidthSpinBox,SIGNAL(valueChanged(int)),plotter,SLOT(setPenWidth(int)));
 
@@ -704,7 +708,31 @@ void FIDPlotter::thinnerLine()
     penWidthSpinBox->setValue(penWidthSpinBox->value()-1);
     plotter->refresh();
 }
+//------------------------------------------------------------------------------
+void FIDPlotter::xFullRangePlot()
+{
+    if(!isFID2DSetted())
+    {  //qDebug() << QString(Q_FUNC_INFO) << "!isFIDSetted";
+        return;
+    }
+    if(fid2d->FID.size() < 1)
+    {  //qDebug() << QString(Q_FUNC_INFO) <<"size<1 ";
+        return;
+    }
+  //  qDebug() << QString(Q_FUNC_INFO) << "1";
 
+
+    plotterDetails->xFinSpinBox->setValue(fid2d->FID[FIDSelectSpinBox->value()-1]->al()-1);
+    plotterDetails->xIniSpinBox->setValue(0);
+
+    update();
+
+
+
+
+
+
+}
 //------------------------------------------------------------------------------
 void FIDPlotter::update()
 {
