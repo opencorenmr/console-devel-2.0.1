@@ -441,16 +441,18 @@ bool TFID_2D::ReadopdFile(QString fn)
     for(int k=0; k<n; k++)
     {
         FID.append(new TFID(FAL));
-        FID.at(FID.size()-1)->setDW(FDW);
-        for(int m=0; m<FAL; m++) in >> FID.at(k)->real->sig[m] >> FID.at(k)->imag->sig[m];
-        FID.at(k)->updateAbs();
-        FID.at(k)->setCustomXAxis(isXAxisCustom());
-        FID.at(k)->setXInitialValue(xInitialValue());
-        FID.at(k)->setDx(dx());
-        FID.at(k)->setXAxisLabel(xAxisLabel());
-        FID.at(k)->setXAxisUnitSymbol(xAxisUnitSymbol());
-        FID.at(k)->metricPrefix.setPrefix(metricPrefix.prefix());
-        FID.at(k)->plotMetricPrefix.setPrefix(plotMetricPrefix.prefix());
+        FID[FID.size()-1]->setDW(FDW);
+        for(int m=0; m<FAL; m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
+        FID[k]->updateAbs();
+        FID[k]->setCustomXAxis(isXAxisCustom());
+        FID[k]->setXInitialValue(xInitialValue());
+        FID[k]->setDx(dx());
+        FID[k]->setXAxisLabel(xAxisLabel());
+        FID[k]->setXAxisUnitSymbol(xAxisUnitSymbol());
+        FID[k]->metricPrefix.setPrefix(metricPrefix.prefix());
+        FID[k]->plotMetricPrefix.setPrefix(plotMetricPrefix.prefix());
+
+        FID[k]->setDomain(TFID::TimeDomain);
 
         FID[k]->setEmpty(false);
     } // k
@@ -487,8 +489,8 @@ bool TFID_2D::Readsm2dFile(QString fn)
     {
         FID.append(new TFID(FAL));
         FID.at(FID.size()-1)->setDW(FDW);
-        for(int m=0; m<FAL; m++) in >> FID.at(k)->real->sig[m] >> FID.at(k)->imag->sig[m];
-        FID.at(k)->updateAbs();
+        for(int m=0; m<FAL; m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
+        FID[k]->updateAbs();
         FID[k]->setEmpty(false);
 
 
@@ -496,6 +498,8 @@ bool TFID_2D::Readsm2dFile(QString fn)
         FID[k]->setXAxisUnitSymbol("sec");
         FID[k]->metricPrefix.setPrefix("micro");
         FID[k]->plotMetricPrefix.setPrefix("milli");
+
+        FID[k]->setDomain(TFID::TimeDomain);
 
 
     } // k
@@ -571,7 +575,7 @@ TFID::TFID(int al)
     FXAxisLabel="";
 
     FPhase0=0;
-    domain=TimeDomain;
+    setDomain(TimeDomain);
     xunit=Second;
     metricPrefix.setPrefix(TMetricPrefix::Micro);
     plotMetricPrefix.setPrefix(TMetricPrefix::Milli);
@@ -1126,8 +1130,8 @@ void TFID::fft()
 
     }
 */
-    if(domain==TFID::TimeDomain) {domain=TFID::FrequencyDomain;}
-    else if(domain==TFID::FrequencyDomain) {domain=TFID::TimeDomain;}
+    if(domain()==TFID::TimeDomain) {setDomain(TFID::FrequencyDomain);}
+    else if(domain()==TFID::FrequencyDomain) {setDomain(TFID::TimeDomain);}
 
     return;
 }
@@ -1144,10 +1148,10 @@ void TFID::updateAbs()
 
 void TFID::swapDomain()
 {
-    if(domain==TimeDomain)
-      {domain=FrequencyDomain;}
+    if(domain()==TimeDomain)
+      {setDomain(FrequencyDomain);}
     else  // domain should be Frequency
-      {domain=TimeDomain;}
+      {setDomain(TimeDomain);}
 }
 
 double THalfFID::max(int ini, int fin)

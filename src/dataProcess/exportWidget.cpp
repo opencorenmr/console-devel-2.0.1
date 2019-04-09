@@ -170,8 +170,8 @@ void KExportWidget::performExport2DFile()
 {
     if(!isAncestorDefined()) {return;}
     if(ancestor()->FID_2D->FID.isEmpty()) {return;}
+//    if(ancestor()->FID_2D->al() != ancestor()->FID_2D->FID.size()) {return;}
 
-    if(ancestor()->FID_2D->al() != ancestor()->FID_2D->FID.size()) {return;}
 
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
@@ -184,6 +184,7 @@ void KExportWidget::performExport2DFile()
     QString path_1 = fi.absolutePath()+'/';
     QString data2dp = path_1+base+".2DP";
     QString data2dd = path_1+base+".2DD";
+
 
 
     //-------------------------------------
@@ -213,14 +214,16 @@ void KExportWidget::performExport2DFile()
 
     if(contL>=contH){contL=5.0; contH=99.0;}
 
-
     if(sf1<ef1 && contL<contH)
     {
         bool ok;
         KExport2DP *exp = new KExport2DP;
+
         ok=exp->process(ancestor()->FID_2D, data2dp, sf1, ef1, line, contL, contH);
+
         if(!ok)
         {
+
           delete exp;
           return;
         }
@@ -234,6 +237,7 @@ void KExportWidget::performExport2DFile()
         ancestor()->FID_2D->errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + data2dd;
         return;
     }
+
 
     QDataStream out(&file);
     out.setFloatingPointPrecision(QDataStream::SinglePrecision);

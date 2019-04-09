@@ -46,7 +46,7 @@ bool TFFT::process(TFID_2D *fid_2d, int k)
 
 bool TFFT::process(TFID_2D *fid_2d)
 {
-    bool r;
+    bool r=true;
     for(int c=0; c<fid_2d->FID.size(); c++) r=process(fid_2d->FID[c]);
     return r;
 }

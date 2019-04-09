@@ -77,7 +77,7 @@ bool fidDomain::process(TFID *fid, AxisDomain ad)
                     );
 
         fid->setXAxisUnitSymbol("Hz");
-        fid->domain=TFID::FrequencyDomain;
+        fid->setDomain(TFID::FrequencyDomain);
 
 
         break;
@@ -89,12 +89,12 @@ bool fidDomain::process(TFID *fid, AxisDomain ad)
         fid->setXInitialValue(0.0);
         fid->setDx(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
         fid->setXAxisUnitSymbol("sec");
-        fid->domain=TFID::TimeDomain;
+        fid->setDomain(TFID::TimeDomain);
         break;
 
       case ToggleDomain:
 
-        if(fid->domain==TFID::TimeDomain)
+        if(fid->domain()==TFID::TimeDomain)
         {
             fid->xunit=TFID::Hz;
             fid->metricPrefix.setPrefix(TMetricPrefix::None);
@@ -109,10 +109,10 @@ bool fidDomain::process(TFID *fid, AxisDomain ad)
                         );
 
             fid->setXAxisUnitSymbol("Hz");
-            fid->domain=TFID::FrequencyDomain;
+            fid->setDomain(TFID::FrequencyDomain);
 
         }
-        else if(fid->domain==TFID::FrequencyDomain)
+        else if(fid->domain()==TFID::FrequencyDomain)
         {
             fid->xunit=TFID::Second;
             fid->metricPrefix.setPrefix(TMetricPrefix::Micro);
@@ -120,7 +120,7 @@ bool fidDomain::process(TFID *fid, AxisDomain ad)
             fid->setXInitialValue(0.0);
             fid->setDx(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
             fid->setXAxisUnitSymbol("sec");
-            fid->domain=TFID::TimeDomain;
+            fid->setDomain(TFID::TimeDomain);
         }
         break;
 

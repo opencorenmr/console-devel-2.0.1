@@ -46,7 +46,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
 
     if(befMax<10e4){
         for(i=0;i<fid_2d->FID.size();i++){
-            for(j=0;j<fid_2d->FID.size();j++){
+            for(j=0;j<fid_2d->al();j++){
                 fid_2d->FID[i]->real->sig[j] = fid_2d->FID[i]->real->sig[j] * 10e4;
             }
         }
@@ -128,7 +128,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
 bool KExport2DP::getMaxMinParameter(TFID_2D *fid_2d, double *max, double *min,
                                     double *base, int *f1, int *f2)
 {
-    int i, j, f1s, f2s;
+    int i, j, f1s=0, f2s=0;
     double mx = -1.0e15;
     double mn =  1.0e15;
     double bs = 0.0;

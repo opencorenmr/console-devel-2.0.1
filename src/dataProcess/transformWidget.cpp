@@ -84,7 +84,7 @@ void TTransformWidget::performFFT()
    if(!isAncestorDefined()) return;
    if(ancestor()->FID_2D->FID.isEmpty()) return;
 
-   bool ok;
+   bool ok=true;
    TFFT *fft=new TFFT;
    // We check if we apply Laplace transfomation
    fft->setLaplace(LaplaceCheckBox->isChecked());
