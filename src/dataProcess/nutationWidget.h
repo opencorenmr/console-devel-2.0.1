@@ -1,5 +1,5 @@
-#ifndef KFIDSIMULATIONWIDGET_H
-#define KFIDSIMULATIONWIDGET_H
+#ifndef KNutationWIDGET_H
+#define KNutationWIDGET_H
 
 #include <QWidget>
 #include <QPushButton>
@@ -10,12 +10,12 @@
 
 #include "processBase.h"
 
-class KFidSimulationWidget : public TProcessBase
+class KNutationWidget : public TProcessBase
 {
     Q_OBJECT
 public:
-    explicit KFidSimulationWidget();
-    ~KFidSimulationWidget() {;}
+    explicit KNutationWidget();
+    ~KNutationWidget() {;}
 
     QLineEdit *fid1_AmpLineEdit;
     QLineEdit *fid1_FreqLineEdit;
@@ -43,4 +43,4 @@ private:
     void createConnections();
 };
 
-#endif // KFIDSIMULATIONWIDGET_H
+#endif // KNutationWIDGET_H

@@ -1,4 +1,4 @@
-#include "fidSimulationWidget.h"
+#include "nutationWidget.h"
 #include "processPanelWidget.h"
 #include "math.h"
 //#include <random>
@@ -11,14 +11,14 @@
 
 #include <QDebug>
 
-KFidSimulationWidget::KFidSimulationWidget()
+KNutationWidget::KNutationWidget()
 {
    createWidgets();
    createPanel();
    createConnections();
 }
 
-void KFidSimulationWidget::createWidgets()
+void KNutationWidget::createWidgets()
 {
     fid1_AmpLineEdit = new QLineEdit();
     fid1_FreqLineEdit = new QLineEdit();
@@ -34,7 +34,7 @@ void KFidSimulationWidget::createWidgets()
     addFidButton = new QPushButton(tr("Add"));
 }
 
-void KFidSimulationWidget::createPanel()
+void KNutationWidget::createPanel()
 {
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -86,12 +86,12 @@ void KFidSimulationWidget::createPanel()
 
 }
 
-void KFidSimulationWidget::createConnections()
+void KNutationWidget::createConnections()
 {
     connect(addFidButton,SIGNAL(clicked()),this,SLOT(performFidCalculation()));
 }
 
-void KFidSimulationWidget::performFidCalculation()
+void KNutationWidget::performFidCalculation()
 {
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
