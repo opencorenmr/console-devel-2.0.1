@@ -17,25 +17,24 @@ public:
     explicit KNutationWidget();
     ~KNutationWidget() {;}
 
-    QLineEdit *fid1_AmpLineEdit;
-    QLineEdit *fid1_FreqLineEdit;
-    QLineEdit *fid1_T2LineEdit;
-    QLineEdit *fid1_t1IncrementLineEdit;
 
-    QLineEdit *arrayLineEdit;
-    QLineEdit *alLineEdit;
-    QLineEdit *dwLineEdit;
+    QLineEdit *arrayInitLineEdit;
+    QLineEdit *arrayDeltaLineEdit;
 
-    QCheckBox *noiseCheckBox;
-    QLineEdit *noiseLineEdit;
-    QCheckBox *addCheckBox;
-    QPushButton *addFidButton;
+    QComboBox *processStyleComboBox;
+
+    QSpinBox *startPointSpinBox;
+    QSpinBox *endPointSpinBox;
+    QCheckBox *startClickSetCheckBox;
+    QCheckBox *endClickSetCheckBox;
+
+    QPushButton *processArrayButton;
 
 signals:
 
 
 public slots:
-    void performFidCalculation();
+    void processArray();
 
 private:
     void createWidgets();
