@@ -26,7 +26,7 @@
 #include "2DprocessWidget.h"
 
 #include "covarianceWidget.h"
-#include "fidSimulationWidget.h"
+#include "nutationWidget.h"
 #include "exportWidget.h"
 #include "apodizationWidget.h"
 #include "createFIDWidget.h"
@@ -60,7 +60,7 @@ public:
     T2DProcessWidget *twoDProcessWidget;
     //
     KCovarianceWidget *CovarianceWidget;
-    KFidSimulationWidget *fidSimulationWidget;
+    KNutationWidget *NutationWidget;
     KExportWidget *exportWidget;
     KPeakPickWidget *peakPickWidget;
     //
