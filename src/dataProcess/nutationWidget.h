@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QComboBox>
+#include <QStackedWidget>
 
 #include "processBase.h"
 
@@ -35,6 +36,12 @@ signals:
 
 public slots:
     void processArray();
+    void setStartPoints(int p);
+    void setEndPoints(int p);
+    void clickSetStartPoints();
+    void clickSetEndPoints();
+
+    void enableArea();
 
 private:
     void createWidgets();
