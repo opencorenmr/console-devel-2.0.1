@@ -27,10 +27,12 @@ KExportWidget::KExportWidget()
 
 void KExportWidget::createWidgets()
 {
-    exportOpFileButton = new QPushButton(tr("export .opp & .opd"));
-    exportSm2FileButton = new QPushButton(tr("export .sm2p & .sm2d"));
-    exportCSVButton = new QPushButton(tr("export .csv"));
-    export2DButton = new QPushButton(tr("export .2dp and .2dd for takeNMR"));
+    //exportOpFileButton = new QPushButton(tr("export .opp & .opd"));
+    //exportSm2FileButton = new QPushButton(tr("export .sm2p & .sm2d"));
+    //exportCSVButton = new QPushButton(tr("export .csv"));
+    //export2DButton = new QPushButton(tr("export .2dp and .2dd for takeNMR"));
+
+    exportAbsButton = new QPushButton(tr("export all abs for ImageJ"));
 
     startf1LineEdit = new QLineEdit();
     endf1LineEdit = new QLineEdit();
@@ -47,11 +49,12 @@ void KExportWidget::createPanel()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
 
-    QGroupBox *groupBox0 = new QGroupBox(tr(".op & .csv"));
+    QGroupBox *groupBox0 = new QGroupBox(tr("export ascii"));
         QGridLayout *gridLayout0 = new QGridLayout;
-        gridLayout0->addWidget(exportOpFileButton,0,0,1,1);
-        gridLayout0->addWidget(exportSm2FileButton,1,0,1,1);
-        gridLayout0->addWidget(exportCSVButton,2,0,1,1);
+        gridLayout0->addWidget(exportAbsButton,0,0,1,1);
+        //gridLayout0->addWidget(exportOpFileButton,0,0,1,1);
+        //gridLayout0->addWidget(exportSm2FileButton,1,0,1,1);
+        //gridLayout0->addWidget(exportCSVButton,2,0,1,1);
     groupBox0->setLayout(gridLayout0);
 
     QGroupBox *groupBox1 = new QGroupBox(tr("export 2D data"));
@@ -69,7 +72,7 @@ void KExportWidget::createPanel()
         gridLayout1->addWidget(export2DButton,3,0,1,4);
     groupBox1->setLayout(gridLayout1);
 
-    //mainLayout->addWidget(groupBox0);
+    mainLayout->addWidget(groupBox0);
     mainLayout->addWidget(groupBox1);
 
     mainLayout->addStretch();
@@ -78,9 +81,10 @@ void KExportWidget::createPanel()
 
 void KExportWidget::createConnections()
 {
-     connect(exportOpFileButton,SIGNAL(clicked()),this,SLOT(performExportOpFile()));
-     connect(exportSm2FileButton,SIGNAL(clicked()),this,SLOT(performExportSm2File()));
-     connect(exportCSVButton,SIGNAL(clicked()),this,SLOT(performExportCSVFile()));
+    connect(exportAbsButton,SIGNAL(clicked()),this,SLOT(exportAbs()));
+     //connect(exportOpFileButton,SIGNAL(clicked()),this,SLOT(performExportOpFile()));
+     //connect(exportSm2FileButton,SIGNAL(clicked()),this,SLOT(performExportSm2File()));
+     //connect(exportCSVButton,SIGNAL(clicked()),this,SLOT(performExportCSVFile()));
      connect(export2DButton,SIGNAL(clicked()),this,SLOT(performExport2DFile()));
      //connect(exportFirstButton,SIGNAL(clicked()),this,SLOT(performExportFirstFile()));
      //connect(exportDiagButton,SIGNAL(clicked()),this,SLOT(performExportDiagFile()));
@@ -209,8 +213,8 @@ void KExportWidget::performExport2DFile()
     if(sf1==0 || sf1 < 0){sf1=1;}
     if(ef1==0 || ef1 > ancestor()->FID_2D->FID.size()){ef1=ancestor()->FID_2D->FID.size();}
     if(line<1 || line>100){line=5;}
-    if(contL==0 || contL < 1.0){contL=5.0;}
-    if(contH==0 || contH > 99.0){contH=99.0;}
+    if(contL==0. || contL < 1.0){contL=5.0;}
+    if(contH==0. || contH > 99.0){contH=99.0;}
 
     if(contL>=contH){contL=5.0; contH=99.0;}
 
@@ -253,4 +257,47 @@ void KExportWidget::performExport2DFile()
 
     file.close();
 
+}
+
+void KExportWidget::exportAbs(){
+
+    //-----------Check FID opened?-----------
+    if(!isAncestorDefined()) return;
+    if(ancestor()->FID_2D->FID.isEmpty()) return;
+
+    int fidsize = ancestor()->FID_2D->FID.size();
+
+    //-----acquire path and set output file---------
+    QString path = ancestor()->processFileWidget->dataFilePath()+'/';
+    QString fileName = QFileDialog::getSaveFileName(this, "Export Ascii Data", path, "txt(*.txt)");
+
+    if(fileName.isEmpty()) return;
+    //qDebug() << fileName << endl;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+
+    QTextStream out(&file);
+
+    //------------export absolute value------------
+    for(int i=0;i<fidsize;i++){
+        for(int j=0;j<ancestor()->FID_2D->al();j++){
+            out << ancestor()->FID_2D->FID.at(i)->abs->sig.at(j);
+            if(j!=ancestor()->FID_2D->al()-1){out << " ";}
+        }
+        out << endl;
+    }
+
+    file.close();
+
+    for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
+    {
+      ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
+      ancestor()->plotters->FIDPlotters[k]->plotter->xfin=ancestor()->FID_2D->FID.at(0)->al()-1;
+    }
+
+    ancestor()->plotters->update();
+
+    //qDebug() << "end";
+    return;
 }
