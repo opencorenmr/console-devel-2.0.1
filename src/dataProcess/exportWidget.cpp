@@ -30,7 +30,7 @@ void KExportWidget::createWidgets()
     //exportOpFileButton = new QPushButton(tr("export .opp & .opd"));
     //exportSm2FileButton = new QPushButton(tr("export .sm2p & .sm2d"));
     //exportCSVButton = new QPushButton(tr("export .csv"));
-    //export2DButton = new QPushButton(tr("export .2dp and .2dd for takeNMR"));
+    export2DButton = new QPushButton(tr("export .2dp and .2dd for takeNMR"));
 
     exportAbsButton = new QPushButton(tr("export all abs for ImageJ"));
 
@@ -251,7 +251,7 @@ void KExportWidget::performExport2DFile()
     {
         for(int m=0; m<ancestor()->FID_2D->FID.at(k)->al(); m++)
         {
-            out << (float) ancestor()->FID_2D->FID.at(k)->real->sig.at(m);
+            out << ancestor()->FID_2D->FID.at(k)->real->sig.at(m);
         }
     }
 
