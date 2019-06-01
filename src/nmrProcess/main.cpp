@@ -3,10 +3,10 @@
 
 #define VERSION_NUMBER 2
 #define VERSION_NUMBER2 0
-#define VERSION_NUMBER3 0
-#define BUILD_NUMBER 204
-#define RELEASE_YEAR 2017
-#define RELEASE_MONTH October
+#define VERSION_NUMBER3 1
+#define BUILD_NUMBER 206
+#define RELEASE_YEAR 2019
+#define RELEASE_MONTH "June"
 
 int main(int argc, char *argv[])
 {
@@ -16,9 +16,13 @@ int main(int argc, char *argv[])
     w.setWindowTitle(QObject::tr("Opencore NMR Process ") + QString::number(VERSION_NUMBER)
                      +"."+QString::number(VERSION_NUMBER2)
                      +"."+QString::number(VERSION_NUMBER3)
-                     + QObject::tr(" Build #") + QString::number(BUILD_NUMBER));
+                     + QObject::tr(" #") + QString::number(BUILD_NUMBER)
+                     + QObject::tr(" (") + QString::number(RELEASE_YEAR) + QObject::tr(" ")
+                     + QObject::tr(RELEASE_MONTH) + QObject::tr(")")
+                     );
 
     w.show();
 
     return a.exec();
 }
+

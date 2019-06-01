@@ -21,9 +21,9 @@
 #define VERSION_NUMBER 2
 #define VERSION_NUMBER2 0
 #define VERSION_NUMBER3 1
-#define BUILD_NUMBER 205
-#define RELEASE_YEAR 2018
-#define RELEASE_MONTH JUNE
+#define BUILD_NUMBER 206
+#define RELEASE_YEAR 2019
+#define RELEASE_MONTH "June"
 
 class TwelcomeWidget;
 
