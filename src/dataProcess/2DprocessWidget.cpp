@@ -9,6 +9,15 @@
 #include <QLabel>
 #include <QGroupBox>
 
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QMessageBox>
+#include "../fid.h"
+
+#include <float.h> // DBL_EPSILON
+#include <math.h>  // fabs, fmax
+
 T2DProcessWidget::T2DProcessWidget()
 {
    createWidgets();
@@ -25,6 +34,7 @@ void T2DProcessWidget::createWidgets()
     hyperComplexPhaseComboBox = new QComboBox();
     hyperComplexPhaseComboBox->addItems(QStringList() << "As it is" << "Reverse");
     hyperComplexButton = new QPushButton(tr("Apply"));
+    appendDataButton = new QPushButton(tr("open file"));
 }
 
 void T2DProcessWidget::createPanel()
@@ -43,12 +53,15 @@ void T2DProcessWidget::createPanel()
       hyperComplexLayout->addWidget(hyperComplexButton);
       hyperComplexGroupBox->setLayout(hyperComplexLayout);
     vLayout->addWidget(hyperComplexGroupBox);
-    vLayout->addStretch();
+
+
     //Kobayashi
-    //vLayout->addWidget(new QLabel(tr("slow2dft")));
-    //vLayout->addWidget(indirectSlowFTButton);
-    //vLayout->addStretch();
-    //
+      QGroupBox *appendDataGroupBox = new QGroupBox(tr("Append Experiment Data"));
+      QHBoxLayout *appendDataLayout = new QHBoxLayout;
+      appendDataLayout->addWidget(appendDataButton);
+      appendDataGroupBox->setLayout(appendDataLayout);
+    vLayout->addWidget(appendDataGroupBox);
+    vLayout->addStretch();
 }
 
 void T2DProcessWidget::createConnections()
@@ -56,6 +69,7 @@ void T2DProcessWidget::createConnections()
 
     connect(transposeButton,SIGNAL(clicked()),this,SLOT(performTranspose()));
     connect(hyperComplexButton,SIGNAL(clicked()),this,SLOT(performHyperComplexCompression()));
+    connect(appendDataButton,SIGNAL(clicked()),this,SLOT(performAppendData()));
 
 }
 
@@ -124,4 +138,290 @@ void T2DProcessWidget::performTranspose()
 
     ancestor()->plotters->update();
 
+}
+
+void T2DProcessWidget::performAppendData()
+{
+
+    if(!isAncestorDefined()) return;
+    if(ancestor()->FID_2D->FID.isEmpty()) return;
+
+    //-----acquire file path-------------
+    QString path="~/";
+    if(QDir(dataFilePath()).exists()) path = ancestor()->processFileWidget->dataFilePath()+'/';
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
+                                                    path,
+                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d)"));
+
+    if (fileName.isEmpty()) {return;}
+
+    setDataFilePath(QFileInfo(fileName).absolutePath());
+    QString fileExt=QFileInfo(fileName).suffix();
+
+    //-----read and add opp or sm2p to FID--------------
+    if(0==QString::compare(fileExt,"sm2p") || 0==QString::compare(fileExt,"sm2d")){
+      if(!Readsm2FileforAdd(fileName)){return;}
+
+    } else if(0==QString::compare(fileExt,"opp") || 0==QString::compare(fileExt,"opd")){
+      if(!ReadopFileforAdd(fileName)){return;}
+
+    } else {
+        QMessageBox::warning(this,tr(""), "." + fileExt + " is not supported."); return;
+    }
+
+
+    //-----plotter update----------------
+    for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
+    {
+      ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
+      ancestor()->plotters->FIDPlotters[k]->plotter->xfin=ancestor()->FID_2D->FID.at(0)->al()-1;
+    }
+
+    ancestor()->plotters->update();
+
+}
+
+//-----------------------------------------------------------------------------
+bool T2DProcessWidget::Readsm2FileforAdd(QString fn)
+{
+    QFileInfo fi;
+    fi.setFile(fn);
+    QString base = fi.baseName();
+    QString path = fi.absolutePath()+'/';
+    QString sm2p = path+base+".sm2p";
+    QString sm2d = path+base+".sm2d";
+
+    if(!Readsm2pFileforAdd(sm2p)) return false;
+    double org_dw=ancestor()->FID_2D->dw();
+    double org_fsf1=ancestor()->FID_2D->sf1();
+    if(AL!=ancestor()->FID_2D->al()){
+        ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
+    }
+    if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw)))){
+        ancestor()->FID_2D->errorMessage="dw=xxx is different."; return false;
+    }
+    if(fabs(FSF1-org_fsf1)>DBL_EPSILON*fmax(1, fmax(fabs(FSF1), fabs(org_fsf1)))){
+        ancestor()->FID_2D->errorMessage="sf1=xxx is different."; return false;
+    }
+    qDebug() << "read OK";
+
+
+    if(!Readsm2dFileforAdd(sm2d)) return false;
+
+    return true;
+}
+
+bool T2DProcessWidget::ReadopFileforAdd(QString fn)
+{
+
+    QFileInfo fi;
+    fi.setFile(fn);
+    QString base = fi.baseName();
+    QString path = fi.absolutePath()+'/';
+    QString opp = path+base+".opp";
+    QString opd = path+base+".opd";
+
+    if(!ReadoppFileforAdd(opp)) return false;
+
+    double org_dw=ancestor()->FID_2D->dw();
+    double org_fsf1=ancestor()->FID_2D->sf1();
+    if(AL!=ancestor()->FID_2D->al()){
+        ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
+    }
+    if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw)))){
+        ancestor()->FID_2D->errorMessage="dw=xxx is different."; return false;
+    }
+    if(fabs(FSF1-org_fsf1)>DBL_EPSILON*fmax(1, fmax(fabs(FSF1), fabs(org_fsf1)))){
+        ancestor()->FID_2D->errorMessage="sf1=xxx is different."; return false;
+    }
+
+
+    if(!ReadopdFileforAdd(opd)) return false;
+
+    return true;
+}
+
+bool T2DProcessWidget::Readsm2pFileforAdd(QString fn)
+{
+
+    //QMutexLocker locker(&mutex);
+    QFile file(fn);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){return false;}
+
+    QString source; source.clear();
+    QTextStream in(&file);
+
+    bool pointDefined=false;
+    bool dwDefined=false;
+    bool sf1Defined=false;
+
+    parameters.clear();
+
+    bool ok;
+
+    while (!in.atEnd())
+    {
+        source=in.readLine();
+        parameters.append(source);
+        source.remove(QChar(' '), Qt::CaseInsensitive);
+        if(source.startsWith('#')) break;
+        if(source.startsWith("point=",Qt::CaseInsensitive))
+        {
+            pointDefined=true;
+            AL=source.mid(6).toInt(&ok);
+            if(!ok) {file.close(); return false;}
+        }
+        if(source.startsWith("dw=",Qt::CaseInsensitive))
+        {
+            dwDefined=true;
+            DW=source.mid(3).toDouble(&ok);
+            if(!ok) {file.close(); return false;}
+        }
+        if(source.startsWith("sf1=",Qt::CaseInsensitive))
+        {
+            sf1Defined=true;
+            FSF1=source.mid(4).toDouble(&ok);
+            if(!ok) {file.close(); return false;}
+        }
+
+    }
+    return true;
+}
+
+bool T2DProcessWidget::ReadoppFileforAdd(QString fn){
+
+    //QMutexLocker locker(&mutex);
+    QFile file(fn);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){return false;}
+
+    QString source; source.clear();
+    QTextStream in(&file);
+
+    bool pointDefined=false;
+    bool dwDefined=false;
+    bool sf1Defined=false;
+
+    parameters.clear();
+
+    bool ok;
+
+    while (!in.atEnd())
+    {
+        source=in.readLine();
+        parameters.append(source);
+        source.remove(QChar(' '), Qt::CaseInsensitive);
+        if(source.startsWith('#')) break;
+        if(source.startsWith("point=",Qt::CaseInsensitive))
+        {
+            pointDefined=true;
+            AL=source.mid(6).toInt(&ok);
+            if(!ok) {file.close(); return false;}
+        }
+        if(source.startsWith("dw=",Qt::CaseInsensitive))
+        {
+            dwDefined=true;
+            DW=source.mid(3).toDouble(&ok);
+            if(!ok) {file.close(); return false;}
+        }
+        if(source.startsWith("sf1=",Qt::CaseInsensitive))
+        {
+            sf1Defined=true;
+            FSF1=source.mid(4).toDouble(&ok);
+            if(!ok) {file.close(); return false;}
+        }
+
+    }
+
+    return true;
+}
+
+bool T2DProcessWidget::Readsm2dFileforAdd(QString fn){
+
+    QFile file(fn);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+         ancestor()->FID_2D->errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         return false;
+    }
+
+    QFileInfo fInfo;
+    fInfo.setFile(file);
+    int nByte=fInfo.size();
+    int n=nByte/(2*AL*sizeof(double));
+
+    QDataStream in(&file);
+    in.setFloatingPointPrecision(QDataStream::SinglePrecision);
+    in.setByteOrder(QDataStream::LittleEndian);
+
+    int org_FIDsize=ancestor()->FID_2D->FID.size();
+
+    for(int k=org_FIDsize; k<n+org_FIDsize; k++)
+    {
+        ancestor()->FID_2D->FID.append(new TFID(AL));
+        ancestor()->FID_2D->FID[ancestor()->FID_2D->FID.size()-1]->setDW(DW);
+        for(int m=0; m<AL; m++) in >> ancestor()->FID_2D->FID[k]->real->sig[m] >> ancestor()->FID_2D->FID[k]->imag->sig[m];
+        ancestor()->FID_2D->FID[k]->updateAbs();
+        ancestor()->FID_2D->FID[k]->setCustomXAxis(ancestor()->FID_2D->isXAxisCustom());
+        ancestor()->FID_2D->FID[k]->setXInitialValue(ancestor()->FID_2D->xInitialValue());
+        ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->dx());
+        ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->xAxisLabel());
+        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->xAxisUnitSymbol());
+        ancestor()->FID_2D->FID[k]->metricPrefix.setPrefix(ancestor()->FID_2D->metricPrefix.prefix());
+        ancestor()->FID_2D->FID[k]->plotMetricPrefix.setPrefix(ancestor()->FID_2D->plotMetricPrefix.prefix());
+
+        ancestor()->FID_2D->FID[k]->setDomain(TFID::TimeDomain);
+
+        ancestor()->FID_2D->FID[k]->setEmpty(false);
+    } // k
+
+    file.close();
+    ancestor()->FID_2D->setCurrentFID(0);
+
+    return true;
+}
+
+bool T2DProcessWidget::ReadopdFileforAdd(QString fn){
+
+
+    QFile file(fn);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+         ancestor()->FID_2D->errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         return false;
+    }
+
+    QFileInfo fInfo;
+    fInfo.setFile(file);
+    int nByte=fInfo.size();
+    int n=nByte/(2*AL*sizeof(double));
+
+    QDataStream in(&file);
+    in.setFloatingPointPrecision(QDataStream::DoublePrecision);
+    in.setByteOrder(QDataStream::LittleEndian);
+
+    int org_FIDsize=ancestor()->FID_2D->FID.size();
+
+    for(int k=org_FIDsize; k<n+org_FIDsize; k++)
+    {
+        ancestor()->FID_2D->FID.append(new TFID(AL));
+        ancestor()->FID_2D->FID[ancestor()->FID_2D->FID.size()-1]->setDW(DW);
+        for(int m=0; m<AL; m++) in >> ancestor()->FID_2D->FID[k]->real->sig[m] >> ancestor()->FID_2D->FID[k]->imag->sig[m];
+        ancestor()->FID_2D->FID[k]->updateAbs();
+        ancestor()->FID_2D->FID[k]->setCustomXAxis(ancestor()->FID_2D->isXAxisCustom());
+        ancestor()->FID_2D->FID[k]->setXInitialValue(ancestor()->FID_2D->xInitialValue());
+        ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->dx());
+        ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->xAxisLabel());
+        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->xAxisUnitSymbol());
+        ancestor()->FID_2D->FID[k]->metricPrefix.setPrefix(ancestor()->FID_2D->metricPrefix.prefix());
+        ancestor()->FID_2D->FID[k]->plotMetricPrefix.setPrefix(ancestor()->FID_2D->plotMetricPrefix.prefix());
+
+        ancestor()->FID_2D->FID[k]->setDomain(TFID::TimeDomain);
+
+        ancestor()->FID_2D->FID[k]->setEmpty(false);
+    } // k
+
+    file.close();
+    ancestor()->FID_2D->setCurrentFID(0);
+
+    return true;
 }
