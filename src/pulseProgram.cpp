@@ -5951,6 +5951,7 @@ double TpulseProgram::evalTimeFactor(const QString &str, int &pos, bool &ok)
               case TVariable::loopVariable:
               case TVariable::naVariable:
               case TVariable::alVariable:
+              case TVariable::pdVariable:
                 result = (double) variables.at(vIndex)->value().toInt(); break;
               default:
                 errorMessage=QString(Q_FUNC_INFO)+": unknown variable"; ok=false; break;
