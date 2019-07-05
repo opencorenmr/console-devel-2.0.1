@@ -1269,7 +1269,8 @@ void Plotter::keyPressEvent(QKeyEvent *event)
           if(vCursorEnabled())
           {
             FVCursorXPosition++;
-            if(vCursorXPosition()>=xfin) setVCursorXPosition(xfin-1);
+//            if(vCursorXPosition()>=xfin) setVCursorXPosition(xfin-1);
+            if(vCursorXPosition()>xfin) setVCursorXPosition(xfin);
           }
           else
           {

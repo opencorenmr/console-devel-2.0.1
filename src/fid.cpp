@@ -639,7 +639,7 @@ bool TFID::exportAscii(QString fn, int xini, int xfin)
     }
 
     QTextStream out(&file);
-    for(int k=xini; k<xfin; k++)
+    for(int k=xini; k<=xfin; k++)
     out << QString::number(xValue(k),'g',12) << " "
         << QString::number(real->sig.at(k),'g',12) << " "
         << QString::number(imag->sig.at(k),'g',12) << " "
