@@ -293,8 +293,9 @@ void TProcessPanelWidget::createWidgets()
                                     << "exportData"
                                     << "Create FID"
                                     << "Math"
-                                    << "Nutation(temp)"
                                     << "Peak"
+                                    << "Nutation(tmp)"
+                                    << "Interpolate(tmp)"
                                     );
 #else
       operationListWidget->addItems(QStringList()
@@ -309,8 +310,9 @@ void TProcessPanelWidget::createWidgets()
                                     << "exportData"
                                     << "Create FID"
                                     << "Math"
-                                    << "Nutation(temp)"
                                     << "Peak"
+                                    << "Nutation(tmp)"
+                                    << "Interpolate(tmp)"
                                     );
 #endif
 
@@ -365,11 +367,14 @@ void TProcessPanelWidget::createWidgets()
     FIDMathWidget = new TFIDMathWidget;
       FIDMathWidget->setAncestor(this);
 
+    peakPickWidget = new KPeakPickWidget;
+      peakPickWidget->setAncestor(this);
+
     NutationWidget = new KNutationWidget;
       NutationWidget->setAncestor(this);
 
-    peakPickWidget = new KPeakPickWidget;
-      peakPickWidget->setAncestor(this);
+    interpolateWidget = new KInterpolateWidget;
+      interpolateWidget->setAncestor(this);
 }
 
 void TProcessPanelWidget::createPanel()
@@ -393,8 +398,9 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(exportWidget);
     stackedWidget->addWidget(createFIDWidget);
     stackedWidget->addWidget(FIDMathWidget);
-    stackedWidget->addWidget(NutationWidget);
     stackedWidget->addWidget(peakPickWidget);
+    stackedWidget->addWidget(NutationWidget);
+    stackedWidget->addWidget(interpolateWidget);
 
     QHBoxLayout *layout1 = new QHBoxLayout;
     //layout1->addWidget(new QLabel(tr("Operation")));

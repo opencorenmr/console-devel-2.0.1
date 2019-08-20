@@ -32,6 +32,7 @@
 #include "createFIDWidget.h"
 #include "fidMathWidget.h"
 #include "peakPickWidget.h"
+#include "interpolateWidget.h"
 
 class TFIDPlotters;
 class TProcessFileWidget;
@@ -63,6 +64,7 @@ public:
     KNutationWidget *NutationWidget;
     KExportWidget *exportWidget;
     KPeakPickWidget *peakPickWidget;
+    KInterpolateWidget *interpolateWidget;
     //
     TAxisFormatWidget *axisFormatWidget;
     TPhaseWidget *phaseWidget;
