@@ -1765,7 +1765,7 @@ bool TpulseProgram::getTime(QString q)
 //-----------------------------------------------------------------------------
 bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
     bool iteration=false;
-    int nOfIteration=1;
+    unsigned int nOfIteration=1;
     bool ok=true;
 
     if(ppgLines.currentLine.startsWith('['))
@@ -1788,7 +1788,8 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
         ok=evalArg(ni);
         //nOfIteration=ni.toInt(&ok);
         if(!ok) {errorMessage=QString(Q_FUNC_INFO)+": invalid iteration number."; return false;}
-        nOfIteration=round(evalArgResult);
+        if(evalArgResult<1) {errorMessage=QString(Q_FUNC_INFO)+": iteration number must be positive."; return false;}
+        nOfIteration=static_cast<unsigned int> (round(evalArgResult));
         if(nOfIteration<1) {errorMessage=QString(Q_FUNC_INFO)+": iteration number must be larger than 0."; return false;}
     }
     else
@@ -2039,6 +2040,16 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
       // We get the number of clock counts
       quint64 i64=quint64(round(getTimeResult*CLK/nOfIteration));
 
+      // In the last part of the shaped pulse, we compensate the error arising from the division above
+      // 31 July 2019 (K. Takeda)
+      if(nOfIteration>1 && k==nOfIteration-1)
+      {
+        i64 = quint64(round(getTimeResult*CLK))
+                - i64*(nOfIteration-1);
+
+
+      } // nOfIteration>1 && k==nOfIteration-1
+
 
 
       // We check range
@@ -2102,7 +2113,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
       else
       {
         nl=1;
-        s1=myHex(i64-4,10);
+        s1=myHex(i64-4,10);        
 
         if(!errorCheckOnly)
         {
