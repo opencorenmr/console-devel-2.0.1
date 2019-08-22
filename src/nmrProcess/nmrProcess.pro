@@ -13,6 +13,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    ../dataProcess/interpolate.cpp \
+    ../dataProcess/interpolateWidget.cpp \
         mainwindow.cpp \
     ../fid.cpp \
     ../plotter.cpp \
@@ -53,6 +55,8 @@ SOURCES += main.cpp\
 
 
 HEADERS  += mainwindow.h \
+    ../dataProcess/interpolate.h \
+    ../dataProcess/interpolateWidget.h \
     ../fid.h \
     ../plotter.h \
     ../metricPrefix.h \
