@@ -1159,6 +1159,8 @@ void Plotter::mouseReleaseEvent(QMouseEvent *event)
         xini=oxini+(oxfin-oxini)*((double)rect.left()/plotWidth);
         xfin=oxini+(oxfin-oxini)*((double)rect.right()/plotWidth);
 
+        if(xini < 0) xini=0;
+        if(fid->real->sig.count()-1 < xfin) xfin=fid->real->sig.count()-1;
 
         zoomIn();
         setRubberBandEnabled(false);
@@ -1267,7 +1269,8 @@ void Plotter::keyPressEvent(QKeyEvent *event)
           if(vCursorEnabled())
           {
             FVCursorXPosition++;
-            if(vCursorXPosition()>=xfin) setVCursorXPosition(xfin-1);
+//            if(vCursorXPosition()>=xfin) setVCursorXPosition(xfin-1);
+            if(vCursorXPosition()>xfin) setVCursorXPosition(xfin);
           }
           else
           {

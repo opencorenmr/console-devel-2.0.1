@@ -62,7 +62,7 @@ SOURCES += main.cpp\
     dataProcess/createFIDWidget.cpp \
     dataProcess/fidMath.cpp \
     dataProcess/fidMathWidget.cpp \
-    dataProcess/fidSimulationWidget.cpp \
+    dataProcess/nutationWidget.cpp \
     dataProcess/apodization.cpp \
     dataProcess/applyMode.cpp \
     dataProcess/export2dp.cpp \
@@ -126,7 +126,7 @@ HEADERS  += mainwindow.h \
     dataProcess/createFIDWidget.h \
     dataProcess/fidMath.h \
     dataProcess/fidMathWidget.h \
-    dataProcess/fidSimulationWidget.h \
+    dataProcess/nutationWidget.h \
     dataProcess/apodization.h \
     dataProcess/applyMode.h \
     dataProcess/export2dp.h \

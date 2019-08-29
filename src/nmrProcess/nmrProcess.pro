@@ -13,6 +13,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    ../dataProcess/interpolate.cpp \
+    ../dataProcess/interpolateWidget.cpp \
         mainwindow.cpp \
     ../fid.cpp \
     ../plotter.cpp \
@@ -42,7 +44,7 @@ SOURCES += main.cpp\
     ../dataProcess/createFIDWidget.cpp \
     ../dataProcess/fidMath.cpp \
     ../dataProcess/fidMathWidget.cpp \
-    ../dataProcess/fidSimulationWidget.cpp \
+    ../dataProcess/nutationWidget.cpp \
     ../dataProcess/export2dp.cpp \
     ../dataProcess/covariance.cpp \
     ../dataProcess/covarianceWidget.cpp \
@@ -53,6 +55,8 @@ SOURCES += main.cpp\
 
 
 HEADERS  += mainwindow.h \
+    ../dataProcess/interpolate.h \
+    ../dataProcess/interpolateWidget.h \
     ../fid.h \
     ../plotter.h \
     ../metricPrefix.h \
@@ -81,7 +85,7 @@ HEADERS  += mainwindow.h \
     ../dataProcess/createFIDWidget.h \
     ../dataProcess/fidMath.h \
     ../dataProcess/fidMathWidget.h \
-    ../dataProcess/fidSimulationWidget.h \
+    ../dataProcess/nutationWidget.h \
     ../dataProcess/export2dp.h \
     ../dataProcess/covariance.h \
     ../dataProcess/covarianceWidget.h \

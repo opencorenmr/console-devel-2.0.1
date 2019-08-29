@@ -293,8 +293,9 @@ void TProcessPanelWidget::createWidgets()
                                     << "exportData"
                                     << "Create FID"
                                     << "Math"
-                                    //<< "FID Simulation"
                                     << "Peak"
+                                    << "Nutation(tmp)"
+                                    << "Interpolate(tmp)"
                                     );
 #else
       operationListWidget->addItems(QStringList()
@@ -309,8 +310,9 @@ void TProcessPanelWidget::createWidgets()
                                     << "exportData"
                                     << "Create FID"
                                     << "Math"
-                                    //<< "FID Simulation"
                                     << "Peak"
+                                    << "Nutation(tmp)"
+                                    << "Interpolate(tmp)"
                                     );
 #endif
 
@@ -356,8 +358,8 @@ void TProcessPanelWidget::createWidgets()
       //CovarianceWidget->setApplyToSelectable(false);
     exportWidget = new KExportWidget;
       exportWidget->setAncestor(this);
-    //fidSimulationWidget = new KFidSimulationWidget;
-    //  fidSimulationWidget->setAncestor(this);
+    NutationWidget = new KNutationWidget;
+      NutationWidget->setAncestor(this);
 
     createFIDWidget = new TCreateFIDWidget;
       createFIDWidget->setFID2D(FID_2D);
@@ -367,6 +369,12 @@ void TProcessPanelWidget::createWidgets()
 
     peakPickWidget = new KPeakPickWidget;
       peakPickWidget->setAncestor(this);
+
+    NutationWidget = new KNutationWidget;
+      NutationWidget->setAncestor(this);
+
+    interpolateWidget = new KInterpolateWidget;
+      interpolateWidget->setAncestor(this);
 }
 
 void TProcessPanelWidget::createPanel()
@@ -390,8 +398,9 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(exportWidget);
     stackedWidget->addWidget(createFIDWidget);
     stackedWidget->addWidget(FIDMathWidget);
-    //stackedWidget->addWidget(fidSimulationWidget);
     stackedWidget->addWidget(peakPickWidget);
+    stackedWidget->addWidget(NutationWidget);
+    stackedWidget->addWidget(interpolateWidget);
 
     QHBoxLayout *layout1 = new QHBoxLayout;
     //layout1->addWidget(new QLabel(tr("Operation")));

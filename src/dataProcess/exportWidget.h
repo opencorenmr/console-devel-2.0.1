@@ -19,10 +19,13 @@ public:
 
     QString dataFilePath() {return FDataFilePath;}
 
-    QPushButton *exportOpFileButton;
-    QPushButton *exportSm2FileButton;
-    QPushButton *exportCSVButton;
+    //QPushButton *exportOpFileButton;
+    //QPushButton *exportSm2FileButton;
+    //QPushButton *exportCSVButton;
+
     QPushButton *export2DButton;
+
+    QPushButton *exportAbsButton;
 
     QLineEdit *startf1LineEdit;
     QLineEdit *endf1LineEdit;
@@ -45,6 +48,8 @@ public slots:
     void performExportSm2File();
     void performExportCSVFile();
     void performExport2DFile();
+
+    void exportAbs();
     //void performExportFirstFile();
     //void performExportDiagFile();
 

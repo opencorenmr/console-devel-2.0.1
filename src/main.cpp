@@ -30,7 +30,10 @@ int main(int argc, char *argv[])
     w.setWindowTitle(QObject::tr("Opencore NMR ") + QString::number(VERSION_NUMBER)
                      +"."+QString::number(VERSION_NUMBER2)
                      +"."+QString::number(VERSION_NUMBER3)
-                     + QObject::tr(" Build #") + QString::number(BUILD_NUMBER));
+                     + QObject::tr(" #") + QString::number(BUILD_NUMBER)
+                     + QObject::tr(" (") + QString::number(RELEASE_YEAR) + QObject::tr(" ")
+                     + QObject::tr(RELEASE_MONTH) + QObject::tr(")")
+                     );
 
 //    if(w.fpgaTerminal->openOnStartupCheckBox->isChecked())
     if(true)
