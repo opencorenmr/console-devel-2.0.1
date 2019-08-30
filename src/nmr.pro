@@ -70,7 +70,9 @@ SOURCES += main.cpp\
     dataProcess/covarianceWidget.cpp \
     dataProcess/svd.cpp \
     dataProcess/peakPickWidget.cpp \
-    dataProcess/peakPick.cpp
+    dataProcess/peakPick.cpp \
+    dataProcess/interpolate.cpp \
+    dataProcess/interpolateWidget.cpp
 
 
 
@@ -134,7 +136,9 @@ HEADERS  += mainwindow.h \
     dataProcess/covarianceWidget.h \
     dataProcess/svd.h \
     dataProcess/peakPickWidget.h \
-    dataProcess/peakPick.h
+    dataProcess/peakPick.h \
+    dataProcess/interpolate.h \
+    dataProcess/interpolateWidget.h
 
 
 
