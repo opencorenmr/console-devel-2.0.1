@@ -23,6 +23,9 @@ public:
     //QPushButton *exportSm2FileButton;
     //QPushButton *exportCSVButton;
 
+    QPushButton *exportAsciiButton;
+    QComboBox *separatorCombobox;
+
     QPushButton *export2DButton;
 
     QPushButton *exportAbsButton;
@@ -44,6 +47,7 @@ public:
 signals:
 
 public slots:
+    void performExportAscii();
     void performExportOpFile();
     void performExportSm2File();
     void performExportCSVFile();
