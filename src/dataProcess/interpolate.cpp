@@ -17,7 +17,7 @@ bool KInterpolate::processInterpolate(TFID_2D *fid_2d, double delta)
     //  and copy the data
     //
 
-    qDebug() << delta;
+    //qDebug() << delta;
     TFID_2D *helpFID2D = new TFID_2D;
     helpFID2D->FID.clear();
     for(int k=0; k<nRow; k++)
