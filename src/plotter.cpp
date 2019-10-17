@@ -544,9 +544,13 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     connect(plotterDetails,SIGNAL(xPlotRangeUpdateRequest(int,int)),plotter,SLOT(updatePlotRange(int,int)));
     connect(plotterDetails,SIGNAL(xCursorPositionUpdateRequest(int)),plotter,SLOT(updateXCursorPosition(int)));
     connect(plotterDetails->xFullRangePushButton,SIGNAL(clicked()),this,SLOT(xFullRangePlot()));
+<<<<<<< HEAD
     connect(plotterDetails->vOffsetSpinBox,SIGNAL(valueChanged(double)),this,SLOT(updateVOffset(double)));
     connect(plotterDetails,SIGNAL(xInitialValueUpdateRequest(double)), this, SLOT(updateXInitialValue(double)));
     connect(plotterDetails,SIGNAL(xFinalValueUpdateRequest(double)), this, SLOT(updateXFinalValue(double)));
+=======
+    plotterDetails->xFullRangePushButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
+>>>>>>> add keyboard shortcut Ctrl[Cmd]+A for xFullRangePlot
     connect(penWidthSpinBox,SIGNAL(valueChanged(int)),plotter,SLOT(setPenWidth(int)));
 
     connect(FFTCheckBox,SIGNAL(toggled(bool)),this,SLOT(update()));
