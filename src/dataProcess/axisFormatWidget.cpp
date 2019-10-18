@@ -138,8 +138,8 @@ void TAxisFormatWidget::updateXAxis()
     if(!isAncestorDefined())return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
 
-    ancestor()->FID_2D->FID[0]->setXAxisLabel(axisLabelLineEdit->text());
-    ancestor()->refresh();
+      ancestor()->FID_2D->setXAxisLabel(axisLabelLineEdit->text());
+      ancestor()->refresh();
 }
 
 void TAxisFormatWidget::setDomain()
@@ -190,8 +190,8 @@ void TAxisFormatWidget::setTimeUnit()
     if(ancestor()->FID_2D->FID.isEmpty()) return;
 
 
-    ancestor()->FID_2D->FID[0]->xunit=TFID::Second;
-    ancestor()->FID_2D->FID[0]->metricPrefix.setPrefix(TMetricPrefix::Micro);
+    ancestor()->FID_2D->FID[0]->setXUnit(TFIDXUnit::Second);
+    ancestor()->FID_2D->FID[0]->setPrefix(TMetricPrefix::Micro);
     ancestor()->FID_2D->FID[0]->setDx(ancestor()->FID_2D->FID[0]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
     ancestor()->FID_2D->FID[0]->setXInitialValue(referenceValueLineEdit->text().toDouble()
                                      -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[0]->dx());
@@ -201,80 +201,70 @@ void TAxisFormatWidget::setTimeUnit()
     {
       case 0: // usec
         axisStyle->setUnit(TAxisStyle::usec);
-        ancestor()->FID_2D->FID[0]->plotMetricPrefix.setPrefix(TMetricPrefix::Micro);
+        ancestor()->FID_2D->FID[0]->setPlotPrefix(TMetricPrefix::Micro);
         break;
       case 1: // msec
         axisStyle->setUnit(TAxisStyle::msec);
-        ancestor()->FID_2D->FID[0]->plotMetricPrefix.setPrefix(TMetricPrefix::Milli);
+        ancestor()->FID_2D->FID[0]->setPlotPrefix(TMetricPrefix::Milli);
         break;
       case 2: // sec
         axisStyle->setUnit(TAxisStyle::sec);
-        ancestor()->FID_2D->FID[0]->plotMetricPrefix.setPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->FID[0]->setPlotPrefix(TMetricPrefix::None);
         break;
     }
 
     return;
 }
-void TAxisFormatWidget::setFrequencyUnit()
+
+void TAxisFormatWidget::setFrequencyUnit(int k)
 {
-    ancestor()->FID_2D->FID[0]->xunit=TFID::Hz;
+    ancestor()->FID_2D->FID[k]->setXUnit(TFIDXUnit::Hz);
 
     switch(unitComboBox->currentIndex())
     {
       case 0: // kHz
         axisStyle->setUnit(TAxisStyle::kHz);
-        ancestor()->FID_2D->FID[0]->metricPrefix.setPrefix(TMetricPrefix::None);
-        ancestor()->FID_2D->FID[0]->plotMetricPrefix.setPrefix(TMetricPrefix::Kilo);
-        ancestor()->FID_2D->FID[0]->setDx(
-                    -1.0/(ancestor()->FID_2D->FID[0]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
-                                    *ancestor()->FID_2D->FID[0]->al())
+        ancestor()->FID_2D->FID[k]->setPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->FID[k]->setPlotPrefix(TMetricPrefix::Kilo);
+        ancestor()->FID_2D->FID[k]->setDx(
+                    -1.0/(ancestor()->FID_2D->FID[k]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *ancestor()->FID_2D->FID[k]->al())
                     );
 
-        //qDebug() << "kHz  dx: " << FID_2D->FID[0]->dx();
-//        FID_2D->FID[0]->setXInitialValue(
-//                    0.5/(FID_2D->FID[0]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro))
-//                    );
-        ancestor()->FID_2D->FID[0]->setXInitialValue(
+        ancestor()->FID_2D->FID[k]->setXInitialValue(
                     referenceValueLineEdit->text().toDouble()*TMetricPrefix::Decimal(TMetricPrefix::Kilo)
-                   -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[0]->dx());
+                   -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
 
-       // qDebug() << "xini: " << referenceValueLineEdit->text().toDouble()
-       //             -setReferenceSpinBox->value()*FID_2D->FID[0]->dx()*TMetricPrefix::Decimal(TMetricPrefix::Kilo);
-
-        ancestor()->FID_2D->FID[0]->setXAxisUnitSymbol("Hz");
+        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol("Hz");
 
         break;
       case 1: // Hz
         axisStyle->setUnit(TAxisStyle::Hz);
 
-        ancestor()->FID_2D->FID[0]->plotMetricPrefix.setPrefix(TMetricPrefix::None);
-        ancestor()->FID_2D->FID[0]->setDx(
-                    -1.0/(ancestor()->FID_2D->FID[0]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
-                                    *ancestor()->FID_2D->FID[0]->al())
+        ancestor()->FID_2D->FID[k]->setPlotPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->FID[k]->setDx(
+                    -1.0/(ancestor()->FID_2D->FID[k]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *ancestor()->FID_2D->FID[k]->al())
                     );
-       // qDebug() << "Hz  dx: " << FID_2D->FID[0]->dx();
 
-//        FID_2D->FID[0]->setXInitialValue(
-//                    0.5/(FID_2D->FID[0]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro))
-//                    );
-        ancestor()->FID_2D->FID[0]->setXInitialValue(referenceValueLineEdit->text().toDouble()
-                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[0]->dx());
+        ancestor()->FID_2D->FID[k]->setXInitialValue(referenceValueLineEdit->text().toDouble()
+                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
 
-        ancestor()->FID_2D->FID[0]->setXAxisUnitSymbol("Hz");
+        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol("Hz");
 
         break;
       case 2: //ppm
         axisStyle->setUnit(TAxisStyle::ppm);
 
-        ancestor()->FID_2D->FID[0]->plotMetricPrefix.setPrefix(TMetricPrefix::None);
-        ancestor()->FID_2D->FID[0]->setDx(
-                          -1.0/(ancestor()->FID_2D->FID[0]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
-                                    *ancestor()->FID_2D->FID[0]->al()*ancestor()->FID_2D->sf1())
+        ancestor()->FID_2D->FID[k]->setPlotPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->FID[k]->setDx(
+                          -1.0/(ancestor()->FID_2D->FID[k]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *ancestor()->FID_2D->FID[k]->al()*ancestor()->FID_2D->sf1())
                     );
-        ancestor()->FID_2D->FID[0]->setXInitialValue(referenceValueLineEdit->text().toDouble()
-                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[0]->dx());
+        ancestor()->FID_2D->FID[k]->setXInitialValue(referenceValueLineEdit->text().toDouble()
+                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
 
-        ancestor()->FID_2D->FID[0]->setXAxisUnitSymbol("ppm");
+        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol("ppm");
 
         break;
     }
@@ -282,6 +272,65 @@ void TAxisFormatWidget::setFrequencyUnit()
     //FID_2D->FID[0]
     return;
 }
+
+void TAxisFormatWidget::setFrequencyUnit()
+{
+    ancestor()->FID_2D->setXUnit(TFIDXUnit::Hz);
+
+    switch(unitComboBox->currentIndex())
+    {
+      case 0: // kHz
+        axisStyle->setUnit(TAxisStyle::kHz);
+        ancestor()->FID_2D->setPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->setPlotPrefix(TMetricPrefix::Kilo);
+        ancestor()->FID_2D->setDx(
+                    -1.0/(ancestor()->FID_2D->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *ancestor()->FID_2D->al())
+                    );
+
+        ancestor()->FID_2D->setXInitialValue(
+                    referenceValueLineEdit->text().toDouble()*TMetricPrefix::Decimal(TMetricPrefix::Kilo)
+                   -setReferenceSpinBox->value()*ancestor()->FID_2D->dx());
+
+        ancestor()->FID_2D->setXAxisUnitSymbol("Hz");
+
+        break;
+      case 1: // Hz
+        axisStyle->setUnit(TAxisStyle::Hz);
+
+        ancestor()->FID_2D->setPlotPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->setDx(
+                    -1.0/(ancestor()->FID_2D->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *ancestor()->FID_2D->al())
+                    );
+
+        ancestor()->FID_2D->setXInitialValue(referenceValueLineEdit->text().toDouble()
+                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->dx());
+
+        ancestor()->FID_2D->setXAxisUnitSymbol("Hz");
+
+        break;
+      case 2: //ppm
+        axisStyle->setUnit(TAxisStyle::ppm);
+
+        ancestor()->FID_2D->setPlotPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->setDx(
+                          -1.0/(ancestor()->FID_2D->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *ancestor()->FID_2D->al()*ancestor()->FID_2D->sf1())
+                    );
+        ancestor()->FID_2D->setXInitialValue(referenceValueLineEdit->text().toDouble()
+                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->dx());
+
+        ancestor()->FID_2D->setXAxisUnitSymbol("ppm");
+
+        break;
+    }
+
+    //FID_2D->FID[0]
+    return;
+}
+
+
 void TAxisFormatWidget::setOtherUnit()
 {
 

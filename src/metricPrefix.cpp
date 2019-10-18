@@ -104,7 +104,7 @@ QString TMetricPrefix::Name(prefixes p)
 int TMetricPrefix::prefixIndex(QString name)
 {
     int i;
-    if(QString::compare(name,"yotta"),Qt::CaseInsensitive) i=0;
+    if(QString::compare(name,"yotta", Qt::CaseInsensitive)) i=0;
     else if(QString::compare(name,"zetta",Qt::CaseInsensitive)) i=1;
     else if(QString::compare(name,"exa",Qt::CaseInsensitive)) i=2;
     else if(QString::compare(name,"tera",Qt::CaseInsensitive)) i=3;

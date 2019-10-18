@@ -1484,7 +1484,7 @@ void Plotter::drawXTicks(QPainter *painter)
 // qDebug() << QString(Q_FUNC_INFO) << xini << xfin
 //          << x1 << x2 << "tick: " << tick;
 
-    double xIniVal = fid->xInitialValue()/TMetricPrefix::Decimal(fid->plotMetricPrefix.prefix());
+    double xIniVal = fid->xInitialValue()/TMetricPrefix::Decimal(fid->plotPrefix());
 
     xIniVal = ((int)(xIniVal/tick))*tick;
 

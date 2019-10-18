@@ -745,7 +745,7 @@ void TExpSettings::onJobSaveButtonClicked()
             {
                 dir.setPath(dirName);
                 QStringList filters;
-                filters << "*.opp" << "*.opd" << "*.sm2p" << "*.sm2d" << "*.ppg";
+                filters << "*.opa" << "*.opp" << "*.opd" << "*.sm2p" << "*.sm2d" << "*.ppg";
                 dir.setNameFilters(filters);
                 dir.setFilter(QDir::Files | QDir::NoSymLinks);
                 QFileInfoList infolist = dir.entryInfoList();
