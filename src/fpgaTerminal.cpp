@@ -1392,9 +1392,9 @@ bool TfpgaTerminal::initData()
           nmrData->FID[nmrData->FID.size()-1]->dummyCount=ppg->receiverInfo.nd();
           nmrData->FID[nmrData->FID.size()-1]->actualNA=0;
 
-          nmrData->FID[nmrData->FID.size()-1]->xunit=TFID::Second;
-          nmrData->FID[nmrData->FID.size()-1]->metricPrefix.setPrefix(TMetricPrefix::Micro);
-          nmrData->FID[nmrData->FID.size()-1]->plotMetricPrefix.setPrefix(TMetricPrefix::Milli);
+          nmrData->FID[nmrData->FID.size()-1]->setXUnit(TFIDXUnit::Second);
+          nmrData->FID[nmrData->FID.size()-1]->setMetricPrefix(TMetricPrefix::Micro);
+          nmrData->FID[nmrData->FID.size()-1]->setPlotMetricPrefix(TMetricPrefix::Milli);
           nmrData->FID[nmrData->FID.size()-1]->setXInitialValue(0.0);
           nmrData->FID[nmrData->FID.size()-1]->setDx(nmrData->FID[nmrData->FID.size()-1]->dw()
                   *TMetricPrefix::Decimal(TMetricPrefix::Micro));
@@ -1406,7 +1406,7 @@ bool TfpgaTerminal::initData()
               nmrData->FID[nmrData->FID.size()-1]->setXAxisLabel(expSettings->xAxisOptionWidget->axisLabel());
               nmrData->FID[nmrData->FID.size()-1]->setXInitialValue(expSettings->xAxisOptionWidget->initialValue());
               nmrData->FID[nmrData->FID.size()-1]->setDx(expSettings->xAxisOptionWidget->increment());
-              nmrData->FID[nmrData->FID.size()-1]->plotMetricPrefix.setPrefix(expSettings->xAxisOptionWidget->getPrefix());
+              nmrData->FID[nmrData->FID.size()-1]->setPlotMetricPrefix(expSettings->xAxisOptionWidget->getPrefix());
               nmrData->FID[nmrData->FID.size()-1]->setXAxisUnitSymbol(expSettings->xAxisOptionWidget->unitSymbol());
           }
           else
