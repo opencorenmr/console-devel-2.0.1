@@ -12,6 +12,7 @@ public:
                    Deci,Centi,Milli,Micro,Nano,Pico,Femto,Atto,Zepto,Yocto};
 
     TMetricPrefix();
+    TMetricPrefix(prefixes pfs) {FPrefix=pfs;}
     prefixes prefix() {return FPrefix;}
    // prefixes indexOf(QString s);
     void setPrefix(prefixes p) {FPrefix=p;}
