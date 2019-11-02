@@ -275,6 +275,8 @@ void TAxisFormatWidget::setFrequencyUnit(int k)
 
 void TAxisFormatWidget::setFrequencyUnit()
 {
+    for(int k=0; k<ancestor()->FID_2D->FID.size(); k++) setFrequencyUnit(k);
+/*
     ancestor()->FID_2D->setXUnit(TFIDXUnit::Hz);
 
     switch(unitComboBox->currentIndex())
@@ -325,7 +327,7 @@ void TAxisFormatWidget::setFrequencyUnit()
 
         break;
     }
-
+*/
     //FID_2D->FID[0]
     return;
 }

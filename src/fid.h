@@ -89,6 +89,7 @@ class TFID
     void setCustomXAxis(bool b) {FIsXAxisCustom=b;}
 
     double xValue(int k);
+    int xIndex(double x);
     QString xAxisUnitString();
     // int pivot;
     int na() {return FNA;}

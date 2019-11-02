@@ -620,6 +620,18 @@ double TFID::xValue(int k)
     return d0;
 }
 
+int TFID::xIndex(double x)
+{
+    int k=0;
+    double d=x;
+    d*=TMetricPrefix::Decimal(plotPrefix());
+    d-=xInitialValue();
+    d/=dx();
+    k=static_cast<int>(round(d));
+    if(k<0) {k=0;}
+    if(k>al()-1) {k=al()-1;}
+    return k;
+}
 
 bool TFID::exportAscii(QString fn, int xini, int xfin)
 {

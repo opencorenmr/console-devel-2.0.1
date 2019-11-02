@@ -93,7 +93,6 @@ bool fidDomain::process(TFID *fid, AxisDomain ad)
         break;
 
       case ToggleDomain:
-
         if(fid->domain()==TFID::TimeDomain)
         {
             fid->setXUnit(TFIDXUnit::Hz);
@@ -110,6 +109,8 @@ bool fidDomain::process(TFID *fid, AxisDomain ad)
 
             fid->setXAxisUnitSymbol("Hz");
             fid->setDomain(TFID::FrequencyDomain);
+
+       //     qDebug() << fid->dw() << fid->al() << fid->dx() << fid->xInitialValue();
 
         }
         else if(fid->domain()==TFID::FrequencyDomain)

@@ -440,7 +440,7 @@ void TProcessPanelWidget::clearProcessOperations()
 {
     //processOperations->clear();
     commandHistoryListWidget->clear();
-    while(!processOperations->processElements.isEmpty()) processOperations->processElements.removeLast();;
+    while(!processOperations->processElements.isEmpty()) processOperations->processElements.removeLast();
     resetProcessSettings();
 
 }

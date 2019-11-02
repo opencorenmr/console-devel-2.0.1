@@ -113,7 +113,7 @@ class TProcessFileWidget : public QWidget
     Q_OBJECT
 public:
     explicit TProcessFileWidget(QWidget *parent=0);
-    ~TProcessFileWidget(){;}
+    ~TProcessFileWidget(){}
 
     QPushButton *openButton,*saveButton;
     QPlainTextEdit *parameterPlainTextEdit;

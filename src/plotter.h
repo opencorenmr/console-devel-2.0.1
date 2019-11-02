@@ -66,6 +66,8 @@ public:
 signals:
     void xPlotRangeUpdateRequest(int i, int f);
     void xCursorPositionUpdateRequest(int xi);
+    void xInitialValueUpdateRequest(double d);
+    void xFinalValueUpdateRequest(double d);
 
 public slots:
     void setCursorInfo(QStringList sl);
@@ -402,6 +404,8 @@ public slots:
     void update();
     void setVCursor(bool b);
     void xFullRangePlot();
+    void updateXInitialValue(double d);
+    void updateXFinalValue(double d);
 
 private slots:
     void setRubberBand(bool b);
