@@ -71,7 +71,6 @@ bool TFFT::process(TFID *fid)
     else
     {
       fidDomain::process(fid,axisDomain());
-      //qDebug()<<ad;
     }
     return res;
 }

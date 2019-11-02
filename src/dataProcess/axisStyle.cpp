@@ -67,8 +67,8 @@ bool TAxisStyle::process(TFID *fid)
     {
       case PPMStyle:
        // fid->xunit=TFID::Hz;
-        fid->metricPrefix.setPrefix(TMetricPrefix::None);
-        fid->plotMetricPrefix.setPrefix(TMetricPrefix::None);
+        fid->setPrefix(TMetricPrefix::None);
+        fid->setPlotPrefix(TMetricPrefix::None);
 
         fid->setDx(
                     -1.0/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
@@ -83,8 +83,8 @@ bool TAxisStyle::process(TFID *fid)
 
       case NormalStyle:
        // fid->xunit=TFID::Second;
-        fid->metricPrefix.setPrefix(TMetricPrefix::None);
-        fid->plotMetricPrefix.setPrefix(TMetricPrefix::Kilo);
+        fid->setPrefix(TMetricPrefix::None);
+        fid->setPlotPrefix(TMetricPrefix::Kilo);
         fid->setDx(
                     -1.0/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
                                     *fid->al())

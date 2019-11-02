@@ -42,12 +42,15 @@ class THalfFID {
 
 };  // THalfFID
 
+class TFIDXUnit{
+  public:
+  enum xUnit {Second, Hz, ppm, Tesla, QuantumNumber};
+};
 
 class TFID
 {
   public:
     enum TDomain {TimeDomain,FrequencyDomain,NoDomain};
-    enum xUnit {Second, Hz, ppm, Tesla, QuantumNumber};
     TFID(int al);
     ~TFID() {delete real; delete imag; delete abs;}
 
@@ -55,12 +58,24 @@ class TFID
     TDomain domain() {return FDomain;}
     void setDomain(TDomain domain) {FDomain=domain;}
 
-    xUnit xunit;
+    TFIDXUnit::xUnit xunit() {return FXUnit;}
+    void setXUnit(TFIDXUnit::xUnit xu) {FXUnit=xu;}
 
     bool isEmpty() {return FisEmpty;}
     void setEmpty(bool b) {FisEmpty=b;}
 
-    TMetricPrefix metricPrefix, plotMetricPrefix;
+    TMetricPrefix metricPrefix() {return FMetricPrefix;}
+    void setMetricPrefix(TMetricPrefix mp) {FMetricPrefix=mp;}
+    TMetricPrefix::prefixes prefix() {return metricPrefix().prefix();}
+    void setPrefix(TMetricPrefix::prefixes pf) {FMetricPrefix.setPrefix(pf);}
+    void setPrefix(QString qs) {FMetricPrefix.setPrefix(qs);}
+
+    TMetricPrefix plotMetricPrefix() {return FPlotMetricPrefix;}
+    void setPlotMetricPrefix(TMetricPrefix mp) {FPlotMetricPrefix=mp;}
+    TMetricPrefix::prefixes plotPrefix() {return plotMetricPrefix().prefix();}
+    void setPlotPrefix(TMetricPrefix::prefixes pf) {FPlotMetricPrefix.setPrefix(pf);}
+    void setPlotPrefix(QString qs) {FPlotMetricPrefix.setPrefix(qs);}
+
     void setXInitialValue(double d) {FxInitialValue=d;}
     double xInitialValue() {return FxInitialValue;} // no metric prefix!
     void setDx(double d) {Fdx=d;}
@@ -74,6 +89,7 @@ class TFID
     void setCustomXAxis(bool b) {FIsXAxisCustom=b;}
 
     double xValue(int k);
+    int xIndex(double x);
     QString xAxisUnitString();
     // int pivot;
     int na() {return FNA;}
@@ -132,6 +148,10 @@ class TFID
 
 
   protected:
+    TMetricPrefix FMetricPrefix;
+    TMetricPrefix FPlotMetricPrefix;
+
+    TFIDXUnit::xUnit FXUnit;
     bool FisEmpty;
     int FAL;
     double FDW;
@@ -177,12 +197,27 @@ class TFID_2D
     QStringList parameters;
     //bool error;
 
-    void setMetricPrefix(TMetricPrefix p) {metricPrefix=p;}
-    void setPlotMetricPrefix(TMetricPrefix p) {plotMetricPrefix=p;}
-    TMetricPrefix metricPrefix, plotMetricPrefix;
-    void setXInitialValue(double d) {FxInitialValue=d;}
+    TFIDXUnit::xUnit xunit() {return FXUnit;}
+    void setXUnit(TFIDXUnit::xUnit xu) {FXUnit=xu; for(int k=0; k<FID.size(); k++) FID[k]->setXUnit(xu);}
+
+
+
+    TMetricPrefix metricPrefix() {return FMetricPrefix;}
+    void setMetricPrefix(TMetricPrefix mp) {FMetricPrefix=mp; for(int k=0; k<FID.size(); k++) FID[k]->setMetricPrefix(mp);}
+    TMetricPrefix::prefixes prefix() {return metricPrefix().prefix();}
+    void setPrefix(TMetricPrefix::prefixes pf) {FMetricPrefix.setPrefix(pf); for(int k=0; k<FID.size(); k++) FID[k]->setPrefix(pf);}
+    void setPrefix(QString qs) {FMetricPrefix.setPrefix(qs); for(int k=0; k<FID.size(); k++) FID[k]->setPrefix(qs);}
+
+    TMetricPrefix plotMetricPrefix() {return FPlotMetricPrefix;}
+    void setPlotMetricPrefix(TMetricPrefix mp) {FPlotMetricPrefix=mp; for(int k=0; k<FID.size(); k++) FID[k]->setMetricPrefix(mp);}
+    TMetricPrefix::prefixes plotPrefix() {return plotMetricPrefix().prefix();}
+    void setPlotPrefix(TMetricPrefix::prefixes pf) {FPlotMetricPrefix.setPrefix(pf); for(int k=0; k<FID.size(); k++) FID[k]->setPrefix(pf);}
+    void setPlotPrefix(QString qs) {FPlotMetricPrefix.setPrefix(qs); for(int k=0; k<FID.size(); k++) FID[k]->setPrefix(qs);}
+
+
+    void setXInitialValue(double d) {FxInitialValue=d; for(int k=0; k<FID.size(); k++) FID[k]->setXInitialValue(d);}
     double xInitialValue() {return FxInitialValue;} // no metric prefix!
-    void setDx(double d) {Fdx=d;}
+    void setDx(double d) {Fdx=d; for(int k=0; k<FID.size(); k++) FID[k]->setDx(d);}
     double dx() {return Fdx;}            // no metric prefix!
 
 
@@ -190,7 +225,7 @@ class TFID_2D
     void setCustomXAxis(bool b) {FIsXAxisCustom=b;}
 
     QString xAxisLabel() {return FXAxisLabel;}
-    void setXAxisLabel(QString qs) {FXAxisLabel=qs;}
+    void setXAxisLabel(QString qs) {FXAxisLabel=qs; for(int j=0; j<FID.size(); j++) {FID[j]->setXAxisLabel(qs);} }
     QString xAxisUnitSymbol() {return FXAxisUnitSymbol;}
     void setXAxisUnitSymbol(QString qs) {FXAxisUnitSymbol=qs;}
 
@@ -226,6 +261,7 @@ class TFID_2D
     double sf1() {return FSF1;}
     void setSF1(double sf1) {FSF1=sf1; for(int j=0; j<FID.size(); j++) FID[j]->setSF1(sf1);}
 
+
     void initialize() {for(int j=0; j<FID.size(); j++) FID[j]->initialize();}
 
     bool setPlotData(int k, QVector<QPointF> *re, QVector<QPointF> *im, QVector<QPointF> *abs);
@@ -237,6 +273,10 @@ class TFID_2D
     // end
 
   protected:
+    TFIDXUnit::xUnit FXUnit;
+    TMetricPrefix FMetricPrefix;
+    TMetricPrefix FPlotMetricPrefix;
+
     int FNA,FND;
     int FAL;
     double FDW;

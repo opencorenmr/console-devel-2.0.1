@@ -196,8 +196,8 @@ bool TFID_2D::ReadoppFile(QString fn)
       setDx(settings.value("xIncrement",0).toDouble());
       setXAxisLabel(settings.value("xAxisLabel","").toString());
       setXAxisUnitSymbol(settings.value("xAxisUnitSymbol","").toString());
-      metricPrefix.setPrefix(settings.value("metricPrefix","None").toString());
-      plotMetricPrefix.setPrefix(settings.value("plotMetricPrefix","None").toString());
+      setPrefix(settings.value("metricPrefix","None").toString());
+      setPlotPrefix(settings.value("plotMetricPrefix","None").toString());
       //qDebug() << metricPrefix.prefix() << plotMetricPrefix.prefix();
     settings.endGroup();
 
@@ -274,8 +274,8 @@ bool TFID_2D::Readsm2pFile(QString fn)
     setXAxisLabel("");
     setXAxisUnitSymbol("sec");
 //qDebug () << QString(Q_FUNC_INFO) << ": " << xAxisUnitSymbol();
-    metricPrefix.setPrefix("micro");
-    plotMetricPrefix.setPrefix("milli");
+    setPrefix("micro");
+    setPlotPrefix("milli");
 
 
     if(!pointDefined)
@@ -321,8 +321,8 @@ bool TFID_2D::WriteoppFile(QString fn)
           settings.setValue("xIncrement",FID.at(0)->dx());
           settings.setValue("xAxisLabel",FID.at(0)->xAxisLabel());
           settings.setValue("xAxisUnitSymbol",FID.at(0)->xAxisUnitSymbol());
-          settings.setValue("metricPrefix",TMetricPrefix::Name(FID.at(0)->metricPrefix.prefix()));
-          settings.setValue("plotMetricPrefix",TMetricPrefix::Name(FID.at(0)->plotMetricPrefix.prefix()));
+          settings.setValue("metricPrefix",TMetricPrefix::Name(FID.at(0)->prefix()));
+          settings.setValue("plotMetricPrefix",TMetricPrefix::Name(FID.at(0)->plotPrefix()));
         settings.endGroup();
         settings.sync();
 
@@ -449,8 +449,8 @@ bool TFID_2D::ReadopdFile(QString fn)
         FID[k]->setDx(dx());
         FID[k]->setXAxisLabel(xAxisLabel());
         FID[k]->setXAxisUnitSymbol(xAxisUnitSymbol());
-        FID[k]->metricPrefix.setPrefix(metricPrefix.prefix());
-        FID[k]->plotMetricPrefix.setPrefix(plotMetricPrefix.prefix());
+        FID[k]->setPrefix(prefix());
+        FID[k]->setPlotPrefix(plotPrefix());
 
         FID[k]->setDomain(TFID::TimeDomain);
 
@@ -496,8 +496,8 @@ bool TFID_2D::Readsm2dFile(QString fn)
 
         FID[k]->setXAxisLabel("");
         FID[k]->setXAxisUnitSymbol("sec");
-        FID[k]->metricPrefix.setPrefix("micro");
-        FID[k]->plotMetricPrefix.setPrefix("milli");
+        FID[k]->setPrefix("micro");
+        FID[k]->setPlotPrefix("milli");
 
         FID[k]->setDomain(TFID::TimeDomain);
 
@@ -576,9 +576,9 @@ TFID::TFID(int al)
 
     FPhase0=0;
     setDomain(TimeDomain);
-    xunit=Second;
-    metricPrefix.setPrefix(TMetricPrefix::Micro);
-    plotMetricPrefix.setPrefix(TMetricPrefix::Milli);
+    setXUnit(TFIDXUnit::Second);
+    setPrefix(TMetricPrefix::Micro);
+    setPlotPrefix(TMetricPrefix::Milli);
     setCustomXAxis(false);
 
     // NonUniformSampling(Kobayashi)
@@ -603,7 +603,7 @@ QString TFID::xAxisUnitString()
     }
     */
 
-    return TMetricPrefix::Symbol(plotMetricPrefix.prefix())
+    return TMetricPrefix::Symbol(plotPrefix())
             +xAxisUnitSymbol();
 }
 
@@ -615,11 +615,23 @@ double TFID::xValue(int k)
   //qDebug()<<QString(Q_FUNC_INFO) << "dx()" << dx();
 
     double d0=xInitialValue()+m*dx();
-    d0/=TMetricPrefix::Decimal(plotMetricPrefix.prefix());
+    d0/=TMetricPrefix::Decimal(plotPrefix());
 
     return d0;
 }
 
+int TFID::xIndex(double x)
+{
+    int k=0;
+    double d=x;
+    d*=TMetricPrefix::Decimal(plotPrefix());
+    d-=xInitialValue();
+    d/=dx();
+    k=static_cast<int>(round(d));
+    if(k<0) {k=0;}
+    if(k>al()-1) {k=al()-1;}
+    return k;
+}
 
 bool TFID::exportAscii(QString fn, int xini, int xfin)
 {

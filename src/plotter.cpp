@@ -318,8 +318,8 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
 
     xIniSpinBox=new QSpinBox; xIniSpinBox->setMinimum(0);xIniSpinBox->setMaximum(0);
     xFinSpinBox=new QSpinBox; xFinSpinBox->setMinimum(0);xFinSpinBox->setMaximum(0);
-    xIniValLineEdit=new QLineEdit; xIniValLineEdit->setReadOnly(true);
-    xFinValLineEdit=new QLineEdit; xFinValLineEdit->setReadOnly(true);
+    xIniValLineEdit=new QLineEdit; xIniValLineEdit->setReadOnly(false);
+    xFinValLineEdit=new QLineEdit; xFinValLineEdit->setReadOnly(false);
     xIniUnitLabel=new QLabel;
     xFinUnitLabel=new QLabel;
 
@@ -377,7 +377,8 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
     connect(xFinSpinBox,SIGNAL(valueChanged(int)),this,SLOT(onXFinSpinBoxValueChanged()));
 
     connect(xPosLineEdit,SIGNAL(returnPressed()),this,SLOT(onXPosLineEditReturnPressed()));
-    //connect(xIniValLineEdit,SIGNAL(returnPressed()),this,SLOT(onXIniValLineEditReturnPressed()));
+    connect(xIniValLineEdit,SIGNAL(returnPressed()),this,SLOT(onXIniValLineEditReturnPressed()));
+    connect(xFinValLineEdit,SIGNAL(returnPressed()),this,SLOT(onXFinValLineEditReturnPressed()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
 //    mainLayout->setMargin(0);
@@ -412,29 +413,32 @@ void plotterDetailsWidget::onXIniValLineEditReturnPressed()
 
   bool ok;
 
-  int xi = xIniValLineEdit->text().toDouble(&ok);
+  double d = xIniValLineEdit->text().toDouble(&ok);
   if(!ok)
   {
-      QMessageBox::warning(this,"error","Invalid Number.");
+      QMessageBox::warning(this,"error","Invalid Initial Value: " + xIniValLineEdit->text());
       return;
   }
 
-  if(xi<0)
-  {
-      QMessageBox::warning(this,"error","Out of Range.");
-      return;
-  }
-
- // qDebug() << xi;
+  emit xInitialValueUpdateRequest(d);
 
 }
 //------------------------------------------------------------------------------
 void plotterDetailsWidget::onXFinValLineEditReturnPressed()
 {
 
+    bool ok;
+
+    double d = xFinValLineEdit->text().toDouble(&ok);
+    if(!ok)
+    {
+        QMessageBox::warning(this,"error","Invalid Final Value: " + xFinValLineEdit->text());
+        return;
+    }
+
+    emit xFinalValueUpdateRequest(d);
 
 }
-
 //------------------------------------------------------------------------------
 void plotterDetailsWidget::onXIniSpinBoxValueChanged()
 {
@@ -483,7 +487,6 @@ void plotterDetailsWidget::setPlotRangeInfo(QStringList sl)
 }
 //------------------------------------------------------------------------------
 FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
-//FIDPlotter::FIDPlotter(QWidget *parent): Plotter(parent)
 {
     plotter = new Plotter;
     fid2d = new TFID_2D;
@@ -531,7 +534,8 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     connect(plotterDetails,SIGNAL(xPlotRangeUpdateRequest(int,int)),plotter,SLOT(updatePlotRange(int,int)));
     connect(plotterDetails,SIGNAL(xCursorPositionUpdateRequest(int)),plotter,SLOT(updateXCursorPosition(int)));
     connect(plotterDetails->xFullRangePushButton,SIGNAL(clicked()),this,SLOT(xFullRangePlot()));
-
+    connect(plotterDetails,SIGNAL(xInitialValueUpdateRequest(double)), this, SLOT(updateXInitialValue(double)));
+    connect(plotterDetails,SIGNAL(xFinalValueUpdateRequest(double)), this, SLOT(updateXFinalValue(double)));
     connect(penWidthSpinBox,SIGNAL(valueChanged(int)),plotter,SLOT(setPenWidth(int)));
 
     connect(FFTCheckBox,SIGNAL(toggled(bool)),this,SLOT(update()));
@@ -1231,7 +1235,31 @@ void Plotter::updatePlotRange(int i, int f)
     xini=i; xfin=f;
     refreshPixmap();
 }
+//------------------------------------------------------------------------------
+void FIDPlotter::updateXInitialValue(double d)
+{
+    int kini;
+    kini=fid2d->FID.at(fid2d->currentFID())->xIndex(d);
+    if(kini>plotter->xfin)
+    {
+       kini=plotter->xfin-1;
+    }
+    if(kini<0) {kini=0;}
+    plotter->updatePlotRange(kini, plotter->xfin);
 
+}
+void FIDPlotter::updateXFinalValue(double d)
+{
+    int kfin;
+    kfin=fid2d->FID.at(fid2d->currentFID())->xIndex(d);
+    if (kfin<plotter->xini)
+    {
+        kfin=plotter->xini+1;
+    }
+    if (kfin>fid2d->FID.at(fid2d->currentFID())->al()-1) {kfin=fid2d->FID.at(fid2d->currentFID())->al()-1;}
+    plotter->updatePlotRange(plotter->xini,kfin);
+
+}
 //------------------------------------------------------------------------------
 void Plotter::keyPressEvent(QKeyEvent *event)
 {
@@ -1470,9 +1498,10 @@ void Plotter::drawXTicks(QPainter *painter)
     double x1,x2,tick,p;
     QString xLabel=fid->xAxisUnitString();
 
-//qDebug () << QString(Q_FUNC_INFO) << ": " << fid->xAxisUnitString() << fid->xAxisUnitSymbol();
+// qDebug () << QString(Q_FUNC_INFO) << ": " << fid->xAxisUnitString() << fid->xAxisUnitSymbol();
 
     if(fid->xAxisLabel()!="") xLabel =  fid->xAxisLabel() + " / " + xLabel;
+//    qDebug() << QString(Q_FUNC_INFO) << fid->domain() << fid->xAxisLabel() << fid->xAxisUnitString();
 
     x1=fid->xValue(xini);
     x2=fid->xValue(xfin);
@@ -1484,7 +1513,7 @@ void Plotter::drawXTicks(QPainter *painter)
 // qDebug() << QString(Q_FUNC_INFO) << xini << xfin
 //          << x1 << x2 << "tick: " << tick;
 
-    double xIniVal = fid->xInitialValue()/TMetricPrefix::Decimal(fid->plotMetricPrefix.prefix());
+    double xIniVal = fid->xInitialValue()/TMetricPrefix::Decimal(fid->plotPrefix());
 
     xIniVal = ((int)(xIniVal/tick))*tick;
 

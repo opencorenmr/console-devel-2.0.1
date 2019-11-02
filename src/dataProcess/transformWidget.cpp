@@ -138,7 +138,6 @@ void TTransformWidget::performFFT()
      return;
    }
 
-
    ancestor()->processOperations->processElements.append(fft);
    ancestor()->updateProcessSettings();
 
@@ -155,6 +154,8 @@ void TTransformWidget::performFFT()
    ancestor()->processSettings->endGroup();
    ancestor()->processSettings->sync();
 
+
+   ancestor()->axisFormatWidget->domainComboBox->setCurrentIndex(1);
    ancestor()->axisFormatWidget->init();
    ancestor()->axisFormatWidget->refresh();
 

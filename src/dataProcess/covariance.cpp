@@ -80,7 +80,7 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
           fid_2d->FID.last()->setXAxisUnitSymbol(fid_2d->FID.first()->xAxisUnitSymbol());
           fid_2d->FID.last()->setDW(fid_2d->FID.first()->dw());
           fid_2d->FID.last()->setDx(fid_2d->FID.first()->dx());
-          fid_2d->FID.last()->plotMetricPrefix.setPrefix(fid_2d->FID.first()->plotMetricPrefix.prefix());
+          fid_2d->FID.last()->setPlotPrefix(fid_2d->FID.first()->plotPrefix());
           fid_2d->FID.last()->setXInitialValue(fid_2d->FID.first()->xInitialValue());
       }
     }
@@ -94,7 +94,7 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
         }
     }
 
-    qDebug() << fid_2d->al() << fid_2d->FID.size();
+  //  qDebug() << fid_2d->al() << fid_2d->FID.size();
 
     // -----calculate average-----
 

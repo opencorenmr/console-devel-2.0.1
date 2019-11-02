@@ -366,8 +366,8 @@ bool T2DProcessWidget::Readsm2dFileforAdd(QString fn){
         ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->dx());
         ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->xAxisLabel());
         ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->xAxisUnitSymbol());
-        ancestor()->FID_2D->FID[k]->metricPrefix.setPrefix(ancestor()->FID_2D->metricPrefix.prefix());
-        ancestor()->FID_2D->FID[k]->plotMetricPrefix.setPrefix(ancestor()->FID_2D->plotMetricPrefix.prefix());
+        ancestor()->FID_2D->FID[k]->setPrefix(ancestor()->FID_2D->prefix());
+        ancestor()->FID_2D->FID[k]->setPlotPrefix(ancestor()->FID_2D->plotPrefix());
 
         ancestor()->FID_2D->FID[k]->setDomain(TFID::TimeDomain);
 
@@ -412,8 +412,8 @@ bool T2DProcessWidget::ReadopdFileforAdd(QString fn){
         ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->dx());
         ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->xAxisLabel());
         ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->xAxisUnitSymbol());
-        ancestor()->FID_2D->FID[k]->metricPrefix.setPrefix(ancestor()->FID_2D->metricPrefix.prefix());
-        ancestor()->FID_2D->FID[k]->plotMetricPrefix.setPrefix(ancestor()->FID_2D->plotMetricPrefix.prefix());
+        ancestor()->FID_2D->FID[k]->setPrefix(ancestor()->FID_2D->prefix());
+        ancestor()->FID_2D->FID[k]->setPlotPrefix(ancestor()->FID_2D->plotPrefix());
 
         ancestor()->FID_2D->FID[k]->setDomain(TFID::TimeDomain);
 

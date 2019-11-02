@@ -51,6 +51,7 @@ public slots:
     void setDomain();
     void setUnit();
     void setFrequencyUnit();
+    void setFrequencyUnit(int k);
     void setTimeUnit();
     void setOtherUnit();
     void createSettings(QSettings *settings, QString section);
