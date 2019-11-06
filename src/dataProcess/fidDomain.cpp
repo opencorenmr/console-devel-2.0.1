@@ -46,8 +46,8 @@ bool fidDomain::process(TFID_2D *fid_2d, int k)
     if(k<0 || k>(fid_2d->FID.size())-1)
     {
         errorQ=true;
-        errorMessage=QString(Q_FUNC_INFO)+": index (" +QString::number(k)
-                +") is out of range.";
+        setErrorMessage(QString(Q_FUNC_INFO)+": index (" +QString::number(k)
+                +") is out of range.");
         return false;
     }
     return process(fid_2d->FID[k],axisDomain());

@@ -23,7 +23,7 @@ bool TAddCutPoints::process(TFID *fid)
     if(headTail()==headTailUndefined || operation()==operationUndefined)
     {
 //        qDebug()<<QString(Q_FUNC_INFO)<<operation() << " " << headTail();
-        errorMessage="Operation is not defined";
+        setErrorMessage("Operation is not defined");
         return false;
     }
 
@@ -34,7 +34,7 @@ bool TAddCutPoints::process(TFID *fid)
       else if(headTail()==Tail) {ok=cutTail(fid);}
       else if(headTail()==Both) {ok=cutHeadTail(fid);}
       else {
-        errorMessage="Unsupported cut operation.";
+        setErrorMessage("Unsupported cut operation.");
         ok=false;
       }
       break;
@@ -43,7 +43,7 @@ bool TAddCutPoints::process(TFID *fid)
         else if(headTail()==Tail) {ok=leaveTail(fid);}
         else if(headTail()==Both) {ok=leaveMiddle(fid);}
         else {
-          errorMessage="Unsupported cut operation.";
+          setErrorMessage("Unsupported cut operation.");
           ok=false;
         }
         break;
@@ -53,7 +53,7 @@ bool TAddCutPoints::process(TFID *fid)
       else if(headTail()==Tail) {ok=zeroFillTail(fid);}
       else if(headTail()==Both) {ok=zeroFillHeadTail(fid);}
       else {
-        errorMessage="Unsupported zero-fill operation.";
+        setErrorMessage("Unsupported zero-fill operation.");
         ok=false;
       }
       break;
@@ -61,13 +61,13 @@ bool TAddCutPoints::process(TFID *fid)
         if(headTail()==Head) {ok=extrapolateHead(fid);}
         else if(headTail()==Tail) {ok=extrapolateTail(fid);}
         else {
-          errorMessage="Unsupported extrapolation operation.";
+          setErrorMessage("Unsupported extrapolation operation.");
           ok=false;
         }
 
       break;
     default:
-      errorMessage="Unsupported operation";
+      setErrorMessage("Unsupported operation");
       ok=false;
       break;
     }
@@ -112,7 +112,7 @@ bool TAddCutPoints::cutHead(TFID *fid)
   }
   if(headPoints()>fid->al()-1)
   {
-      errorMessage="You cannot cut more points than " + QString::number(fid->al()) + ".";
+      setErrorMessage("You cannot cut more points than " + QString::number(fid->al()) + ".");
       return false;
   }
 
@@ -133,7 +133,7 @@ bool TAddCutPoints::cutTail(TFID *fid)
 
     if(tailPoints()>fid->al()-1)
     {
-        errorMessage="You cannot cut more points than " + QString::number(fid->al()) + ".";
+        setErrorMessage("You cannot cut more points than " + QString::number(fid->al()) + ".");
         return false;
     }
 
@@ -150,7 +150,7 @@ bool TAddCutPoints::cutHeadTail(TFID *fid)
 
     if(headPoints()+tailPoints() > fid->al()-1)
     {
-        errorMessage = "[cutHeadTail error] You cannot cut more points than " + QString::number(fid->al()) + ".";
+        setErrorMessage("[cutHeadTail error] You cannot cut more points than " + QString::number(fid->al()) + ".");
         return false;
     }
 
@@ -166,20 +166,20 @@ bool TAddCutPoints::leaveHead(TFID *fid)
 {
   if(headPoints()==fid->al())
   {
-      errorMessage="Nothing to be done.";
+      setErrorMessage("Nothing to be done.");
       //warningQ=true;
       return false;
   }
 
   if(headPoints()<1)
   {
-      errorMessage="[leaveHead error] You cannot cut more points than " + QString::number(fid->al()-1) + ".";
+      setErrorMessage("[leaveHead error] You cannot cut more points than " + QString::number(fid->al()-1) + ".");
       return false;
   }
 
   if(headPoints()>fid->al())
   {
-      errorMessage="[leaveHead error] You cannot leave more points than " + QString::number(fid->al()) + ".";
+      setErrorMessage("[leaveHead error] You cannot leave more points than " + QString::number(fid->al()) + ".");
       return false;
   }
 
@@ -191,18 +191,18 @@ bool TAddCutPoints::leaveTail(TFID *fid)
 {
     if(tailPoints()==fid->al())
     {
-        errorMessage="Nothing to be done.";
+        setErrorMessage("Nothing to be done.");
         return false;
     }
 
     if(tailPoints()<1)
     {
-        errorMessage="[leaveTail error] You cannot cut more points than " + QString::number(fid->al()-1) + ".";
+        setErrorMessage("[leaveTail error] You cannot cut more points than " + QString::number(fid->al()-1) + ".");
         return false;
     }
     if(tailPoints()>fid->al())
     {
-        errorMessage="[leaveTail error] You cannot leave more points than " + QString::number(fid->al()) + ".";
+        setErrorMessage("[leaveTail error] You cannot leave more points than " + QString::number(fid->al()) + ".");
         return false;
     }
 
@@ -219,13 +219,13 @@ bool TAddCutPoints::leaveMiddle(TFID *fid)
 {
     if(headPoints()+tailPoints()==0)
     {
-        errorMessage="Nothing to be done.";
+        setErrorMessage("Nothing to be done.");
         return false;
     }
 
   if(headPoints()+tailPoints() > fid->al()-1)
   {
-      errorMessage = "[leaveMiddle error] You cannot cut more points than " + QString::number(fid->al()-1) + ".";
+      setErrorMessage("[leaveMiddle error] You cannot cut more points than " + QString::number(fid->al()-1) + ".");
       return false;
   }
 

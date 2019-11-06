@@ -92,7 +92,7 @@ void TApodizationWidget::onApplyButtonClicked()
     if(!performOperation())
     // in case of error...
     {
-        QMessageBox::warning(this,tr(""), apodization->errorMessage);
+        QMessageBox::warning(this,tr(""), apodization->errorMessage());
         return;
     }
 
@@ -134,7 +134,7 @@ bool TApodizationWidget::performOperation()
 
     if(!ok)
     {
-        setMessage(apodization->errorMessage);
+        setMessage(apodization->errorMessage());
         return false;
     }
     ancestor()->plotters->update();

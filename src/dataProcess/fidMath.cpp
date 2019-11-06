@@ -74,7 +74,7 @@ bool TFIDMath::process(TFID_2D *fid_2d, int k)
     if(k<0 || k>fid_2d->FID.size()-1)
     {
         errorQ=true;
-        errorMessage=QString(Q_FUNC_INFO)+": index is out of range.";
+        setErrorMessage(QString(Q_FUNC_INFO)+": index is out of range.");
         return false;
     }
     else return process(fid_2d->FID[k]);
@@ -97,7 +97,7 @@ bool TFIDMath::process(TFID *fid)
    //     ok=operationWithBuffer(fid);
    //     break;
       default:
-        errorMessage="Invalid math operation";
+        setErrorMessage("Invalid math operation");
         ok=false;
         break;
     }
@@ -144,7 +144,7 @@ bool TFIDMath::operationWithNumber(TFID *fid)
         if(number1()==0 && number2()==0)
         {
             errorQ=true;
-            errorMessage="Division by 0 is not allowed.";
+            setErrorMessage("Division by 0 is not allowed.");
             return false;
         }
         for(int k=0; k<fid->al(); k++)
@@ -165,7 +165,7 @@ bool TFIDMath::operationWithNumber(TFID *fid)
         if(amax==0)
         {
             errorQ=true;
-            errorMessage="Division by 0 is not allowed.";
+            setErrorMessage("Division by 0 is not allowed.");
             return false;
         }
         for(int k=0; k<fid->al(); k++)
@@ -180,7 +180,7 @@ bool TFIDMath::operationWithNumber(TFID *fid)
         if(xini()<0 || xfin()>fid->al()-1)
         {
             errorQ=true;
-            errorMessage="Index out of range.";
+            setErrorMessage("Index out of range.");
             return false;
         }
 
@@ -199,7 +199,7 @@ bool TFIDMath::operationWithNumber(TFID *fid)
         if(xini()<0 || xfin()>fid->al()-1)
         {
             errorQ=true;
-            errorMessage="Index out of range.";
+            setErrorMessage("Index out of range.");
             return false;
         }
         re1=fid->real->average(xini(),xfin());
@@ -216,7 +216,7 @@ bool TFIDMath::operationWithNumber(TFID *fid)
 
       default:
         errorQ=true;
-        errorMessage="Invalid math operation";
+        setErrorMessage("Invalid math operation");
         return false;
 
     }
@@ -255,7 +255,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
     if(afid2->FID.size()!=1)
     {
         errorQ=true;
-        errorMessage="Math operation with arrayed data is not supported.";
+        setErrorMessage("Math operation with arrayed data is not supported.");
         delete afid2;
         return false;
     }
@@ -263,7 +263,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
     if(afid2->al()!=fid->al())
     {
         errorQ=true;
-        errorMessage="Math operation of two data with different data length is not allowed.";
+        setErrorMessage("Math operation of two data with different data length is not allowed.");
         delete afid2;
         return false;
     }
@@ -306,7 +306,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
            if(afid2->FID.first()->abs->sig.at(k)==0)
            {
                errorQ=true;
-               errorMessage="Division by zero is not allowed.";
+               setErrorMessage("Division by zero is not allowed.");
                delete afid2;
                return false;
            }
@@ -328,7 +328,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
         break;
       default:
         errorQ=true;
-        errorMessage="Invalid operation";
+        setErrorMessage("Invalid operation");
         delete afid2;
         return false;
 

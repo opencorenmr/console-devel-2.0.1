@@ -24,7 +24,7 @@ bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
     if(k<0 || k>fid_2d->FID.size()-1)
     {
         errorQ=true;
-        errorMessage=QString(Q_FUNC_INFO)+": index is out of range.";
+        setErrorMessage(QString(Q_FUNC_INFO)+": index is out of range.");
         return false;
     }
     else return process(fid_2d->FID[k]);
@@ -32,7 +32,7 @@ bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
 
 bool TPhaseRotation::process(TFID_2D *fid_2d)
 {
-    bool r;
+    bool r=false;
     for(int c=0; c<fid_2d->FID.size(); c++)
     {
         r=process(fid_2d->FID[c]);

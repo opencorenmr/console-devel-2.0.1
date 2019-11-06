@@ -276,7 +276,7 @@ void TAddCutPointsWidget::onApplyButtonClicked()
     if(!performOperation())
     // in case of error...
     {
-        QMessageBox::warning(this,tr(""), addCutPoints->errorMessage);
+        QMessageBox::warning(this,tr(""), addCutPoints->errorMessage());
         return;
     }
 
@@ -313,7 +313,7 @@ bool TAddCutPointsWidget::performOperation()
 
     if(!addCutPoints->process(ancestor()->FID_2D))
     {
-        setMessage(addCutPoints->errorMessage);
+        setMessage(addCutPoints->errorMessage());
         return false;
     }
    // qDebug() << QString(Q_FUNC_INFO) << "2" << FID_2D->FID.at(0)->al();
