@@ -33,7 +33,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-         errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         setErrorMessage(QString(Q_FUNC_INFO)+ ": Failed to open " + fn);
          return false;
     }
 

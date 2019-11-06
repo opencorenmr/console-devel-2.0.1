@@ -53,13 +53,13 @@ bool TAxisStyle::process(TFID *fid)
 {
     if(referencePoint()<0 || referencePoint()>fid->al()-1)
     {
-        errorMessage="Reference point is out of range.";
+        setErrorMessage("Reference point is out of range.");
         return false;
     }
 
     if(axisStyle()==PPMStyle && fid->sf1()==0)
     {
-        errorMessage="sf1 is set to zero, and division cannot be performed.";
+        setErrorMessage("sf1 is set to zero, and division cannot be performed.");
         return false;
     }
 

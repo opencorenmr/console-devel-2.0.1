@@ -38,7 +38,7 @@ bool TApodization::process(TFID_2D *fid_2d, int k)
     if(k<0 || k>fid_2d->FID.size()-1)
     {
         errorQ=true;
-        errorMessage=QString(Q_FUNC_INFO)+": index is out of range.";
+        setErrorMessage(QString(Q_FUNC_INFO)+": index is out of range.");
         return false;
     }
     else return process(fid_2d->FID[k]);
@@ -50,7 +50,7 @@ bool TApodization::process(TFID *fid)
     if(width()<0)
     {
         errorQ=true;
-        errorMessage="Width cannot be negative.";
+        setErrorMessage("Width cannot be negative.");
         return false;
     }
     switch(apodizationType())
@@ -82,7 +82,7 @@ bool TApodization::process(TFID *fid)
         if(inverse()==true)
         {
             errorQ=true;
-            errorMessage="Inverse operation is not allowed for sinc apodization";
+            setErrorMessage("Inverse operation is not allowed for sinc apodization");
             return false;
         }
         for(int k=1; k<fid->al(); k++) // For sinc, we start from k=1 (second point!)
@@ -96,7 +96,7 @@ bool TApodization::process(TFID *fid)
         break;
        default:
         errorQ=true;
-        errorMessage="Undefined apodization type.";
+        setErrorMessage("Undefined apodization type.");
         return false;
     } // switch
 

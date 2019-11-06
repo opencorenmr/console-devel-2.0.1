@@ -22,8 +22,8 @@ public:
     virtual QString command() {return "";}
 
     virtual QStringList processInformation() {return QStringList();}
-    QString warningMessage;
-    QString errorMessage;
+    QString warningMessage() {return FWarningMessage;}
+    QString errorMessage() {return FErrorMessage;}
     bool errorQ;
     bool warningQ;
 
@@ -35,8 +35,12 @@ public slots:
     void setApplyIndex(int i) {FApplyIndex=i;}
 
 protected:
+    void setWarningMessage(QString qs) {FWarningMessage=qs;}
+    void setErrorMessage(QString qs) {FErrorMessage=qs;}
 
 private:
+    QString FWarningMessage;
+    QString FErrorMessage;
     int FApplyIndex;
     int FApplyMode;
 

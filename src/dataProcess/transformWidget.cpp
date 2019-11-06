@@ -174,7 +174,7 @@ void TTransformWidget::performIFFT()
    if(!isAncestorDefined()) return;
    if(ancestor()->FID_2D->FID.isEmpty()) return;
 
-   bool ok;
+   bool ok=false;
    TIFFT *ifft=new TIFFT;
 
    // We check if we apply Laplace transfomation

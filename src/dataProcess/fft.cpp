@@ -97,9 +97,9 @@ bool TFFT::FFTProcess(TFID *fid)
           fid->abs->sig[m]=0.0;
       }
       warningQ=true;
-      warningMessage = "Automatic zero-fill to "
+      setWarningMessage("Automatic zero-fill to "
                        + QString::number(fid->al())
-                       + " point has been performed.";
+                       + " point has been performed.");
     }
 
     // theta=TWOPI/n;
