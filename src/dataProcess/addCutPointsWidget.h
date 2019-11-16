@@ -22,7 +22,7 @@ public:
     explicit TAddCutPointsWidget();
     ~TAddCutPointsWidget();
   //  TFID_2D *FID_2D;
-    void setFID2D(TFID_2D *f);
+  //  void setFID2D(TFID_2D *f);
 
     TAddCutPoints *addCutPoints;
 

@@ -1,5 +1,7 @@
 #include "2DprocessWidget.h"
 #include "processPanelWidget.h"
+#include "arraySum.h"
+#include "flatten.h"
 #include "transpose.h"
 #include "hyperComplex.h"
 #include "slow2dft.h"
@@ -29,7 +31,9 @@ T2DProcessWidget::T2DProcessWidget()
 
 void T2DProcessWidget::createWidgets()
 {
-    transposeButton = new QPushButton(tr("Apply"));
+    transposeButton = new QPushButton(tr("Transpose"));
+    arraySumButton = new QPushButton(tr("Array Sum"));
+    flattenButton = new QPushButton(tr("Flatten"));
 
     hyperComplexPhaseComboBox = new QComboBox();
     hyperComplexPhaseComboBox->addItems(QStringList() << "As it is" << "Reverse");
@@ -40,9 +44,11 @@ void T2DProcessWidget::createWidgets()
 void T2DProcessWidget::createPanel()
 {
     QVBoxLayout *vLayout= new QVBoxLayout(this);
-      QGroupBox *transposeGroupBox = new QGroupBox(tr("Transpose"));
+      QGroupBox *transposeGroupBox = new QGroupBox(tr("Array manipulation"));
       QHBoxLayout *transposeLayout = new QHBoxLayout;
       transposeLayout->addWidget(transposeButton);
+      transposeLayout->addWidget(arraySumButton);
+      transposeLayout->addWidget(flattenButton);
       transposeGroupBox->setLayout(transposeLayout);
     vLayout->addWidget(transposeGroupBox);
 
@@ -68,6 +74,8 @@ void T2DProcessWidget::createConnections()
 {
 
     connect(transposeButton,SIGNAL(clicked()),this,SLOT(performTranspose()));
+    connect(arraySumButton,SIGNAL(clicked()),this,SLOT(performArraySum()));
+    connect(flattenButton,SIGNAL(clicked()),this,SLOT(performFlatten()));
     connect(hyperComplexButton,SIGNAL(clicked()),this,SLOT(performHyperComplexCompression()));
     connect(appendDataButton,SIGNAL(clicked()),this,SLOT(performAppendData()));
 
@@ -104,6 +112,64 @@ void T2DProcessWidget::performHyperComplexCompression()
 
 }
 
+void T2DProcessWidget::performFlatten()
+{
+    if(!isAncestorDefined()) return;
+    if(ancestor()->FID_2D->FID.isEmpty()) return;
+
+    bool ok;
+    TFlatten *flatten = new TFlatten;
+    ok=flatten->process(ancestor()->FID_2D);
+    if(!ok)
+    {
+        delete flatten;
+        return;
+    }
+    ancestor()->processOperations->processElements.append(flatten);
+
+    ancestor()->updateProcessSettings();
+
+    for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
+    {
+
+      ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
+      ancestor()->plotters->FIDPlotters[k]->plotter->xfin=ancestor()->FID_2D->FID.at(0)->al()-1;
+
+    }
+
+    ancestor()->plotters->update();
+
+
+
+}
+void T2DProcessWidget::performArraySum()
+{
+    if(!isAncestorDefined()) return;
+    if(ancestor()->FID_2D->FID.isEmpty()) return;
+
+    bool ok;
+    TArraySum *arraySum = new TArraySum;
+    ok=arraySum->process(ancestor()->FID_2D);
+    if(!ok)
+    {
+        delete arraySum;
+        return;
+    }
+    ancestor()->processOperations->processElements.append(arraySum);
+
+    ancestor()->updateProcessSettings();
+
+    for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
+    {
+
+      ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
+      ancestor()->plotters->FIDPlotters[k]->plotter->xfin=ancestor()->FID_2D->FID.at(0)->al()-1;
+
+    }
+
+    ancestor()->plotters->update();
+
+}
 void T2DProcessWidget::performTranspose()
 {
     if(!isAncestorDefined()) return;

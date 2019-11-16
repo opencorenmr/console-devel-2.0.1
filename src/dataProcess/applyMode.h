@@ -5,19 +5,19 @@
 #include <QComboBox>
 #include <QSpinBox>
 
-enum ApplyMode
-{
-     ApplyToAll,
-     ApplyToOne,
-     ApplyToOthers,
-     ApplyToNone
-};
+//enum ApplyMode
+//{
+//     ApplyToAll,
+//     ApplyToOne,
+//     ApplyToOthers,
+//     ApplyToNone
+//};
 
 class TApplyModeWidget: public QWidget
 {
     Q_OBJECT
 public:
-    explicit TApplyModeWidget(QWidget *parent=0);
+    explicit TApplyModeWidget(QWidget *parent=nullptr);
 
     QComboBox *applyModeComboBox;
     QSpinBox *currentPlotterSpinBox;

@@ -15,6 +15,8 @@ public:
     explicit T2DProcessWidget();
     ~T2DProcessWidget() {;}
     QPushButton *transposeButton;
+    QPushButton *arraySumButton;
+    QPushButton *flattenButton;
 
     QComboBox *hyperComplexPhaseComboBox;
     QPushButton *hyperComplexButton;
@@ -32,6 +34,8 @@ signals:
 
 public slots:
     void performTranspose();
+    void performArraySum();
+    void performFlatten();
     void performHyperComplexCompression();
     void performAppendData();
 

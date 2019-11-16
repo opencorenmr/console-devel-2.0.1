@@ -9,18 +9,17 @@ class TAxisStyle : public TProcessElement
 public:
     TAxisStyle();
     enum AxisStyle {NormalStyle,PPMStyle};
-    AxisStyle axisStyle() {return FAxisStyle;}
-    void setAxisStyle(AxisStyle as) {FAxisStyle=as;}
+    int axisStyle() {return FAxisStyle;}
+    void setAxisStyle(int axisStyle) {FAxisStyle=axisStyle;}
 
     enum AxisDomain {TimeDomain,FrequencyDomain,Other};
-    AxisDomain domain() {return FDomain;}
-
-    void setDomain(AxisDomain ad);
+    int domain() {return FDomain;}
+    void setDomain(int ad);
     void setDomain(QString qs);
 
-    enum AxisUnit {usec,msec,sec,kHz,Hz,ppm};
-    AxisUnit unit() {return FUnit;}
-    void setUnit(AxisUnit au);
+    enum AxisUnit {nsec,usec,msec,sec,GHz,MHz,kHz,Hz,ppm};
+    int unit() {return FUnit;}
+    void setUnit(int au);
     void setUnit(QString qs);
 
     QString label() {return FLabel;}
@@ -38,11 +37,11 @@ public:
     QStringList processInformation();
 
 private:
-    AxisStyle FAxisStyle;
+    int FAxisStyle;
     int FReferencePoint;
     double FReferenceValue;
-    AxisDomain FDomain;
-    AxisUnit FUnit;
+    int FDomain;
+    int FUnit;
     QString FLabel;
 
 };

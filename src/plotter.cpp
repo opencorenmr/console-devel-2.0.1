@@ -4,6 +4,7 @@
 #include "plotter.h"
 #include "metricPrefix.h"
 #include "math.h"
+#include "float.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -325,6 +326,12 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
 
     xFullRangePushButton=new QPushButton(tr("Full Range"));
 
+    vOffsetSpinBox = new QDoubleSpinBox;
+    vOffsetSpinBox->setRange(0,1);
+    vOffsetSpinBox->setDecimals(1);
+    vOffsetSpinBox->setSingleStep(0.1);
+    vOffsetSpinBox->setValue(0.5);
+
     //xPosSpinBox=new QSpinBox; xPosSpinBox->setMinimum(0);
 
     QStackedLayout *stackedLayout = new QStackedLayout;
@@ -364,6 +371,8 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
       hLayout2->addWidget(xFinValLineEdit); hLayout2->addWidget(xFinUnitLabel);
     vLayout2->addLayout(hLayout2);
     vLayout2->addWidget(xFullRangePushButton);
+    vLayout2->addWidget(new QLabel("Y Offset"));
+    vLayout2->addWidget(vOffsetSpinBox);
     vLayout2->addStretch();
 //    vLayout2->addWidget(new QLabel("soon."));
 
@@ -534,6 +543,7 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     connect(plotterDetails,SIGNAL(xPlotRangeUpdateRequest(int,int)),plotter,SLOT(updatePlotRange(int,int)));
     connect(plotterDetails,SIGNAL(xCursorPositionUpdateRequest(int)),plotter,SLOT(updateXCursorPosition(int)));
     connect(plotterDetails->xFullRangePushButton,SIGNAL(clicked()),this,SLOT(xFullRangePlot()));
+    connect(plotterDetails->vOffsetSpinBox,SIGNAL(valueChanged(double)),this,SLOT(updateVOffset(double)));
     connect(plotterDetails,SIGNAL(xInitialValueUpdateRequest(double)), this, SLOT(updateXInitialValue(double)));
     connect(plotterDetails,SIGNAL(xFinalValueUpdateRequest(double)), this, SLOT(updateXFinalValue(double)));
     connect(penWidthSpinBox,SIGNAL(valueChanged(int)),plotter,SLOT(setPenWidth(int)));
@@ -656,7 +666,7 @@ void FIDPlotter::createToolBar()
     //toolBar->addAction(moveRightAction);
     //toolBar->addSeparator();
     toolBar->addWidget(IDLabel);
-    toolBar->addWidget(splitViewComboBox); splitViewComboBox->setFixedWidth(60);
+    toolBar->addWidget(splitViewComboBox); splitViewComboBox->setFixedWidth(80);
     toolBar->addSeparator();
     toolBar->addWidget(new QLabel(tr("Scale")));
     toolBar->addWidget(scaleComboBox);scaleComboBox->setFixedWidth(80);
@@ -711,6 +721,20 @@ void FIDPlotter::thinnerLine()
     if(penWidthSpinBox->value()<=1) return;
     penWidthSpinBox->setValue(penWidthSpinBox->value()-1);
     plotter->refresh();
+}
+//------------------------------------------------------------------------------
+void FIDPlotter::updateVOffset(double d)
+{
+    if(!isFID2DSetted())
+    {  //qDebug() << QString(Q_FUNC_INFO) << "!isFIDSetted";
+        return;
+    }
+    if(fid2d->FID.isEmpty())
+    {
+        return;
+    }
+    plotter->setVOffset(round((0.5-d)*plotter->rect().height()));
+    update();
 }
 //------------------------------------------------------------------------------
 void FIDPlotter::xFullRangePlot()
@@ -772,9 +796,9 @@ void FIDPlotter::update()
         }
         plotter->localFID->updateAbs();
 
-        fidDomain::process(plotter->localFID,fidDomain::TimeDomain);
+       // fidDomain::process(plotter->localFID,fidDomain::TimeDomain);
         TFFT fft;
-        fft.setAxisDomain(fidDomain::FrequencyDomain);
+        fft.setAxisDomain(TFFT::SetFrequency);
         fft.process(plotter->localFID);
 
         plotter->localFID->setEmpty(false);
@@ -1461,7 +1485,7 @@ void Plotter::refreshPixmap()
     emit xIniSignal(xini);
     emit xFinSignal(xfin);
 
-    update();
+    update(); // QWidget::update()
 
   //  qDebug() << QString(Q_FUNC_INFO);
 }
@@ -1506,7 +1530,7 @@ void Plotter::drawXTicks(QPainter *painter)
     x1=fid->xValue(xini);
     x2=fid->xValue(xfin);
 
-    if(x2-x1==0) return;
+    if(fabs(x2-x1)<DBL_EPSILON) return;
     tick=tic(x1,x2);
     if(x1>x2) tick*=-1.0;
 
@@ -1851,7 +1875,7 @@ void Plotter::drawFID(QPainter *painter)
 
     painter->setClipRect(rect.adjusted(+1,+1,-1,-1));
 
-    if(fid->domain()==TFID::FrequencyDomain) setVOffset(rect.height()*0.4); else setVOffset(0);
+//    if(fid->domain()==TFID::FrequencyDomain) setVOffset(rect.height()*0.4); else setVOffset(0);
 
     if(plotFormat()==CartesianPlot)
     {

@@ -9,8 +9,11 @@ class TIFFT: public TProcessElement
 
 public:
     TIFFT();
-    fidDomain::AxisDomain axisDomain() {return FAxisDomain;}
-    void setAxisDomain(fidDomain::AxisDomain ad) {FAxisDomain=ad;}
+
+    enum TDomainOption {ToggleDomain, KeepDomain, SetTime, SetFrequency};
+
+    int axisDomain() {return FAxisDomain;}
+    void setAxisDomain(int ad) {FAxisDomain=ad;}
     bool process(TFID *fid);
     bool process(TFID_2D *fid_2d, int k);
     bool process(TFID_2D *fid_2d);
@@ -25,9 +28,10 @@ public:
 
 private:
     bool iFFTProcess(TFID *FID_H);
-    fidDomain::AxisDomain FAxisDomain;
+    int FAxisDomain;
     bool FLaplace;
     double FLaplaceWidth;
+    void processDomain(TFID *fid);
 
 };
 

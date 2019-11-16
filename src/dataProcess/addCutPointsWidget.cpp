@@ -40,12 +40,12 @@ void TAddCutPointsWidget::createWidgets()
     applyPushButton = new QPushButton(tr("Apply Cut/Add"));
 }
 
-void TAddCutPointsWidget::setFID2D(TFID_2D *f)
-{
+//void TAddCutPointsWidget::setFID2D(TFID_2D *f)
+//{
     //FID_2D=f;
     //headPointsSpinBox->setMaximum(f->al()-1);
     //tailPointsSpinBox->setMaximum(f->al()-1);
-}
+//}
 
 void TAddCutPointsWidget::createPanel()
 {
@@ -296,7 +296,11 @@ void TAddCutPointsWidget::addOperation()
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
     TAddCutPoints *addCut = new TAddCutPoints;
-      addCut->setHeadTail(TAddCutPoints::Head);
+      addCut->setHeadTail(addCutPoints->headTail());
+      addCut->setOperation(addCutPoints->operation());
+      addCut->setHeadPoints(addCutPoints->headPoints());
+      addCut->setTailPoints(addCutPoints->tailPoints());
+      addCut->setAveragePoints(addCutPoints->averagePoints());
     ancestor()->processOperations->processElements.append(addCut);
     // common settings
     ancestor()->updateProcessSettings();

@@ -3,7 +3,9 @@
 
 TApodization::TApodization()
 {
+  setProcessType(TProcessType::Apodization);
   setApodizationType(Gaussian); // default type
+  setWidth(0);
   setInverse(false);
 }
 
@@ -25,12 +27,52 @@ QStringList TApodization::processInformation()
 
 bool TApodization::process(TFID_2D *fid_2d)
 {
-    bool r;
-    for(int c=0; c<fid_2d->FID.size(); c++)
+    errorQ=false;
+    switch(applyMode())
     {
-        r=process(fid_2d->FID[c]);
-    }
-    return r;
+      default:
+      case ApplyToAll:
+
+        for(int c=0; c<fid_2d->FID.size(); c++)
+        {
+          errorQ=!process(fid_2d->FID[c]);
+          if(errorQ) break;
+        }
+        break;
+      case ApplyToOne:
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=true;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          errorQ=!process(fid_2d->FID[applyIndex()]);
+        }
+        break;
+      case ApplyToOthers:
+
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=true;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          for(int k=0; k<fid_2d->FID.size(); k++)
+          {
+            if(k!=applyIndex())
+            {
+              errorQ=!process(fid_2d->FID[k]);
+              if(errorQ) break;
+            }
+          } // k
+        }
+        break;
+    } // switch
+
+    return !errorQ;
+
 }
 
 bool TApodization::process(TFID_2D *fid_2d, int k)

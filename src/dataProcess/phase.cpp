@@ -3,6 +3,7 @@
 
 TPhaseRotation::TPhaseRotation()
 {
+  setProcessType(TProcessType::Phase);
   //qDebug() << "TPhaseRotation constructor.";
 }
 
@@ -19,6 +20,64 @@ void TPhaseRotation::setPivot(int p)
 QStringList TPhaseRotation::processInformation() {return QStringList() << "process=phase";}
 QString TPhaseRotation::command() {return "phase";}
 
+
+bool TPhaseRotation::process(TFID_2D *fid_2d)
+{
+    errorQ=false;
+    switch(applyMode())
+    {
+      default:
+      case ApplyToAll:
+
+        for(int c=0; c<fid_2d->FID.size(); c++)
+        {
+          errorQ=!process(fid_2d->FID[c]);
+          if(errorQ) break;
+        }
+        break;
+      case ApplyToOne:
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=true;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          errorQ=!process(fid_2d->FID[applyIndex()]);
+        }
+        break;
+      case ApplyToOthers:
+
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=true;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          for(int k=0; k<fid_2d->FID.size(); k++)
+          {
+            if(k!=applyIndex())
+            {
+              errorQ=!process(fid_2d->FID[k]);
+              if(errorQ) break;
+            }
+          } // k
+        }
+        break;
+//    default:
+//        qDebug() << QString(Q_FUNC_INFO) << " Default";
+
+//        errorQ=true;
+//        setErrorMessage(QString(Q_FUNC_INFO) + ": Invalid operation.");
+//        break;
+    } // switch
+
+
+    return !errorQ;
+
+}
+
 bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
 {
     if(k<0 || k>fid_2d->FID.size()-1)
@@ -30,21 +89,28 @@ bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
     else return process(fid_2d->FID[k]);
 }
 
-bool TPhaseRotation::process(TFID_2D *fid_2d)
-{
-    bool r=false;
-    for(int c=0; c<fid_2d->FID.size(); c++)
-    {
-        r=process(fid_2d->FID[c]);
-    }
-    return r;
-}
+//bool TPhaseRotation::process(TFID_2D *fid_2d)
+//{
+//    bool r=false;
+//    for(int c=0; c<fid_2d->FID.size(); c++)
+//    {
+//        r=process(fid_2d->FID[c]);
+//    }
+//    return r;
+//}
 
 bool TPhaseRotation::process(TFID *fid)
 {
     fid->rotate(phase0());
    // qDebug() << QString(Q_FUNC_INFO) << phase0();
     if(phase1()==0.0) return true;
+
+    if(pivot()<0 || pivot()>fid->al()-1)
+    {
+        errorQ=true;
+        setErrorMessage(QString(Q_FUNC_INFO)+": Invalid pivot index.");
+        return false;
+    }
 
     double phi;
     double c;

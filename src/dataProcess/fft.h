@@ -2,18 +2,19 @@
 #define FFT_H
 
 #include "processElement.h"
-#include "fidDomain.h"
+//#include "fidDomain.h"
 
 class TFFT: public TProcessElement
 {
 
 public:
-    using TProcessElement::process;
+   // using TProcessElement::process;
     TFFT();
     ~TFFT();
 
-    fidDomain::AxisDomain axisDomain() {return FAxisDomain;}
-    void setAxisDomain(fidDomain::AxisDomain ad) {FAxisDomain=ad;}
+    enum TDomainOption {ToggleDomain, KeepDomain, SetTime, SetFrequency};
+    int axisDomain() {return FAxisDomain;}
+    void setAxisDomain(int ad) {FAxisDomain=ad;}
 
     bool process(TFID *fid);
     bool process(TFID_2D *fid_2d, int k);
@@ -28,9 +29,10 @@ public:
 
 private:
     bool FFTProcess(TFID *fid);
-    fidDomain::AxisDomain FAxisDomain;
+    int FAxisDomain;
     bool FLaplace;
     double FLaplaceWidth;
+    void processDomain(TFID *fid);
 };
 
 #endif // FFT_H

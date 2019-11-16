@@ -14,8 +14,8 @@ public:
     KPeakPick();
     ~KPeakPick();
 
-    fidDomain::AxisDomain axisDomain() {return FAxisDomain;}
-    void setAxisDomain(fidDomain::AxisDomain ad) {FAxisDomain=ad;}
+    int axisDomain() {return FAxisDomain;}
+    void setAxisDomain(int axisDomain) {FAxisDomain=axisDomain;}
 
     QString dataFilePath() {return FDataFilePath;}
 
@@ -27,7 +27,7 @@ public:
 private:
     bool peakPickProcess(TFID_2D *fid_2d, double tgPeak, int tgFID);
     bool peakPickProcess2D(TFID_2D *fid_2d, double tgPeak, int tgSt, int tgEn);
-    fidDomain::AxisDomain FAxisDomain;
+    int FAxisDomain;
 
     QString FDataFilePath;
 

@@ -441,6 +441,7 @@ bool TFID_2D::ReadopdFile(QString fn)
     for(int k=0; k<n; k++)
     {
         FID.append(new TFID(FAL));
+        FID[FID.size()-1]->setSF1(sf1());
         FID[FID.size()-1]->setDW(FDW);
         for(int m=0; m<FAL; m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
         FID[k]->updateAbs();
@@ -489,6 +490,8 @@ bool TFID_2D::Readsm2dFile(QString fn)
     {
         FID.append(new TFID(FAL));
         FID.at(FID.size()-1)->setDW(FDW);
+        FID[FID.size()-1]->setSF1(sf1());
+
         for(int m=0; m<FAL; m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
         FID[k]->updateAbs();
         FID[k]->setEmpty(false);

@@ -55,8 +55,8 @@ class TFID
     ~TFID() {delete real; delete imag; delete abs;}
 
     THalfFID *real,*imag,*abs;
-    TDomain domain() {return FDomain;}
-    void setDomain(TDomain domain) {FDomain=domain;}
+    int domain() {return FDomain;}
+    void setDomain(int domain) {FDomain=domain;}
 
     TFIDXUnit::xUnit xunit() {return FXUnit;}
     void setXUnit(TFIDXUnit::xUnit xu) {FXUnit=xu;}
@@ -170,7 +170,7 @@ class TFID
 
     QMutex mutex;
 
-    TDomain FDomain;
+    int FDomain;
 
 };
 
