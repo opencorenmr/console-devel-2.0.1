@@ -53,10 +53,11 @@ public slots:
     void setFrequencyUnit();
     void setFrequencyUnit(int k);
     void setTimeUnit();
+    void setTimeUnit(int k);
     void setOtherUnit();
     void createSettings(QSettings *settings, QString section);
     void readSettings(QSettings *settings, QString section);
-    void updateXAxis();
+  //  void updateXAxis();
 
 private slots:
     void onSetReferencePushButtonToggled();

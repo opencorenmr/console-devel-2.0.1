@@ -3,13 +3,14 @@
 
 #include "processElement.h"
 
+
 class TAddCutPoints : public TProcessElement
 {
 public:
-    enum THeadTail {Head,Tail,Both,headTailUndefined};
-    enum TOperation {Cut, Leave, ZeroFill, Extrapolate, Add, operationUndefined};
     TAddCutPoints();
     ~TAddCutPoints();
+    enum THeadTail {Head,Tail,Both,headTailUndefined};
+    enum TOperation {Cut, Leave, ZeroFill, Extrapolate, Add, operationUndefined};
 
     bool process(TFID *fid);
     bool process(TFID_2D *fid_2d, int k);
@@ -20,10 +21,10 @@ public:
     QStringList processInformation();
     QString command();
 
-    THeadTail headTail() {return FHeadTail;}
-    void setHeadTail(THeadTail ht) {FHeadTail=ht;}
-    TOperation operation() {return FOperation;}
-    void setOperation(TOperation op) {FOperation=op;}
+    int headTail() {return FHeadTail;}
+    void setHeadTail(int ht) {FHeadTail=ht;}
+    int operation() {return FOperation;}
+    void setOperation(int op) {FOperation=op;}
     int headPoints() {return FHeadPoints;}
     int tailPoints() {return FTailPoints;}
     int averagePoint() {return FAveragePoints;}
@@ -35,8 +36,8 @@ public slots:
     void setAveragePoints(int p) {FAveragePoints=p;}
 
 private:
-    THeadTail FHeadTail;
-    TOperation FOperation;
+    int FHeadTail;
+    int FOperation;
     int FHeadPoints;
     int FTailPoints;
     int FAveragePoints;

@@ -13,8 +13,8 @@ public:
     KExport2DP();
     ~KExport2DP();
 
-    fidDomain::AxisDomain axisDomain() {return FAxisDomain;}
-    void setAxisDomain(fidDomain::AxisDomain ad) {FAxisDomain=ad;}
+    int axisDomain() {return FAxisDomain;}
+    void setAxisDomain(int axisDomain) {FAxisDomain=axisDomain;}
 
     bool process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
                  int line, double contL, double contH);
@@ -22,7 +22,7 @@ public:
 private:
     bool getMaxMinParameter(TFID_2D *fid_2d, double *max, double *min,
                             double *base, int *f1, int *f2);
-    fidDomain::AxisDomain FAxisDomain;
+    int FAxisDomain;
 };
 
 #endif // EXPORT2DP_H

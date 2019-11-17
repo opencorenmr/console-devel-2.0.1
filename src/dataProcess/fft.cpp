@@ -6,8 +6,9 @@
 
 TFFT::TFFT()
 {
+    setProcessType(TProcessType::FFT);
     //qDebug() << "TFFT constructor";
-    setAxisDomain(fidDomain::ToggleDomain);
+    setAxisDomain(ToggleDomain);
     setLaplace(false);
     setLaplaceWidth(0.0);
 }
@@ -39,16 +40,69 @@ QString TFFT::command()
       return "fft";
 }
 
-bool TFFT::process(TFID_2D *fid_2d, int k)
-{
-    return process(fid_2d->FID[k]);
-}
+//bool TFFT::process(TFID_2D *fid_2d)
+//{
+//    bool r=true;
+//    for(int c=0; c<fid_2d->FID.size(); c++) r=process(fid_2d->FID[c]);
+//    return r;
+//}
+
 
 bool TFFT::process(TFID_2D *fid_2d)
 {
-    bool r=true;
-    for(int c=0; c<fid_2d->FID.size(); c++) r=process(fid_2d->FID[c]);
-    return r;
+  errorQ=false;
+  switch(applyMode())
+  {
+    case ApplyToAll:
+
+      for(int c=0; c<fid_2d->FID.size(); c++)
+      {
+        errorQ=!process(fid_2d->FID[c]);
+        if(errorQ) break;
+      }
+      break;
+    case ApplyToOne:
+      if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+      {
+        errorQ=false;
+        setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+      }
+      else
+      {
+        errorQ=!process(fid_2d->FID[applyIndex()]);
+      }
+      break;
+    case ApplyToOthers:
+
+      if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+      {
+        errorQ=false;
+        setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+      }
+      else
+      {
+        for(int k=0; k<fid_2d->FID.size(); k++)
+        {
+          if(k!=applyIndex())
+          {
+            errorQ=!process(fid_2d->FID[k]);
+            if(errorQ) break;
+          }
+        } // k
+      }
+      break;
+  default:
+
+      errorQ=false;
+      setErrorMessage(QString(Q_FUNC_INFO) + ": Invalid operation.");
+      break;
+  } // switch
+  return !errorQ;
+}
+
+bool TFFT::process(TFID_2D *fid_2d, int k)
+{
+    return process(fid_2d->FID[k]);
 }
 
 bool TFFT::process(TFID *fid)
@@ -67,12 +121,89 @@ bool TFFT::process(TFID *fid)
     }
 
     bool res=FFTProcess(fid);
-    if(res==false) return res;
+    if(res==false)
+    {
+        return res;
+    }
     else
     {
-      fidDomain::process(fid,axisDomain());
+      processDomain(fid);
     }
     return res;
+}
+
+
+void TFFT::processDomain(TFID *fid)
+{
+
+    switch(axisDomain())
+    {
+      case SetFrequency:
+        fid->setXUnit(TFIDXUnit::Hz);
+        fid->setPrefix(TMetricPrefix::None);
+        fid->setPlotPrefix(TMetricPrefix::Kilo);
+
+        fid->setDx(
+                    -1.0/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *fid->al())
+                    );
+        fid->setXInitialValue(
+                    0.5/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro))
+                    );
+
+        fid->setXAxisUnitSymbol("Hz");
+        fid->setDomain(TFID::FrequencyDomain);
+
+
+        break;
+
+      case SetTime:
+        fid->setXUnit(TFIDXUnit::Second);
+        fid->setPrefix(TMetricPrefix::Micro);
+        fid->setPlotPrefix(TMetricPrefix::Milli);
+        fid->setXInitialValue(0.0);
+        fid->setDx(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
+        fid->setXAxisUnitSymbol("sec");
+        fid->setDomain(TFID::TimeDomain);
+        break;
+
+      case ToggleDomain:
+        if(fid->domain()==TFID::TimeDomain)
+        {
+            fid->setXUnit(TFIDXUnit::Hz);
+            fid->setPrefix(TMetricPrefix::None);
+            fid->setPlotPrefix(TMetricPrefix::Kilo);
+
+            fid->setDx(
+                        -1.0/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                        *fid->al())
+                        );
+            fid->setXInitialValue(
+                        0.5/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro))
+                        );
+
+            fid->setXAxisUnitSymbol("Hz");
+            fid->setDomain(TFID::FrequencyDomain);
+
+       //     qDebug() << fid->dw() << fid->al() << fid->dx() << fid->xInitialValue();
+
+        }
+        else if(fid->domain()==TFID::FrequencyDomain)
+        {
+            fid->setXUnit(TFIDXUnit::Second);
+            fid->setPrefix(TMetricPrefix::Micro);
+            fid->setPlotPrefix(TMetricPrefix::Milli);
+            fid->setXInitialValue(0.0);
+            fid->setDx(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
+            fid->setXAxisUnitSymbol("sec");
+            fid->setDomain(TFID::TimeDomain);
+        }
+        break;
+
+      case KeepDomain:
+        break;
+    }
+
 }
 
 bool TFFT::FFTProcess(TFID *fid)
@@ -184,9 +315,6 @@ bool TFFT::FFTProcess(TFID *fid)
         fid->imag->sig[k] = fid->imag->sig[k]/fid->al();
     }
     fid->updateAbs();
-
-   // if(fid->domain==TFID::TimeDomain) {fid->domain=TFID::FrequencyDomain;}
-   // else if(fid->domain==TFID::FrequencyDomain) {fid->domain=TFID::TimeDomain;}
 
     return true;
 }

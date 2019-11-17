@@ -1,33 +1,35 @@
 #include "fidDomain.h"
 
-fidDomain::fidDomain(AxisDomain ad)
+fidDomain::fidDomain(int axisDomain)
 {
-  setAxisDomain(ad);
+  setAxisDomain(axisDomain);
 }
 
 QStringList fidDomain::processInformation() {return QStringList() << "fidDomain";}
 QString fidDomain::command() {return "xAxisDomain";}
 
-bool fidDomain::process(TFID_2D *fid_2d,AxisDomain ad)
+/*
+bool fidDomain::process(TFID_2D *fid_2d, int axisDomain)
 {
     bool result=true;
     for(int i=0;i<fid_2d->FID.size(); i++)
     {
-        result=process(fid_2d->FID[i],ad);
+        result=process(fid_2d->FID[i], axisDomain);
     }
     return result;
 }
+*/
 
 bool fidDomain::process(TFID_2D *fid_2d)
 {
     bool result=true;
     for(int i=0;i<fid_2d->FID.size(); i++)
     {
-        result=process(fid_2d->FID[i],axisDomain());
+        result=process(fid_2d->FID[i]);
     }
     return result;
 }
-
+/*
 bool fidDomain::process(TFID_2D *fid_2d, int k, AxisDomain ad)
 {
     if(k<0 || k>(fid_2d->FID.size())-1)
@@ -40,6 +42,7 @@ bool fidDomain::process(TFID_2D *fid_2d, int k, AxisDomain ad)
     }
     return process(fid_2d->FID[k],ad);
 }
+*/
 
 bool fidDomain::process(TFID_2D *fid_2d, int k)
 {
@@ -50,20 +53,20 @@ bool fidDomain::process(TFID_2D *fid_2d, int k)
                 +") is out of range.");
         return false;
     }
-    return process(fid_2d->FID[k],axisDomain());
+    return process(fid_2d->FID[k]);
 }
+
+//bool fidDomain::process(TFID *fid)
+//{
+//    return process(fid,axisDomain());
+//}
 
 bool fidDomain::process(TFID *fid)
 {
-    return process(fid,axisDomain());
-}
 
-bool fidDomain::process(TFID *fid, AxisDomain ad)
-{
-
-    switch(ad)
+    switch(axisDomain())
     {
-      case FrequencyDomain:
+      case fidDomain::SetFrequency:
         fid->setXUnit(TFIDXUnit::Hz);
         fid->setPrefix(TMetricPrefix::None);
         fid->setPlotPrefix(TMetricPrefix::Kilo);
@@ -82,7 +85,7 @@ bool fidDomain::process(TFID *fid, AxisDomain ad)
 
         break;
 
-      case TimeDomain:
+      case SetTime:
         fid->setXUnit(TFIDXUnit::Second);
         fid->setPrefix(TMetricPrefix::Micro);
         fid->setPlotPrefix(TMetricPrefix::Milli);

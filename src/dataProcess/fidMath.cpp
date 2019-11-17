@@ -1,5 +1,6 @@
 #include "fidMath.h"
 #include "math.h"
+#include "float.h"
 
 TFIDMath::TFIDMath()
 {
@@ -141,7 +142,7 @@ bool TFIDMath::operationWithNumber(TFID *fid)
         fid->updateAbs();
         break;
       case Divide:
-        if(number1()==0 && number2()==0)
+        if(fabs(number1())<DBL_EPSILON && fabs(number2())<DBL_EPSILON)
         {
             errorQ=true;
             setErrorMessage("Division by 0 is not allowed.");
@@ -162,7 +163,7 @@ bool TFIDMath::operationWithNumber(TFID *fid)
 
       case Normalize:
         amax=fid->abs->max();
-        if(amax==0)
+        if(fabs(amax)<DBL_EPSILON)
         {
             errorQ=true;
             setErrorMessage("Division by 0 is not allowed.");
@@ -303,7 +304,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
       case Divide:
         for(int k=0; k<afid2->al(); k++)
         {
-           if(afid2->FID.first()->abs->sig.at(k)==0)
+           if(fabs(afid2->FID.first()->abs->sig.at(k))<DBL_EPSILON)
            {
                errorQ=true;
                setErrorMessage("Division by zero is not allowed.");

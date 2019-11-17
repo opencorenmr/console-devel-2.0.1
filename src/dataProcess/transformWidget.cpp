@@ -105,7 +105,7 @@ void TTransformWidget::performFFT()
 
    fft->setApplyMode(applyModeWidget->applyModeComboBox->currentIndex());
 
-   switch(fft->applyMode())
+/*   switch(fft->applyMode())
    {
      case ApplyToAll:
        ok=fft->process(ancestor()->FID_2D);
@@ -131,9 +131,12 @@ void TTransformWidget::performFFT()
        return;
 
    }
+*/
 
+   ok=fft->process(ancestor()->FID_2D);
    if(!ok)
    {
+     QMessageBox::warning(this,"error",fft->errorMessage());
      delete fft;
      return;
    }
@@ -192,20 +195,20 @@ void TTransformWidget::performIFFT()
 
    ifft->setApplyMode(applyModeWidget->applyModeComboBox->currentIndex());
 
-
+/*
    switch(ifft->applyMode())
    {
-     case ApplyToAll:
+     case TIFFT::ApplyToAll:
        ok=ifft->process(ancestor()->FID_2D);
        break;
-     case ApplyToOne:
+     case TIFFT::ApplyToOne:
        if(ifft->applyIndex()<=ancestor()->FID_2D->FID.size()-1)
        {
          ok = ifft->process(ancestor()->FID_2D->FID[ifft->applyIndex()]);
        }
        else ok=false;
        break;
-     case ApplyToOthers:
+     case TIFFT::ApplyToOthers:
        for(int k=0; k<ancestor()->FID_2D->FID.size(); k++)
        {
          if(k!=ifft->applyIndex())
@@ -219,9 +222,12 @@ void TTransformWidget::performIFFT()
        return;
 
    }
+*/
+   ok=ifft->process(ancestor()->FID_2D);
 
    if(!ok)
    {
+     QMessageBox::warning(this,"error",ifft->errorMessage());
      delete ifft;
      return;
    }

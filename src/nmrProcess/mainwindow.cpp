@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 //    processPanel->show();
     plotterWidget->show();
+    plotterWidget->raise();
     hasCloseEventCalled=false;
     loadSettings();
 
