@@ -4,9 +4,9 @@
 #define VERSION_NUMBER 2
 #define VERSION_NUMBER2 0
 #define VERSION_NUMBER3 1
-#define BUILD_NUMBER 20190910
+#define BUILD_NUMBER 20191118
 #define RELEASE_YEAR 2019
-#define RELEASE_MONTH "Sep"
+#define RELEASE_MONTH "Nov"
 
 int main(int argc, char *argv[])
 {
