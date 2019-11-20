@@ -1169,6 +1169,8 @@ void TFID::swapDomain()
       {setDomain(TimeDomain);}
 }
 
+
+
 double THalfFID::max(int ini, int fin)
 {
     double m;

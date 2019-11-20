@@ -16,7 +16,7 @@ class THalfFID {
 
     THalfFID() {sig.clear();}
     THalfFID(int al) {sig.fill(0.0, al);}
-    virtual ~THalfFID() {sig.clear();}
+    ~THalfFID() {sig.clear();}
 
     void initialize() {sig.fill(0.0,al());}
     //void initialize(int al) {sig.fill(0.0, al);}
@@ -44,7 +44,7 @@ class THalfFID {
 
 class TFIDXUnit{
   public:
-  enum xUnit {Second, Hz, ppm, Tesla, QuantumNumber};
+  enum xUnit {Second, Hz, ppm, Tesla, QuantumNumber, NoUnit};
 };
 
 class TFID

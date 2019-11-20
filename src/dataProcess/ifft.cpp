@@ -49,8 +49,8 @@ bool TIFFT::process(TFID_2D *fid_2d)
       case ApplyToAll:
         for(int c=0; c<fid_2d->FID.size(); c++)
         {
-          errorQ=process(fid_2d->FID[c]);
-          if(!errorQ) break;
+          errorQ=!process(fid_2d->FID[c]);
+          if(errorQ) break;
         }
         break;
       case ApplyToOne:
@@ -61,7 +61,7 @@ bool TIFFT::process(TFID_2D *fid_2d)
         }
         else
         {
-          errorQ=process(fid_2d->FID[applyIndex()]);
+          errorQ=!process(fid_2d->FID[applyIndex()]);
         }
         break;
       case ApplyToOthers:
@@ -76,14 +76,14 @@ bool TIFFT::process(TFID_2D *fid_2d)
           {
             if(k!=applyIndex())
             {
-              errorQ=process(fid_2d->FID[k]);
-              if(!errorQ) break;
+              errorQ=!process(fid_2d->FID[k]);
+              if(errorQ) break;
             }
           } // k
         }
         break;
     default:
-        errorQ=false;
+        errorQ=true;
         setErrorMessage(QString(Q_FUNC_INFO) + ": Invalid operation.");
         break;
     } // switch
@@ -98,8 +98,9 @@ bool TIFFT::process(TFID_2D *fid_2d, int k)
 
 bool TIFFT::process(TFID *fid)
 {
-
+  //  qDebug() << QString(Q_FUNC_INFO) << "0";
     bool res=iFFTProcess(fid);
+  //  qDebug() << QString(Q_FUNC_INFO) << "1" << res;
     if(res==false) return res;
     else
     {

@@ -100,6 +100,7 @@ public slots:
     void updateNumberOfPlotters(int i);
     void exportProcess();
     void importProcess();
+    void onVOffsetRequestReceived(double);
 
 private:
     QString FSettingDirPath;

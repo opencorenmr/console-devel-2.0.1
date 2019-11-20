@@ -523,6 +523,7 @@ void TProcessPanelWidget::createConnections()
 
     connect(createFIDWidget,SIGNAL(updateRequest()),this,SLOT(onFIDCreated()));
 
+    connect(transformWidget,SIGNAL(vOffsetRequest(double)),this,SLOT(onVOffsetRequestReceived(double)));
 }
 void TProcessPanelWidget::applyProcess()
 {
@@ -535,6 +536,17 @@ void TProcessPanelWidget::applyProcess()
     {
        QMessageBox::warning(this,tr("process error"), processOperations->errorMessage());
     }
+}
+
+void TProcessPanelWidget::onVOffsetRequestReceived(double vo)
+{
+    for(int k=0; k<plotters->FIDPlotters.size(); k++)
+    {
+        plotters->FIDPlotters[k]->plotterDetails->vOffsetSpinBox->setValue(vo);
+
+    }
+
+
 }
 void TProcessPanelWidget::updateNumberOfPlotters(int i)
 {

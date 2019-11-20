@@ -39,6 +39,8 @@ SOURCES += main.cpp\
     job.cpp \
     expSettings.cpp \
     metricPrefix.cpp \
+    dataProcess/arraySum.cpp \
+    dataProcess/flatten.cpp \
     dataProcess/processElement.cpp \
     dataProcess/fft.cpp \
     dataProcess/ifft.cpp \
@@ -105,6 +107,8 @@ HEADERS  += mainwindow.h \
     job.h \
     expSettings.h \
     metricPrefix.h \
+    dataProcess/arraySum.h \
+    dataProcess/flatten.h \
     dataProcess/processElement.h \
     dataProcess/ifft.h \
     dataProcess/fft.h \
