@@ -59,9 +59,6 @@ void TTransformWidget::createPanel()
     vLayout1->addWidget(groupBox1);
     vLayout1->addWidget(applyModeWidget);
     vLayout1->addStretch();
-    //mainLayout->addWidget(new QLabel(tr("Slow Fourier Transformation (experimental)")),2,0,1,2);
-    //mainLayout->addWidget(slowFTButton,3,0,1,1);
-    //mainLayout->addWidget(slowIFTButton,3,1,1,1);
 
 }
 
@@ -72,8 +69,6 @@ void TTransformWidget::createConnections()
 
     connect(restoreToDefaultButton,SIGNAL(clicked()),this,SLOT(restoreToDefault()));
     connect(LaplaceCheckBox,SIGNAL(toggled(bool)),LaplaceWidthDoubleSpinBox,SLOT(setEnabled(bool)));
-    //connect(slowFTButton,SIGNAL(clicked()),this,SLOT(performSlowFT()));
-    //connect(slowIFTButton,SIGNAL(clicked()),this,SLOT(performSlowIFT()));
 
 
 }
@@ -105,33 +100,6 @@ void TTransformWidget::performFFT()
 
    fft->setApplyMode(applyModeWidget->applyModeComboBox->currentIndex());
 
-/*   switch(fft->applyMode())
-   {
-     case ApplyToAll:
-       ok=fft->process(ancestor()->FID_2D);
-       break;
-     case ApplyToOne:
-       if(fft->applyIndex()<=ancestor()->FID_2D->FID.size()-1)
-       {
-         ok = fft->process(ancestor()->FID_2D->FID[fft->applyIndex()]);
-       }
-       else ok=false;
-       break;
-     case ApplyToOthers:
-       for(int k=0; k<ancestor()->FID_2D->FID.size(); k++)
-       {
-         if(k!=fft->applyIndex())
-         {
-            ok=fft->process(ancestor()->FID_2D->FID[k]);
-            if(!ok) break;
-         }
-       }
-       break;
-     default: // None
-       return;
-
-   }
-*/
 
    ok=fft->process(ancestor()->FID_2D);
    if(!ok)
@@ -140,6 +108,8 @@ void TTransformWidget::performFFT()
      delete fft;
      return;
    }
+
+   emit vOffsetRequest(0.1);
 
    ancestor()->processOperations->processElements.append(fft);
    ancestor()->updateProcessSettings();
@@ -195,35 +165,9 @@ void TTransformWidget::performIFFT()
 
    ifft->setApplyMode(applyModeWidget->applyModeComboBox->currentIndex());
 
-/*
-   switch(ifft->applyMode())
-   {
-     case TIFFT::ApplyToAll:
-       ok=ifft->process(ancestor()->FID_2D);
-       break;
-     case TIFFT::ApplyToOne:
-       if(ifft->applyIndex()<=ancestor()->FID_2D->FID.size()-1)
-       {
-         ok = ifft->process(ancestor()->FID_2D->FID[ifft->applyIndex()]);
-       }
-       else ok=false;
-       break;
-     case TIFFT::ApplyToOthers:
-       for(int k=0; k<ancestor()->FID_2D->FID.size(); k++)
-       {
-         if(k!=ifft->applyIndex())
-         {
-            ok=ifft->process(ancestor()->FID_2D->FID[k]);
-            if(!ok) break;
-         }
-       }
-       break;
-     default: // None
-       return;
-
-   }
-*/
    ok=ifft->process(ancestor()->FID_2D);
+
+  // qDebug() << QString(Q_FUNC_INFO) << ok;
 
    if(!ok)
    {
@@ -231,6 +175,8 @@ void TTransformWidget::performIFFT()
      delete ifft;
      return;
    }
+
+   emit vOffsetRequest(0.5);
 
    ancestor()->processOperations->processElements.append(ifft);
    ancestor()->updateProcessSettings();

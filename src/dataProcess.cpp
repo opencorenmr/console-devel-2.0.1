@@ -191,7 +191,7 @@ void TprocessTerminal::plotUpdate()
 void TprocessTerminal::ifft()
 {
     TIFFT a;
-    if(!a.process(FID_2D,fidDomain::ToggleDomain)) {qDebug()<<a.errorMessage; return;}
+    if(!a.process(FID_2D,fidDomain::ToggleDomain)) {qDebug()<<a.errorMessage(); return;}
 
    // fp->realAction->setChecked(true);
    // fp->imagAction->setChecked(false);
@@ -205,7 +205,7 @@ void TprocessTerminal::fft()
 {
     TFFT a;
     a.setAxisDomain(fidDomain::ToggleDomain);
-    if(!a.process(FID_2D)) {qDebug()<<a.errorMessage; return;}
+    if(!a.process(FID_2D)) {qDebug()<<a.errorMessage(); return;}
 
    // fp->realAction->setChecked(true);
    // fp->imagAction->setChecked(false);

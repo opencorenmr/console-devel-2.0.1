@@ -1754,7 +1754,9 @@ void TfpgaTerminal::copyFID(TFID *f)
        TFFT fft;
        fft.setAxisDomain(fidDomain::ToggleDomain);
        fft.process(f);
-       fidDomain::process(nmrData->FID[nmrData->currentFID()], fidDomain::FrequencyDomain);
+       fidDomain fDomain;
+       fDomain.setAxisDomain(fidDomain::SetFrequency);
+       fDomain.process(nmrData->FID[nmrData->currentFID()]);
    }
 
    if(expSettings->acquisitionWidget->replaceRealWithAbsCheckBox->isChecked())

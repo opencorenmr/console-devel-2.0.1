@@ -21,7 +21,7 @@ void TAxisFormatWidget::createWidgets()
     domainComboBox = new QComboBox;
       domainComboBox->addItems(QStringList()<<"Time"<<"Frequency"<<"Other");
       domainComboBox->setCurrentIndex(0); axisStyle->setDomain("time");
-      domainComboBox->setEnabled(false);
+     // domainComboBox->setEnabled(false);
     unitComboBox = new QComboBox;
       //unitComboBox->addItems(QStringList()<<"msec"<<"sec");
       unitComboBox->addItems(timeStringList);
@@ -127,8 +127,8 @@ void TAxisFormatWidget::createConnections()
     connect(domainComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setDomain()));
 
     connect(unitComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setUnit()));
- //   connect(axisLabelLineEdit,SIGNAL(returnPressed()),this,SLOT(updateXAxis()));
- //   connect(referenceValueLineEdit,SIGNAL(returnPressed()),this,SLOT(setUnit()));
+    connect(axisLabelLineEdit,SIGNAL(returnPressed()),this,SLOT(setUnit()));
+    connect(referenceValueLineEdit,SIGNAL(returnPressed()),this,SLOT(setUnit()));
     connect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(apply()));
  //   connect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(createSettings()));
 
@@ -138,8 +138,6 @@ void TAxisFormatWidget::createConnections()
 void TAxisFormatWidget::setDomain()
 {
 
-    if(domainComboBox->currentIndex()>1) return;
-
     unitComboBox->clear();
     if(domainComboBox->currentIndex()==0)  // time
     {
@@ -148,9 +146,13 @@ void TAxisFormatWidget::setDomain()
         unitComboBox->setCurrentIndex(1);
 
     }
-    else // frequency
+    else if(domainComboBox->currentIndex()==1) // frequency
     {
         unitComboBox->addItems(QStringList()<<"kHz"<<"Hz"<<"ppm");
+    }
+    else
+    {
+        unitComboBox->addItems(QStringList()<<"");
     }
 }
 
@@ -195,8 +197,6 @@ void TAxisFormatWidget::setTimeUnit(int k)
     ancestor()->FID_2D->FID[k]->setXUnit(TFIDXUnit::Second);
     ancestor()->FID_2D->FID[k]->setPrefix(TMetricPrefix::Micro);
     ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->FID[k]->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
-    ancestor()->FID_2D->FID[k]->setXInitialValue(referenceValueLineEdit->text().toDouble()
-                                     -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
 
     ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol("sec");
     switch(unitComboBox->currentIndex())
@@ -204,14 +204,20 @@ void TAxisFormatWidget::setTimeUnit(int k)
       case 0: // usec
         axisStyle->setUnit(TAxisStyle::usec);
         ancestor()->FID_2D->FID[k]->setPlotPrefix(TMetricPrefix::Micro);
+        ancestor()->FID_2D->FID[k]->setXInitialValue(referenceValueLineEdit->text().toDouble()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
         break;
       case 1: // msec
         axisStyle->setUnit(TAxisStyle::msec);
         ancestor()->FID_2D->FID[k]->setPlotPrefix(TMetricPrefix::Milli);
+        ancestor()->FID_2D->FID[k]->setXInitialValue(referenceValueLineEdit->text().toDouble()*TMetricPrefix::Decimal(TMetricPrefix::Milli)
+                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
         break;
       case 2: // sec
         axisStyle->setUnit(TAxisStyle::sec);
         ancestor()->FID_2D->FID[k]->setPlotPrefix(TMetricPrefix::None);
+        ancestor()->FID_2D->FID[k]->setXInitialValue(referenceValueLineEdit->text().toDouble()*TMetricPrefix::Decimal(TMetricPrefix::None)
+                                         -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
         break;
     }
 
@@ -282,9 +288,26 @@ void TAxisFormatWidget::setFrequencyUnit()
     return;
 }
 
-
 void TAxisFormatWidget::setOtherUnit()
 {
+    for(int k=0; k<ancestor()->FID_2D->FID.size(); k++) setOtherUnit(k);
+    return;
+}
+
+void TAxisFormatWidget::setOtherUnit(int k)
+{
+    ancestor()->FID_2D->FID[k]->setXUnit(TFIDXUnit::NoUnit);
+
+    axisStyle->setUnit(TAxisStyle::sec);
+    ancestor()->FID_2D->FID[k]->setPrefix(TMetricPrefix::None);
+    ancestor()->FID_2D->FID[k]->setPlotPrefix(TMetricPrefix::None);
+    ancestor()->FID_2D->FID[k]->setDx(1);
+
+    ancestor()->FID_2D->FID[k]->setXInitialValue(
+                referenceValueLineEdit->text().toDouble()*TMetricPrefix::Decimal(TMetricPrefix::Kilo)
+                   -setReferenceSpinBox->value()*ancestor()->FID_2D->FID[k]->dx());
+
+    ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol("");
 
     return;
 }
@@ -389,7 +412,7 @@ void TAxisFormatWidget::revert()
             //qDebug() << QString(Q_FUNC_INFO) << FID_2D->al()/2;
             setReferenceSpinBox->setValue(ancestor()->FID_2D->al()/2);
         }
-        referenceValueLineEdit->setText(0);
+        referenceValueLineEdit->setText("");
         axisLabelLineEdit->setText(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->xAxisLabel());
 
         refresh();

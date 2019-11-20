@@ -145,7 +145,8 @@ void TFIDPlotters::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode splitMo
 {
 
 
-    QSplitter *parentSplitter = (QSplitter*)fp->parentWidget();
+//    QSplitter *parentSplitter = (QSplitter*)fp->parentWidget();
+    QSplitter *parentSplitter = dynamic_cast<QSplitter*>(fp->parentWidget());
 
     if(splitMode==NewWindow)
     {
@@ -197,7 +198,7 @@ void TFIDPlotters::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode splitMo
             return;
         }
 
-        QSplitter *grandParentSplitter = (QSplitter*) (parentSplitter->parentWidget());
+        QSplitter *grandParentSplitter = dynamic_cast<QSplitter*>(parentSplitter->parentWidget());
 
         int sIndex=plotSplitters.indexOf(parentSplitter);
         int fIndex=FIDPlotters.indexOf(fp);
@@ -206,7 +207,7 @@ void TFIDPlotters::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode splitMo
 
         if(fIndex>-1 && FIDPlotters.size()>1)
         {
-           FIDPlotters[fIndex]->setParent(NULL);
+           FIDPlotters[fIndex]->setParent(nullptr);
            //FIDPlotters[fIndex]->deleteLater();
            FIDPlotters.removeAt(fIndex);
            //qDebug() << "removed view!";
@@ -215,7 +216,7 @@ void TFIDPlotters::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode splitMo
         {
            // qDebug()<<"!";
 //            int sIndex=plotSplitters.indexOf(parentSplitter);
-            plotSplitters[sIndex]->setParent(NULL);
+            plotSplitters[sIndex]->setParent(nullptr);
             //plotSplitters[sIndex]->deleteLater();
             plotSplitters.removeAt(sIndex);
 
@@ -243,7 +244,7 @@ void TFIDPlotters::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode splitMo
            uncleSplitter->setParent(grandGrandParentSplitter);
 
            int gIndex=plotSplitters.indexOf(grandParentSplitter);
-           plotSplitters[gIndex]->setParent(NULL);
+           plotSplitters[gIndex]->setParent(nullptr);
            plotSplitters.removeAt(gIndex);
 
 
@@ -1539,9 +1540,11 @@ void Plotter::drawXTicks(QPainter *painter)
 
     double xIniVal = fid->xInitialValue()/TMetricPrefix::Decimal(fid->plotPrefix());
 
-    xIniVal = ((int)(xIniVal/tick))*tick;
+//    xIniVal = ((int)(xIniVal/tick))*tick;
+    xIniVal = static_cast<int>(xIniVal/tick)*tick;
 
-    p = xIniVal + ((int)((x1-xIniVal)/tick) + 1)*tick;
+//    p = xIniVal + ((int) ((x1-xIniVal)/tick) + 1)*tick;
+    p = xIniVal + (static_cast<int>((x1-xIniVal)/tick) + 1)*tick;
 
     // qDebug() << QString(Q_FUNC_INFO) << "xIniVal: " << xIniVal <<"p: " << p << "(p-x1)*(p-x2)" << (p-x1)*(p-x2);
 
@@ -1902,7 +1905,7 @@ void Plotter::adjustScale()
     if(!fidSetted) {return;}
     if(scaleSetting==ManualScale) {return;}
 
-    if(fid->abs->absMax()==0) {setScale(1.0); return;}
+    if(fabs(fid->abs->absMax())<DBL_EPSILON) {setScale(1.0); return;}
 
     if(scaleSetting==DataScale)
     {

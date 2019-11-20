@@ -25,7 +25,7 @@ public:
 //    QPushButton *slowFTButton, *slowIFTButton;
 
 signals:
-
+    void vOffsetRequest(double);
 
 public slots:
     void performFFT();
