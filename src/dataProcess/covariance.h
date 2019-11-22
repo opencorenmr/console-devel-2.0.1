@@ -13,8 +13,8 @@ public:
     KCovariance();
     ~KCovariance();
 
-    fidDomain::AxisDomain axisDomain() {return FAxisDomain;}
-    void setAxisDomain(fidDomain::AxisDomain ad) {FAxisDomain=ad;}
+    int axisDomain() {return FAxisDomain;}
+    void setAxisDomain(int axisDomain) {FAxisDomain=axisDomain;}
 
     bool process(TFID_2D *fid_2d);
     QStringList processInformation();
@@ -28,7 +28,7 @@ public:
 
 private:
     bool covarianceProcess(TFID_2D *fid_2d);
-    fidDomain::AxisDomain FAxisDomain;
+    int FAxisDomain;
 
     bool IPActive;
     bool IKActive;

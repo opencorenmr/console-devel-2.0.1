@@ -30,9 +30,15 @@ void KExportWidget::createWidgets()
     //exportOpFileButton = new QPushButton(tr("export .opp & .opd"));
     //exportSm2FileButton = new QPushButton(tr("export .sm2p & .sm2d"));
     //exportCSVButton = new QPushButton(tr("export .csv"));
-    export2DButton = new QPushButton(tr("export .2dp and .2dd for takeNMR"));
 
-    exportAbsButton = new QPushButton(tr("export all abs for ImageJ"));
+    exportAsciiButton = new QPushButton(tr("Export"));
+    separatorCombobox= new QComboBox();
+    separatorCombobox->addItems(QStringList()<<"[space]"<<",");
+    separatorCombobox->setCurrentIndex(0);
+
+    export2DButton = new QPushButton(tr("Export .2dp and .2dd for takeNMR"));
+
+    exportAbsButton = new QPushButton(tr("Export all abs for ImageJ"));
 
     startf1LineEdit = new QLineEdit();
     endf1LineEdit = new QLineEdit();
@@ -49,7 +55,14 @@ void KExportWidget::createPanel()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
 
-    QGroupBox *groupBox0 = new QGroupBox(tr("export ascii"));
+    QGroupBox *groupBox00 = new QGroupBox(tr("export ascii"));
+        QGridLayout *gridLayout00 = new QGridLayout;
+        gridLayout00->addWidget(new QLabel("Separator"));
+        gridLayout00->addWidget(separatorCombobox,0,1,1,1);
+        gridLayout00->addWidget(exportAsciiButton,1,0,1,2);
+    groupBox00->setLayout(gridLayout00);
+
+    QGroupBox *groupBox0 = new QGroupBox(tr("export for ImageJ"));
         QGridLayout *gridLayout0 = new QGridLayout;
         gridLayout0->addWidget(exportAbsButton,0,0,1,1);
         //gridLayout0->addWidget(exportOpFileButton,0,0,1,1);
@@ -72,6 +85,7 @@ void KExportWidget::createPanel()
         gridLayout1->addWidget(export2DButton,3,0,1,4);
     groupBox1->setLayout(gridLayout1);
 
+    mainLayout->addWidget(groupBox00);
     mainLayout->addWidget(groupBox0);
     mainLayout->addWidget(groupBox1);
 
@@ -81,6 +95,7 @@ void KExportWidget::createPanel()
 
 void KExportWidget::createConnections()
 {
+    connect(exportAsciiButton,SIGNAL(clicked()),this,SLOT(performExportAscii()));
     connect(exportAbsButton,SIGNAL(clicked()),this,SLOT(exportAbs()));
      //connect(exportOpFileButton,SIGNAL(clicked()),this,SLOT(performExportOpFile()));
      //connect(exportSm2FileButton,SIGNAL(clicked()),this,SLOT(performExportSm2File()));
@@ -88,6 +103,54 @@ void KExportWidget::createConnections()
      connect(export2DButton,SIGNAL(clicked()),this,SLOT(performExport2DFile()));
      //connect(exportFirstButton,SIGNAL(clicked()),this,SLOT(performExportFirstFile()));
      //connect(exportDiagButton,SIGNAL(clicked()),this,SLOT(performExportDiagFile()));
+}
+
+
+void KExportWidget::performExportAscii()
+{
+
+    if(!isAncestorDefined()) {return;}
+    if(ancestor()->FID_2D->FID.isEmpty()) {return;}
+
+    QString path="~/";
+    if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
+    QString fileName=QFileDialog::getSaveFileName(this,tr("Save"),path,tr("*.opp or *.opd"));
+    if(fileName.isEmpty()) {return;}
+
+    QString sep;
+
+    if(separatorCombobox->currentIndex()==0) {sep=" ";}
+    else if(separatorCombobox->currentIndex()==1) {sep=",";}
+    else sep=" ";
+
+    QMutex mutex;
+    QMutexLocker locker(&mutex);
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this,tr(""),
+                    QString(Q_FUNC_INFO)+ ": Failed to open " + fileName);
+        return;
+    }
+
+    QTextStream out(&file);
+
+    for(int j=0; j<ancestor()->FID_2D->FID.size(); j++)
+    {
+    for(int k=0; k<ancestor()->FID_2D->FID.at(j)->al(); k++)
+    {
+    out << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12) << sep
+        << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12) << sep
+        << QString::number(ancestor()->FID_2D->FID.at(j)->imag->sig.at(k),'g',12) << sep
+        << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12)
+        << "\r\n";
+    } // k
+    } // j
+    file.close();
+    return;
+
+
 }
 
 void KExportWidget::performExportOpFile()

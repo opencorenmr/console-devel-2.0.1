@@ -13,8 +13,8 @@ public:
     KSlow2DFT();
     ~KSlow2DFT();
 
-    fidDomain::AxisDomain axisDomain() {return FAxisDomain;}
-    void setAxisDomain(fidDomain::AxisDomain ad) {FAxisDomain=ad;}
+    int axisDomain() {return FAxisDomain;}
+    void setAxisDomain(int axisDomain) {FAxisDomain=axisDomain;}
 
     bool ftprocess(TFID_2D *fid_2d, double *init, double *inter, int *pts);
     QStringList processInformation();
@@ -22,7 +22,7 @@ public:
 
 private:
     bool slow2DFTProcess(TFID_2D *fid_2d, double *init, double *inter, int *pts);
-    fidDomain::AxisDomain FAxisDomain;
+    int FAxisDomain;
 };
 
 #endif // KSLOW2DFT_H

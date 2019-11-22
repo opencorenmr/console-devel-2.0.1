@@ -89,6 +89,7 @@ void TPhaseWidget::createPanel()
 
       mainLayout->addWidget(groupBox0);
       mainLayout->addWidget(groupBox1);
+   //   mainLayout->addWidget(applyModeWidget);
       mainLayout->addStretch();
       mainLayout->addWidget(applyPushButton);
       setLayout(mainLayout);
@@ -166,8 +167,10 @@ void TPhaseWidget::addOperation()
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
     TPhaseRotation *phRot = new TPhaseRotation; //qDebug() << phRot;
-      phRot->setPhase0(phaseRotation->phase0());
-      phRot->setPhase1(phaseRotation->phase1());
+//      phRot->setPhase0(phaseRotation->phase0());
+      phRot->setPhase0(phase0ValueDoubleSpinBox->value());
+//      phRot->setPhase1(phaseRotation->phase1());
+      phRot->setPhase1(phase1ValueDoubleSpinBox->value());
       phRot->setPivot(phaseRotation->pivot());
     ancestor()->processOperations->processElements.append(phRot);
     // common settings

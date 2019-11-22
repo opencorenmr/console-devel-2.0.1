@@ -337,7 +337,7 @@ void TFIDMathWidget::onApplyButtonClicked()
 
     if(!FIDMath->process(ancestor()->FID_2D))
     {
-        QMessageBox::warning(this,tr("TFIDMath error"), FIDMath->errorMessage);
+        QMessageBox::warning(this,tr("TFIDMath error"), FIDMath->errorMessage());
         return;
     }
 

@@ -7,7 +7,7 @@
 TApplyModeWidget::TApplyModeWidget(QWidget *parent) : QWidget(parent)
 {
     applyModeComboBox = new QComboBox;
-      applyModeComboBox->addItems(QStringList()<<"All"<<"One"<<"Other"<<"No");
+      applyModeComboBox->addItems(QStringList()<<"All"<<"One"<<"Other");
     currentPlotterSpinBox = new QSpinBox;
       currentPlotterSpinBox->setMinimum(0);
       currentPlotterSpinBox->setMaximum(0);

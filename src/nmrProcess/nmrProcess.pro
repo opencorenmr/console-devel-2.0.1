@@ -50,7 +50,9 @@ SOURCES += main.cpp\
     ../dataProcess/covarianceWidget.cpp \
     ../dataProcess/svd.cpp \
     ../dataProcess/peakPickWidget.cpp \
-    ../dataProcess/peakPick.cpp
+    ../dataProcess/peakPick.cpp \
+    ../dataProcess/arraySum.cpp \
+    ../dataProcess/flatten.cpp
 
 
 
@@ -91,7 +93,9 @@ HEADERS  += mainwindow.h \
     ../dataProcess/covarianceWidget.h \
     ../dataProcess/svd.h \
     ../dataProcess/peakPickWidget.h \
-    ../dataProcess/peakPick.h
+    ../dataProcess/peakPick.h \
+    ../dataProcess/arraySum.h \
+    ../dataProcess/flatten.h
 
 
 win32: RC_ICONS = ../images/nmrProcess.ico

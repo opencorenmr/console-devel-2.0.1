@@ -53,12 +53,14 @@ class plotterDetailsWidget: public QWidget
 {
     Q_OBJECT
 public:
-    plotterDetailsWidget(QWidget *parent = 0);
+    plotterDetailsWidget(QWidget *parent = nullptr);
     QComboBox *detailsComboBox;
     QSpinBox *xIniSpinBox,*xFinSpinBox;
     QLineEdit *xIniValLineEdit,*xFinValLineEdit;
     QLabel *xIniUnitLabel,*xFinUnitLabel;
     QPushButton *xFullRangePushButton;
+
+    QDoubleSpinBox * vOffsetSpinBox;
 
     QPlainTextEdit *deltaInfoTextEdit;
    // QSpinBox *xPosSpinBox;
@@ -66,6 +68,8 @@ public:
 signals:
     void xPlotRangeUpdateRequest(int i, int f);
     void xCursorPositionUpdateRequest(int xi);
+    void xInitialValueUpdateRequest(double d);
+    void xFinalValueUpdateRequest(double d);
 
 public slots:
     void setCursorInfo(QStringList sl);
@@ -104,7 +108,7 @@ public:
       //  if(f==CartesianPlot) bottomMargin=40; else bottomMargin=0;
     }
 
-    Plotter(QWidget *parent = 0);
+    Plotter(QWidget *parent = nullptr);
     ~Plotter();
     
     void setPlotSettings(const PlotSettings &settings);
@@ -304,7 +308,7 @@ class TFIDPlotters : public QWidget
 public:
     enum PlotSplitMode {Horizontal,Vertical,NewWindow,RemoveSplit};
 
-    TFIDPlotters(QWidget *parent=0);
+    TFIDPlotters(QWidget *parent=nullptr);
     ~TFIDPlotters();
     QList<FIDPlotter*> FIDPlotters;
     QList<QSplitter*> plotSplitters;
@@ -350,7 +354,7 @@ class FIDPlotter : public QWidget
 {
     Q_OBJECT
 public:
-    FIDPlotter(QWidget *parent=0);
+    FIDPlotter(QWidget *parent=nullptr);
     void setDevicePixelRatio(int r);
     int devicePixelRatio() {return FDevicePixelRatio;}
     Plotter *plotter;
@@ -402,6 +406,9 @@ public slots:
     void update();
     void setVCursor(bool b);
     void xFullRangePlot();
+    void updateXInitialValue(double d);
+    void updateXFinalValue(double d);
+    void updateVOffset(double voffset);
 
 private slots:
     void setRubberBand(bool b);
