@@ -89,20 +89,25 @@ void TApodizationWidget::onApplyButtonClicked()
                                    ->FIDPlotters.at(applyModeWidget->currentPlotter())
                                    ->FIDSelectSpinBox->value()-1);
 
-    if(!performOperation())
+    if(!apodization->process(ancestor()->FID_2D))
     // in case of error...
     {
-        QMessageBox::warning(this,tr(""), apodization->errorMessage);
+        QMessageBox::warning(this,tr(""), apodization->errorMessage());
         return;
     }
 
-    // With success, we add the operation to the operation list.
+    // With success, we update the plotter
+    // and add the operation to the operation list.
+    ancestor()->plotters->update();
     addOperation();
 
 }
-
+/*
 bool TApodizationWidget::performOperation()
 {
+
+
+
     bool ok;
 
     switch(apodization->applyMode())
@@ -134,12 +139,13 @@ bool TApodizationWidget::performOperation()
 
     if(!ok)
     {
-        setMessage(apodization->errorMessage);
+        setMessage(apodization->errorMessage());
         return false;
     }
     ancestor()->plotters->update();
     return true;
 }
+*/
 
 void TApodizationWidget::addOperation()
 {

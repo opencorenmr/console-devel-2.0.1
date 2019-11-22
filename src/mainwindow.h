@@ -21,9 +21,9 @@
 #define VERSION_NUMBER 2
 #define VERSION_NUMBER2 0
 #define VERSION_NUMBER3 1
-#define BUILD_NUMBER 206
+#define BUILD_NUMBER 207
 #define RELEASE_YEAR 2019
-#define RELEASE_MONTH "June"
+#define RELEASE_MONTH "November"
 
 class TwelcomeWidget;
 
@@ -31,7 +31,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = nullptr);
    // MainWindow();
     virtual ~MainWindow(){;}
 
@@ -148,7 +148,7 @@ class TwelcomeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TwelcomeWidget(QWidget *parent = 0);
+    explicit TwelcomeWidget(QWidget *parent = nullptr);
     ~TwelcomeWidget();
 
     QPushButton *topButton, *pulseProgramButton, *jobButton;

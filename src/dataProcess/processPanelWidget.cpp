@@ -20,7 +20,11 @@ TProcessFileWidget::TProcessFileWidget(QWidget *parent) : QWidget(parent)
 void TProcessFileWidget::createWidgets()
 {
     openButton = new QPushButton(tr("Open"));
+    openAndProcessButton = new QPushButton(tr("Open and Process"));
     saveButton = new QPushButton(tr("Save"));
+
+    currentFileLineEdit = new QLineEdit;
+    currentFileLineEdit->setReadOnly(true);
 
     parameterPlainTextEdit = new QPlainTextEdit;
     exportDataButton = new QPushButton(tr("Export ASCII Data"));
@@ -28,7 +32,7 @@ void TProcessFileWidget::createWidgets()
     plotterIDSpinBox->setMinimum(0);
     plotterIDSpinBox->setMaximum(0);
     exportProcessButton = new QPushButton(tr("Export Process"));
-
+    importProcessButton = new QPushButton(tr("Import Process"));
 }
 
 void TProcessFileWidget::createPanel()
@@ -36,18 +40,22 @@ void TProcessFileWidget::createPanel()
     QGridLayout *mainLayout = new QGridLayout(this);
 //    mainLayout->addWidget(openButton,0,0,1,1,Qt::AlignLeft);
     mainLayout->addWidget(openButton,0,0,1,1);
-    mainLayout->addWidget(parameterPlainTextEdit,0,1,2,2);
+    mainLayout->addWidget(openAndProcessButton,0,1,1,1);
+    mainLayout->addWidget(currentFileLineEdit,1,0,1,2);
+    mainLayout->addWidget(parameterPlainTextEdit,2,0,1,2);
    // mainLayout->addWidget(exportDataButton,2,0,1,1);
    // mainLayout->addWidget(new QLabel(tr("Plotter #")),2,1,1,1);
    // mainLayout->addWidget(plotterIDSpinBox,2,2,1,1);
    // mainLayout->addWidget(new QLabel(tr("Export data coming soon.")),3,0,1,3);
-    mainLayout->addWidget(saveButton,3,0,1,1);
-    mainLayout->addWidget(exportProcessButton,4,0,1,1);
+    mainLayout->addWidget(saveButton,3,0,1,2);
+    mainLayout->addWidget(importProcessButton,4,0,1,1);
+    mainLayout->addWidget(exportProcessButton,4,1,1,1);
 }
 
 void TProcessFileWidget::createConnections()
 {
     connect(openButton,SIGNAL(clicked()),this,SLOT(openFile()));
+    connect(openAndProcessButton,SIGNAL(clicked()),this,SLOT(openFileAndProcess()));
     connect(saveButton,SIGNAL(clicked()),this,SLOT(saveFile()));
 }
 
@@ -57,9 +65,43 @@ void TProcessFileWidget::setNOfPlotters(int n)
     plotterIDSpinBox->setMaximum(n);
 }
 
+void TProcessPanelWidget::importProcess()
+{
+    QString path="~/";
+
+    if(QDir(processFilePath()).exists()) path=processFilePath()+'/';
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import process settings"),
+                                                    path,
+                                                    tr("Process setting file (*.process)"),
+                                                    nullptr
+
+                                                    );
+    if(fileName.isNull()) return;
+    if (fileName.isEmpty()) {return;}
+    setProcessFilePath(QFileInfo(fileName).absolutePath());
+
+//    QFileInfo fi;
+//    fi.setFile(fileName);
+//    QString base = fi.baseName();
+//    path = fi.absolutePath()+'/';
+//    QString newFileName = path+base+".process";
+
+    if(!processOperations->loadFromFile(fileName))
+    {
+        QMessageBox::warning(this, tr("Import error"),
+                             tr("Failed to import process."
+                              ));
+        return;
+    }
+
+    updateProcessSettings();
+
+}
+
 void TProcessPanelWidget::exportProcess()
 {
-    if(!QFile::exists(settingDirPath()+"/process.ini"))
+//    if(!QFile::exists(settingDirPath()+"/process.ini"))
+    if(processOperations->processElements.isEmpty())
     {
         QMessageBox::warning(this, tr("Export error"),
                              tr("Process settings are empty."
@@ -73,7 +115,7 @@ void TProcessPanelWidget::exportProcess()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export process settings"),
                                                     path,
                                                     tr("Process setting file (*.process)"),
-                                                    0,
+                                                    nullptr,
                                                     QFileDialog::DontConfirmOverwrite
                                                     );
     if(fileName.isNull()) return;
@@ -94,7 +136,8 @@ void TProcessPanelWidget::exportProcess()
 
     }
 
-    if(!QFile::copy(settingDirPath()+"/process.ini",newFileName))
+    if(!processOperations->saveToFile(newFileName))
+   // if(!QFile::copy(settingDirPath()+"/process.ini",newFileName))
     {
         QMessageBox::warning(this, tr("Export error"),
                              tr("Failed to export process settings."
@@ -150,6 +193,57 @@ void TProcessFileWidget::saveFile()
     return;
 }
 
+
+void TProcessFileWidget::openFileAndProcess()
+{
+    QString path="~/";
+    if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
+                                                    path,
+                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d)"));
+    if (fileName.isEmpty()) {return;}
+
+    setDataFilePath(QFileInfo(fileName).absolutePath());
+    QString fileExt=QFileInfo(fileName).suffix();
+
+    if(0==QString::compare(fileExt,"sm2p") || 0==QString::compare(fileExt,"sm2d"))
+    {
+      if(!FID_2D->Readsm2Files(fileName))
+      {
+        //qDebug()<<FID_2D->errorMessage;
+        QMessageBox::warning(this,QString(Q_FUNC_INFO)+tr(""), FID_2D->errorMessage);
+        return;
+      }
+    }
+    else if(0==QString::compare(fileExt,"opp") || 0==QString::compare(fileExt,"opd"))
+    {
+      if(!FID_2D->ReadopFiles(fileName))
+      {
+                    //qDebug()<<FID_2D->errorMessage;
+         QMessageBox::warning(this,QString(Q_FUNC_INFO)+tr(""), FID_2D->errorMessage);
+         return;
+      }
+    }
+    else
+    {
+        QMessageBox::warning(this,tr(""), "." + fileExt + " is not supported.");
+        return;
+    }
+
+
+    currentFileLineEdit->setText(fileName);
+    parameterPlainTextEdit->clear();
+    parameterPlainTextEdit->setPlainText(FID_2D->parameters.join("\n")
+                                         +"\n"+
+                                         FID_2D->comments.join("\n"));
+
+    // emit updateRequest();
+
+     fidSetted=true;
+
+     emit processRequest();
+}
+
 void TProcessFileWidget::openFile()
 {
 
@@ -188,6 +282,7 @@ void TProcessFileWidget::openFile()
     }
 
 
+    currentFileLineEdit->setText(fileName);
     parameterPlainTextEdit->clear();
     parameterPlainTextEdit->setPlainText(FID_2D->parameters.join("\n")
                                          +"\n"+
@@ -288,13 +383,13 @@ void TProcessPanelWidget::createWidgets()
                                     << "Transform"
                                     << "Phase"
                                     << "Axis Format"
-                                    << "Array/2D"
+                                    << "Array Analysis"
+                                    << "Array"
                                     << "Covariance"
                                     << "exportData"
                                     << "Create FID"
                                     << "Math"
                                     << "Peak"
-                                    << "Nutation(tmp)"
                                     << "Interpolate(tmp)"
                                     );
 #else
@@ -391,15 +486,13 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(transformWidget);
     stackedWidget->addWidget(phaseWidget);
     stackedWidget->addWidget(axisFormatWidget);
+    stackedWidget->addWidget(NutationWidget);
     stackedWidget->addWidget(twoDProcessWidget);
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     stackedWidget->addWidget(CovarianceWidget);
-#endif
     stackedWidget->addWidget(exportWidget);
     stackedWidget->addWidget(createFIDWidget);
     stackedWidget->addWidget(FIDMathWidget);
     stackedWidget->addWidget(peakPickWidget);
-    stackedWidget->addWidget(NutationWidget);
     stackedWidget->addWidget(interpolateWidget);
 
     QHBoxLayout *layout1 = new QHBoxLayout;
@@ -423,13 +516,38 @@ void TProcessPanelWidget::createConnections()
 
     connect(processFileWidget,SIGNAL(updateRequest()),this,SLOT(initialize()));
     connect(processFileWidget->exportProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
+    connect(processFileWidget,SIGNAL(processRequest()),this,SLOT(applyProcess()));
+    connect(processFileWidget->importProcessButton,SIGNAL(clicked(bool)),this,SLOT(importProcess()));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),processFileWidget,SLOT(setNOfPlotters(int)));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),this,SLOT(updateNumberOfPlotters(int)));
 
-    connect(createFIDWidget,SIGNAL(updateRequest()),this,SLOT(initialize()));
+    connect(createFIDWidget,SIGNAL(updateRequest()),this,SLOT(onFIDCreated()));
 
+    connect(transformWidget,SIGNAL(vOffsetRequest(double)),this,SLOT(onVOffsetRequestReceived(double)));
+}
+void TProcessPanelWidget::applyProcess()
+{
+    if(FID_2D->FID.isEmpty()) return;
+    if(processOperations->applyTo(FID_2D))
+    {
+       refresh();
+    }
+    else
+    {
+       QMessageBox::warning(this,tr("process error"), processOperations->errorMessage());
+    }
 }
 
+void TProcessPanelWidget::onVOffsetRequestReceived(double vo)
+{
+    for(int k=0; k<plotters->FIDPlotters.size(); k++)
+    {
+        plotters->FIDPlotters[k]->plotterDetails->vOffsetSpinBox->setValue(vo);
+
+    }
+
+
+}
 void TProcessPanelWidget::updateNumberOfPlotters(int i)
 {
     apodizationWidget->applyModeWidget->currentPlotterSpinBox->setMaximum(i-1);
@@ -440,7 +558,7 @@ void TProcessPanelWidget::clearProcessOperations()
 {
     //processOperations->clear();
     commandHistoryListWidget->clear();
-    while(!processOperations->processElements.isEmpty()) processOperations->processElements.removeLast();;
+    while(!processOperations->processElements.isEmpty()) processOperations->processElements.removeLast();
     resetProcessSettings();
 
 }
@@ -483,6 +601,12 @@ void TProcessPanelWidget::updatePlotter()
     }
     plotters->update();
 
+}
+
+void TProcessPanelWidget::onFIDCreated()
+{
+    initialize();
+    processFileWidget->currentFileLineEdit->clear();
 }
 
 
@@ -528,7 +652,11 @@ void TProcessPanelWidget::refresh()
 //
 void TProcessPanelWidget::updateProcessSettings()
 {
-    commandHistoryListWidget->addItem(processOperations->processElements.last()->command());
+    commandHistoryListWidget->clear();
+    for(int k=0; k<processOperations->processElements.size(); k++)
+    {
+        commandHistoryListWidget->addItem(processOperations->processElements.at(k)->command());
+    }
 
     processSettings->beginGroup("main");
       processSettings->setValue("numberOfOperations",processOperations->processElements.size());

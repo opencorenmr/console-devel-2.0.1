@@ -11,7 +11,7 @@ bool THyperComplex::process(TFID_2D *fid_2d)
     if(nRow < 2 || nRow % 2 > 0)
     {
         errorQ=true;
-        errorMessage="Length of the arrayed data must be even and larger than 2.";
+        setErrorMessage("Length of the arrayed data must be even and larger than 2.");
         return false;
     }
 

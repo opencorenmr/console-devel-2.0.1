@@ -23,22 +23,28 @@ KNutationWidget::KNutationWidget()
 
 void KNutationWidget::createWidgets()
 {
+    fromAtLabel = new QLabel("At");
+    toLabel = new QLabel("To"); toLabel->setVisible(false);
     arrayInitLineEdit = new QLineEdit();
     arrayDeltaLineEdit = new QLineEdit();
 
-    processStyleComboBox = new QComboBox();
-    processStyleComboBox->addItems(QStringList() << "Point" << "Area");
+    styleComboBox = new QComboBox();
+    styleComboBox->addItems(QStringList() << "Point" << "Area");
 
     startPointSpinBox = new QSpinBox();
     startPointSpinBox->setMaximum(16384);
     endPointSpinBox = new QSpinBox();
     endPointSpinBox->setMaximum(16384);
-    endPointSpinBox->setDisabled(true);
+    endPointSpinBox->setVisible(false);
     startClickSetCheckBox = new QCheckBox(tr("Click-set"));
     endClickSetCheckBox = new QCheckBox(tr("Click-set"));
-    endClickSetCheckBox->setDisabled(true);
+    endClickSetCheckBox->setVisible(false);
 
     processArrayButton = new QPushButton(tr("Process"));
+    processArrayButton->setFixedSize(QSize(80,80));
+    resultTextEdit = new QPlainTextEdit;
+    saveButton = new QPushButton(tr("Save"));
+    saveButton->setFixedSize(QSize(80,80));
 }
 
 void KNutationWidget::createPanel()
@@ -46,28 +52,34 @@ void KNutationWidget::createPanel()
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
 
-    QGroupBox *groupBox0 = new QGroupBox(tr("Process Array"));
+   // QGroupBox *groupBox0 = new QGroupBox(tr("Analyze"));
 
       QGridLayout *gridLayout0 = new QGridLayout;
-      gridLayout0->addWidget(new QLabel(tr("initial")),0,0,1,1);
-      gridLayout0->addWidget(new QLabel(tr("delta")),1,0,1,1);
-      gridLayout0->addWidget(arrayInitLineEdit,0,1,1,1);
-      gridLayout0->addWidget(arrayDeltaLineEdit,1,1,1,1);
+      gridLayout0->addWidget(new QLabel(tr("Point/Area")),0,0,1,1);
+      gridLayout0->addWidget(styleComboBox,0,1,1,1);
 
-      gridLayout0->addWidget(processStyleComboBox,2,1,1,3);
+      gridLayout0->addWidget(fromAtLabel,1,0,1,1);
+      gridLayout0->addWidget(startPointSpinBox,1,1,1,1);
+      gridLayout0->addWidget(startClickSetCheckBox,1,2,1,1);
+      gridLayout0->addWidget(toLabel,2,0,1,1);
+      gridLayout0->addWidget(endPointSpinBox,2,1,1,1);
+      gridLayout0->addWidget(endClickSetCheckBox,2,2,1,1);
 
-      gridLayout0->addWidget(new QLabel(tr("start")),3,0,1,1);
-      gridLayout0->addWidget(new QLabel(tr("end")),4,0,1,1);
-      gridLayout0->addWidget(startPointSpinBox,3,1,1,1);
-      gridLayout0->addWidget(endPointSpinBox,4,1,1,1);
-      gridLayout0->addWidget(startClickSetCheckBox,3,2,1,1);
-      gridLayout0->addWidget(endClickSetCheckBox,4,2,1,1);
+      gridLayout0->addWidget(new QLabel(tr("initial")),3,0,1,1);
+      gridLayout0->addWidget(arrayInitLineEdit,3,1,1,1);
+      gridLayout0->addWidget(new QLabel(tr("delta")),4,0,1,1);
+      gridLayout0->addWidget(arrayDeltaLineEdit,4,1,1,1);
 
-      gridLayout0->addWidget(processArrayButton,5,0,1,1);
 
-    groupBox0->setLayout(gridLayout0);
 
-      mainLayout->addWidget(groupBox0);
+
+      gridLayout0->addWidget(processArrayButton,3,2,2,1);
+      gridLayout0->addWidget(resultTextEdit,5,0,3,2);
+      gridLayout0->addWidget(saveButton,6,2,2,1);
+
+   // groupBox0->setLayout(gridLayout0);
+
+      mainLayout->addLayout(gridLayout0);
 
       mainLayout->addStretch();
       setLayout(mainLayout);
@@ -82,7 +94,28 @@ void KNutationWidget::createConnections()
     connect(startClickSetCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetStartPoints()));
     connect(endClickSetCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetEndPoints()));
 
-    connect(processStyleComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(enableArea()));
+    connect(styleComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(onStyleComboBoxChanged(int)));
+
+    connect(saveButton,SIGNAL(clicked()),this,SLOT(onSaveButtonClicked()));
+}
+
+void KNutationWidget::onSaveButtonClicked()
+{
+    //--------------export *.dat-------------
+    QString path = ancestor()->processFileWidget->dataFilePath()+'/';
+    QString fileName = QFileDialog::getSaveFileName(this, "Export Ascii Data", path, "dat(*.dat)");
+
+    if(fileName.isEmpty()) return;
+    //qDebug() << fileName << endl;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+
+    QTextStream out(&file);
+    out << resultTextEdit->toPlainText().toUtf8();
+    file.close();
+
+
 }
 
 void KNutationWidget::processArray()
@@ -101,31 +134,38 @@ void KNutationWidget::processArray()
     int start = startPointSpinBox->value();
     int end = endPointSpinBox->value();
 
-    if(processStyleComboBox->currentIndex()!=0){
-        if(start>=end) return;
+    if(styleComboBox->currentIndex()!=0){
+        if(start>end)
+        {
+            int help=end;
+            end=start;
+            start=help;
+        }
     }
 
     //qDebug() << init << " " << delta << " " << start << " " << end << endl;
 
     //--------------export *.dat-------------
-    QString path = ancestor()->processFileWidget->dataFilePath()+'/';
-    QString fileName = QFileDialog::getSaveFileName(this, "Export Ascii Data", path, "dat(*.dat)");
+//    QString path = ancestor()->processFileWidget->dataFilePath()+'/';
+//    QString fileName = QFileDialog::getSaveFileName(this, "Export Ascii Data", path, "dat(*.dat)");
 
-    if(fileName.isEmpty()) return;
+//    if(fileName.isEmpty()) return;
     //qDebug() << fileName << endl;
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
-
-    QTextStream out(&file);
+    resultTextEdit->clear();
 
     //-----output point-------
-    if(processStyleComboBox->currentIndex()==0)
+    if(styleComboBox->currentIndex()==0)
     {
         for(int k=0;k<fidsize;k++){
-            out << QString::number(init+delta*k) << " "
-                << QString::number(ancestor()->FID_2D->FID.at(k)->real->sig.at(start))
-                << "\r\n";
+            resultTextEdit->appendPlainText(
+             QString::number(init+delta*k) + " "
+               + QString::number(ancestor()->FID_2D->FID.at(k)->real->sig.at(start))
+
+                        );
+//            out << QString::number(init+delta*k) << " "
+//                << QString::number(ancestor()->FID_2D->FID.at(k)->real->sig.at(start))
+//                << "\r\n";
         };
     }
     //-----output area------
@@ -136,14 +176,14 @@ void KNutationWidget::processArray()
             for(int j=start;j<end+1;j++){
                 calc += ancestor()->FID_2D->FID.at(k)->real->sig.at(j);
             }
-            out << QString::number(init+delta*k) << " "
-                << QString::number(calc)
-                << "\r\n";
+            resultTextEdit->appendPlainText(
+               QString::number(init+delta*k) + " "
+                + QString::number(calc)
+               );
         }
     }
 
-    file.close();
-
+/*
     for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
     {
       ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
@@ -151,20 +191,24 @@ void KNutationWidget::processArray()
     }
 
     ancestor()->plotters->update();
-
+*/
     //qDebug() << "end";
     return;
 }
 
-void KNutationWidget::enableArea(){
-    if(processStyleComboBox->currentIndex()==0){
+void KNutationWidget::onStyleComboBoxChanged(int index){
+    if(index==0){
         //qDebug() << "point";
-        endPointSpinBox->setDisabled(true);
-        endClickSetCheckBox->setDisabled(true);
+        fromAtLabel->setText(tr("At"));
+        toLabel->setVisible(false);
+        endPointSpinBox->setVisible(false);
+        endClickSetCheckBox->setVisible(false);
     } else {
         //qDebug() << "Area";
-        endPointSpinBox->setEnabled(true);
-        endClickSetCheckBox->setEnabled(true);
+        fromAtLabel->setText(tr("From"));
+        toLabel->setVisible(true);
+        endPointSpinBox->setVisible(true);
+        endClickSetCheckBox->setVisible(true);
     }
 }
 

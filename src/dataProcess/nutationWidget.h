@@ -6,7 +6,9 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QPlainTextEdit>
 #include <QComboBox>
+#include <QLabel>
 #include <QStackedWidget>
 
 #include "processBase.h"
@@ -18,11 +20,13 @@ public:
     explicit KNutationWidget();
     ~KNutationWidget() {;}
 
+    QPlainTextEdit *resultTextEdit;
 
     QLineEdit *arrayInitLineEdit;
     QLineEdit *arrayDeltaLineEdit;
 
-    QComboBox *processStyleComboBox;
+    QLabel *fromAtLabel, *toLabel;
+    QComboBox *styleComboBox;
 
     QSpinBox *startPointSpinBox;
     QSpinBox *endPointSpinBox;
@@ -30,6 +34,7 @@ public:
     QCheckBox *endClickSetCheckBox;
 
     QPushButton *processArrayButton;
+    QPushButton *saveButton;
 
 signals:
 
@@ -41,7 +46,9 @@ public slots:
     void clickSetStartPoints();
     void clickSetEndPoints();
 
-    void enableArea();
+    void onStyleComboBoxChanged(int index);
+    void onSaveButtonClicked();
+//    void enableArea();
 
 private:
     void createWidgets();

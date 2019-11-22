@@ -39,9 +39,9 @@ void KInterpolateWidget::createPanel()
 
       QGridLayout *gridLayout0 = new QGridLayout;
       //gridLayout0->addWidget(new QLabel(tr("initial")),0,0,1,1);
-      gridLayout0->addWidget(new QLabel(tr("delta")),1,0,1,1);
+      //gridLayout0->addWidget(new QLabel(tr("delta")),1,0,1,1);
       //gridLayout0->addWidget(initialAngleLineEdit,0,1,1,1);
-      gridLayout0->addWidget(deltaAngleLineEdit,1,1,1,1);
+      //gridLayout0->addWidget(deltaAngleLineEdit,1,1,1,1);
 
       gridLayout0->addWidget(processButton,2,0,1,1);
 
@@ -64,8 +64,9 @@ void KInterpolateWidget::processInterpolate()
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
 
-    QString s = deltaAngleLineEdit->text();
-    double delta = s.toDouble();
+    //QString s = deltaAngleLineEdit->text();
+    //double delta = s.toDouble();
+    double delta = 360 / double(ancestor()->FID_2D->FID.size());
 
     bool ok;
     KInterpolate *interpolate = new KInterpolate;

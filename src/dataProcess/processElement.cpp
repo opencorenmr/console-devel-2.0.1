@@ -4,8 +4,10 @@ TProcessElement::TProcessElement(QObject *parent) : QObject(parent)
 {
     errorQ=false;
     warningQ=false;
-    errorMessage.clear();
-    warningMessage.clear();
+    FErrorMessage.clear();
+    FWarningMessage.clear();
+    setApplyMode(0);
+    setApplyIndex(0);
 
 }
 

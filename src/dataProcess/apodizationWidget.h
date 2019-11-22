@@ -30,7 +30,7 @@ public slots:
 
 private slots:
     void onApplyButtonClicked();
-    bool performOperation();
+//    bool performOperation();
     void createSettings(QSettings *settings, QString section);
     void readSettings(QSettings *settings, QString section);
 

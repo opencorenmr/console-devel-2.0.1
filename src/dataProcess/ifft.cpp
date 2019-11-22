@@ -6,6 +6,7 @@
 
 TIFFT::TIFFT()
 {
+    setProcessType(TProcessType::IFFT);
     setAxisDomain(fidDomain::ToggleDomain);
     setLaplace(false);  // By default, we do not Laplace transformation.
     setLaplaceWidth(0.0);
@@ -32,26 +33,78 @@ QString TIFFT::command()
     return "ifft";
 }
 
+
+//bool TIFFT::process(TFID_2D *fid_2d)
+//{
+//    bool r;
+//    for(int c=0; c<fid_2d->FID.size(); c++) r=process(fid_2d->FID[c]);
+//    return r;
+//}
+
+bool TIFFT::process(TFID_2D *fid_2d)
+{
+    errorQ=false;
+    switch(applyMode())
+    {
+      case ApplyToAll:
+        for(int c=0; c<fid_2d->FID.size(); c++)
+        {
+          errorQ=!process(fid_2d->FID[c]);
+          if(errorQ) break;
+        }
+        break;
+      case ApplyToOne:
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=false;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          errorQ=!process(fid_2d->FID[applyIndex()]);
+        }
+        break;
+      case ApplyToOthers:
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=false;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          for(int k=0; k<fid_2d->FID.size(); k++)
+          {
+            if(k!=applyIndex())
+            {
+              errorQ=!process(fid_2d->FID[k]);
+              if(errorQ) break;
+            }
+          } // k
+        }
+        break;
+    default:
+        errorQ=true;
+        setErrorMessage(QString(Q_FUNC_INFO) + ": Invalid operation.");
+        break;
+    } // switch
+    return !errorQ;
+
+}
+
 bool TIFFT::process(TFID_2D *fid_2d, int k)
 {
     return process(fid_2d->FID[k]);
 }
 
-bool TIFFT::process(TFID_2D *fid_2d)
-{
-    bool r;
-    for(int c=0; c<fid_2d->FID.size(); c++) r=process(fid_2d->FID[c]);
-    return r;
-}
-
 bool TIFFT::process(TFID *fid)
 {
-
+  //  qDebug() << QString(Q_FUNC_INFO) << "0";
     bool res=iFFTProcess(fid);
+  //  qDebug() << QString(Q_FUNC_INFO) << "1" << res;
     if(res==false) return res;
     else
     {
-       fidDomain::process(fid,axisDomain());
+       processDomain(fid);
     }
 
     // In the case of Laplace transformation,
@@ -76,6 +129,84 @@ bool TIFFT::process(TFID *fid)
 
 }
 
+
+
+void TIFFT::processDomain(TFID *fid)
+{
+
+    switch(axisDomain())
+    {
+      case SetFrequency:
+        fid->setXUnit(TFIDXUnit::Hz);
+        fid->setPrefix(TMetricPrefix::None);
+        fid->setPlotPrefix(TMetricPrefix::Kilo);
+
+        fid->setDx(
+                    -1.0/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                    *fid->al())
+                    );
+        fid->setXInitialValue(
+                    0.5/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro))
+                    );
+
+        fid->setXAxisUnitSymbol("Hz");
+        fid->setDomain(TFID::FrequencyDomain);
+
+
+        break;
+
+      case SetTime:
+        fid->setXUnit(TFIDXUnit::Second);
+        fid->setPrefix(TMetricPrefix::Micro);
+        fid->setPlotPrefix(TMetricPrefix::Milli);
+        fid->setXInitialValue(0.0);
+        fid->setDx(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
+        fid->setXAxisUnitSymbol("sec");
+        fid->setDomain(TFID::TimeDomain);
+        break;
+
+      case ToggleDomain:
+        if(fid->domain()==TFID::TimeDomain)
+        {
+            fid->setXUnit(TFIDXUnit::Hz);
+            fid->setPrefix(TMetricPrefix::None);
+            fid->setPlotPrefix(TMetricPrefix::Kilo);
+
+            fid->setDx(
+                        -1.0/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro)
+                                        *fid->al())
+                        );
+            fid->setXInitialValue(
+                        0.5/(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro))
+                        );
+
+            fid->setXAxisUnitSymbol("Hz");
+            fid->setDomain(TFID::FrequencyDomain);
+
+       //     qDebug() << fid->dw() << fid->al() << fid->dx() << fid->xInitialValue();
+
+        }
+        else if(fid->domain()==TFID::FrequencyDomain)
+        {
+            fid->setXUnit(TFIDXUnit::Second);
+            fid->setPrefix(TMetricPrefix::Micro);
+            fid->setPlotPrefix(TMetricPrefix::Milli);
+            fid->setXInitialValue(0.0);
+            fid->setDx(fid->dw()*TMetricPrefix::Decimal(TMetricPrefix::Micro));
+            fid->setXAxisUnitSymbol("sec");
+            fid->setDomain(TFID::TimeDomain);
+        }
+        break;
+
+      case KeepDomain:
+        break;
+    }
+
+}
+
+
+
+
 bool TIFFT::iFFTProcess(TFID *fid)
 {
     double theta;
@@ -98,9 +229,9 @@ bool TIFFT::iFFTProcess(TFID *fid)
           fid->abs->sig[m]=0.0;
       }
       warningQ=true;
-      warningMessage = "Automatic zero-fill to "
+      setWarningMessage("Automatic zero-fill to "
                        + QString::number(fid->al())
-                       + " point has been performed.";
+                       + " point has been performed.");
     }
 
     theta=TWOPI/n;

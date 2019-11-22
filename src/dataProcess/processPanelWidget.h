@@ -88,6 +88,9 @@ signals:
 public slots:
     void refresh();
     void initialize();
+    void onFIDCreated();
+    void applyProcess();
+
     void clearProcessOperations();
     void updatePlotter();
     void initializePlotter();
@@ -96,6 +99,8 @@ public slots:
 
     void updateNumberOfPlotters(int i);
     void exportProcess();
+    void importProcess();
+    void onVOffsetRequestReceived(double);
 
 private:
     QString FSettingDirPath;
@@ -112,14 +117,15 @@ class TProcessFileWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TProcessFileWidget(QWidget *parent=0);
-    ~TProcessFileWidget(){;}
+    explicit TProcessFileWidget(QWidget *parent=nullptr);
+    ~TProcessFileWidget(){}
 
-    QPushButton *openButton,*saveButton;
+    QPushButton *openButton,*openAndProcessButton,*saveButton;
+    QLineEdit *currentFileLineEdit;
     QPlainTextEdit *parameterPlainTextEdit;
     QPushButton *exportDataButton;
     QSpinBox *plotterIDSpinBox;
-    QPushButton *exportProcessButton;
+    QPushButton *exportProcessButton, *importProcessButton;
     TFID_2D *FID_2D;
     void setFID2D(TFID_2D *f) {FID_2D=f;}
     QString dataFilePath() {return FDataFilePath;}
@@ -127,12 +133,14 @@ public:
 
 signals:
     void updateRequest();
+    void processRequest();
 
 public slots:
 
 private slots:
     void openFile();
     void saveFile();
+    void openFileAndProcess();
     void setNOfPlotters(int n);
     void exportASCIIData();
 
