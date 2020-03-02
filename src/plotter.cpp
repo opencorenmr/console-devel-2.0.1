@@ -545,22 +545,18 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     connect(plotterDetails,SIGNAL(xCursorPositionUpdateRequest(int)),plotter,SLOT(updateXCursorPosition(int)));
     connect(plotterDetails->xFullRangePushButton,SIGNAL(clicked()),this,SLOT(xFullRangePlot()));
 <<<<<<< HEAD
-<<<<<<< HEAD
     connect(plotterDetails->vOffsetSpinBox,SIGNAL(valueChanged(double)),this,SLOT(updateVOffset(double)));
     connect(plotterDetails,SIGNAL(xInitialValueUpdateRequest(double)), this, SLOT(updateXInitialValue(double)));
     connect(plotterDetails,SIGNAL(xFinalValueUpdateRequest(double)), this, SLOT(updateXFinalValue(double)));
 =======
     plotterDetails->xFullRangePushButton->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
 >>>>>>> add keyboard shortcut Ctrl[Cmd]+A for xFullRangePlot
-=======
->>>>>>> add keyboard shortcut (separately from Full Range button)
     connect(penWidthSpinBox,SIGNAL(valueChanged(int)),plotter,SLOT(setPenWidth(int)));
 
     connect(FFTCheckBox,SIGNAL(toggled(bool)),this,SLOT(update()));
     connect(processCheckBox,SIGNAL(toggled(bool)),this,SLOT(update()));
    // connect(phase0SpinBox,SIGNAL(valueChanged(int)),this,SLOT(update()));
 
-    new QShortcut(QKeySequence(Qt::CTRL+Qt::Key_A), this, SLOT(xFullRangePlot()));
 }
 //------------------------------------------------------------------------------
 void FIDPlotter::createActions()
