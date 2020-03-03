@@ -553,6 +553,9 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     connect(processCheckBox,SIGNAL(toggled(bool)),this,SLOT(update()));
    // connect(phase0SpinBox,SIGNAL(valueChanged(int)),this,SLOT(update()));
 
+    new QShortcut(QKeySequence(Qt::CTRL+Qt::Key_0), this, SLOT(xFullRangePlot()));
+    new QShortcut(QKeySequence(Qt::CTRL+Qt::Key_E), this, SLOT(exportAscii()));
+
 }
 //------------------------------------------------------------------------------
 void FIDPlotter::createActions()
