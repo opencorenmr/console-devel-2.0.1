@@ -252,7 +252,7 @@ bool T2DProcessWidget::Readsm2FileforAdd(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
@@ -282,7 +282,7 @@ bool T2DProcessWidget::ReadopFileforAdd(QString fn)
 
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString opp = path+base+".opp";
     QString opd = path+base+".opd";

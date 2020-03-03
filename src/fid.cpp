@@ -33,7 +33,7 @@ bool TFID_2D::ReadsmdFile(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString smd = path+base+".smd";
 
@@ -64,7 +64,7 @@ bool TFID_2D::ReadopFiles(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString opp = path+base+".opp";
     QString opd = path+base+".opd";
@@ -80,7 +80,7 @@ bool TFID_2D::Readsm2Files(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
@@ -95,7 +95,7 @@ bool TFID_2D::WriteopFiles(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString opp = path+base+".opp";
     QString opd = path+base+".opd";
@@ -110,7 +110,7 @@ bool TFID_2D::Writesm2Files(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
@@ -640,7 +640,7 @@ bool TFID::exportAscii(QString fn, int xini, int xfin)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString fileName = path+base+".dat";
 
@@ -671,7 +671,7 @@ bool TFID::exportAscii(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString fileName = path+base+".dat";
 
@@ -701,7 +701,7 @@ bool TFID::WriteopFiles(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString opp = path+base+".opp";
     QString opd = path+base+".opd";
@@ -718,7 +718,7 @@ bool TFID::Writesm2Files(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
@@ -831,7 +831,7 @@ bool TFID::WritesmdFile(QString fn)
 
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString smd = path+base+".smd";
 

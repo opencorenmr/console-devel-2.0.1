@@ -247,7 +247,7 @@ void KExportWidget::performExport2DFile()
 
     QFileInfo fi;
     fi.setFile(fileName);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path_1 = fi.absolutePath()+'/';
     QString data2dp = path_1+base+".2DP";
     QString data2dd = path_1+base+".2DD";

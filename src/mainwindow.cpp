@@ -218,7 +218,7 @@ void TwelcomeWidget::setJobCategoty()
       for(int k=0; k<builtInJobList.size(); k++)
       {
           QFileInfo fileInfo(builtInJobList.at(k));
-          welcomeJobListWidget->addItem(fileInfo.baseName());
+          welcomeJobListWidget->addItem(fileInfo.completeBaseName());
       }
 
   }
@@ -227,7 +227,7 @@ void TwelcomeWidget::setJobCategoty()
       for(int k=0; k<recentJobList.size(); k++)
       {
           QFileInfo fileInfo(recentJobList.at(k));
-          welcomeJobListWidget->addItem(fileInfo.baseName());
+          welcomeJobListWidget->addItem(fileInfo.completeBaseName());
       }
 
   }
@@ -236,7 +236,7 @@ void TwelcomeWidget::setJobCategoty()
       for(int k=0; k<favoriteJobList.size(); k++)
       {
           QFileInfo fileInfo(favoriteJobList.at(k));
-          welcomeJobListWidget->addItem(fileInfo.baseName());
+          welcomeJobListWidget->addItem(fileInfo.completeBaseName());
       }
 
   }
@@ -938,7 +938,7 @@ void MainWindow::onSetupJobButtonClicked()
     }
 
     fpgaTerminal->expSettings->pathLineEdit->setText(info.absolutePath());
-    fpgaTerminal->expSettings->nameLineEdit->setText(info.baseName());
+    fpgaTerminal->expSettings->nameLineEdit->setText(info.completeBaseName());
 
 
     setTerminal();
