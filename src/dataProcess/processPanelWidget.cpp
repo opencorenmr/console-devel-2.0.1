@@ -124,7 +124,7 @@ void TProcessPanelWidget::exportProcess()
 
     QFileInfo fi;
     fi.setFile(fileName);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     path = fi.absolutePath()+'/';
     QString newFileName = path+base+".process";
     if(QFile::exists(newFileName))

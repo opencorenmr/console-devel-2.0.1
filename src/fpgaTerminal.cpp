@@ -644,7 +644,7 @@ void TfpgaTerminal::onArrayPromptReceived()
 
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
 
     QString opd = path+base+"_array.opd";
@@ -1130,7 +1130,7 @@ void TfpgaTerminal::onReadyPromptReceived()
 
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2d = path+base+".sm2d";
     QString sm2p = path+base+".sm2p";
@@ -1925,7 +1925,7 @@ void TfpgaTerminal::checkOverride()
                    + expSettings->nameLineEdit->text();
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
 
 
@@ -1993,7 +1993,7 @@ void TfpgaTerminal::onSaveButtonClicked()
 
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2d = path+base+"_unfinished.sm2d";
     QString sm2p = path+base+"_unfinished.sm2p";
