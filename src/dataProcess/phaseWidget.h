@@ -40,7 +40,10 @@ signals:
 //    void updatePlottersRequest();
 
 public slots:
+    void createConnections();
+    void breakConnections();
     void initialize();
+    void reset();
     void refresh();
     void addOperation();
 
@@ -63,7 +66,6 @@ private:
    // bool FFIDSetted;
     void createWidgets();
     void createPanel();
-    void createConnections();
     double previousPhase0Value,previousPhase1Value;
 
 };
