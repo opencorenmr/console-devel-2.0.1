@@ -172,6 +172,13 @@ bool TProcessOperations::loadFromFile(QString filename)
 bool TProcessOperations::applyTo(TFID_2D *fid_2d)
 {
   bool result=false;
+
+  if(processElements.isEmpty())
+  {
+    setErrorMessage("Process is empty.");
+    return false;
+  }
+
   for(int k=0; k<processElements.size(); k++)
   {
     result=processElements[k]->process(fid_2d);

@@ -74,7 +74,8 @@ SOURCES += main.cpp\
     dataProcess/peakPickWidget.cpp \
     dataProcess/peakPick.cpp \
     dataProcess/interpolate.cpp \
-    dataProcess/interpolateWidget.cpp
+    dataProcess/interpolateWidget.cpp \
+    dataProcess/imageGenWidget.cpp
 
 
 
@@ -142,7 +143,8 @@ HEADERS  += mainwindow.h \
     dataProcess/peakPickWidget.h \
     dataProcess/peakPick.h \
     dataProcess/interpolate.h \
-    dataProcess/interpolateWidget.h
+    dataProcess/interpolateWidget.h \
+    dataProcess/imageGenWidget.h
 
 
 

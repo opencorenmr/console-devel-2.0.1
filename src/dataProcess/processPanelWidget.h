@@ -33,6 +33,7 @@
 #include "fidMathWidget.h"
 #include "peakPickWidget.h"
 #include "interpolateWidget.h"
+#include "imageGenWidget.h"
 
 class TFIDPlotters;
 class TProcessFileWidget;
@@ -71,7 +72,7 @@ public:
     TAddCutPointsWidget *addCutPointsWidget;
     TFIDMathWidget *FIDMathWidget;
 
-
+    TImageGenWidget *imageGenWidget;
 
     TCreateFIDWidget *createFIDWidget;
 
