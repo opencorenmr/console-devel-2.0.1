@@ -1379,6 +1379,12 @@ bool TfpgaTerminal::initData()
         al2=expSettings->acquisitionWidget->multiplicity;
     }
 
+    // 20200616: We prohibit the plotters to draw data while we reset nmrData.
+    for(int k=0; k<fidPlotters.size();k++)
+    {
+        fidPlotters[k]->plotter->fidSetted=false;
+    }
+
     mutex.lock();
       nmrData->FID.clear();
       nmrData->setAl(al2);
@@ -1419,10 +1425,10 @@ bool TfpgaTerminal::initData()
 
      for(int k=0; k<fidPlotters.size();k++)
      {
-  //     qDebug() << fidPlotters[k]->plotter->xini;
            if(fidPlotters[k]->plotter->xini > nmrData->al()-2) fidPlotters[k]->plotter->xini=0;
-  //     qDebug() << fidPlotters[k]->plotter->xfin;
            if(fidPlotters[k]->plotter->xfin > nmrData->al()-1) fidPlotters[k]->plotter->xfin=nmrData->al()-1;
+           // 20200616: We now allow the plotters to draw data.
+           fidPlotters[k]->plotter->fidSetted=true;
      }
 
     return true;
@@ -1515,10 +1521,10 @@ bool TfpgaTerminal::accumulation()
 
         for(int k=0; k<fidPlotters.size(); k++)
         {
-            fidPlotters[k]->FIDSelectSpinBox->setMaximum(ppg->receiverInfo.nc());
-           fidPlotters[k]->plotter->setFID(nmrData->FID[fidPlotters[k]->FIDSelectSpinBox->value()]);
-            if(ppg->receiverInfo.nc()>1) fidPlotters[k]->FIDSelectSpinBox->show();
-            else fidPlotters[k]->FIDSelectSpinBox->hide();            
+           fidPlotters[k]->FIDSelectSpinBox->setMaximum(ppg->receiverInfo.nc());
+         //  fidPlotters[k]->plotter->setFID(nmrData->FID[fidPlotters[k]->FIDSelectSpinBox->value()]);
+           if(ppg->receiverInfo.nc()>1) fidPlotters[k]->FIDSelectSpinBox->show();
+           else fidPlotters[k]->FIDSelectSpinBox->hide();
         }
         repeatScanQ=false;
 
@@ -1555,7 +1561,7 @@ bool TfpgaTerminal::repeatScan()
         {
           fidPlotters[k]->FIDSelectSpinBox->setMaximum(1);
           fidPlotters[k]->FIDSelectSpinBox->hide();
-          fidPlotters[k]->plotter->setFID(nmrData->FID[nmrData->currentFID()]);
+        //  fidPlotters[k]->plotter->setFID(nmrData->FID[nmrData->currentFID()]);
 //  qDebug()<<QString(Q_FUNC_INFO)<<"nmrData dx: " << nmrData->FID[nmrData->FID.size()-1]->dx();
 //  qDebug()<<QString(Q_FUNC_INFO)<<"plotter dx: " << fidPlotters[k]->plotter->fid->dx();
         }
