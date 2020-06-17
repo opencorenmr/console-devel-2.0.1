@@ -18,6 +18,7 @@ public:
     ~KExportWidget() {;}
 
     QString dataFilePath() {return FDataFilePath;}
+    void setDataFilePath(QString qs) {FDataFilePath=qs;}
 
     //QPushButton *exportOpFileButton;
     //QPushButton *exportSm2FileButton;

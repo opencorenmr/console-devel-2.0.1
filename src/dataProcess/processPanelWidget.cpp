@@ -257,6 +257,8 @@ void TProcessFileWidget::openFile()
     setDataFilePath(QFileInfo(fileName).absolutePath());
     QString fileExt=QFileInfo(fileName).suffix();
 
+
+
     if(0==QString::compare(fileExt,"sm2p") || 0==QString::compare(fileExt,"sm2d"))
     {
       if(!FID_2D->Readsm2Files(fileName))
@@ -288,9 +290,9 @@ void TProcessFileWidget::openFile()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-     emit updateRequest();
+    emit updateRequest();
 
-     fidSetted=true;
+    fidSetted=true;
 
 
 }
@@ -576,7 +578,7 @@ void TProcessPanelWidget::initializePlotter()
         plotters->FIDPlotters[k]->FIDSelectSpinBox->setMinimum(1);
         plotters->FIDPlotters[k]->FIDSelectSpinBox->setMaximum(FID_2D->FID.size());
 
-        //plotters->FIDPlotters[k]->setVCursor(plotters->FIDPlotters[k]->vCursorAction->isChecked());
+        plotters->FIDPlotters[k]->plotterDetails->vOffsetSpinBox->setValue(0.5);
 
     }
 
@@ -612,20 +614,25 @@ void TProcessPanelWidget::onFIDCreated()
 
 void TProcessPanelWidget::initialize()
 {
-// qDebug() << QString(Q_FUNC_INFO) << "0";
+    exportWidget->setDataFilePath(processFileWidget->dataFilePath());
+
     initializePlotter();
-// qDebug() << QString(Q_FUNC_INFO) << "1";
 
     axisFormatWidget->domainComboBox->setCurrentIndex(0);
     axisFormatWidget->axisStyle->setDomain("time");
     axisFormatWidget->init();
     axisFormatWidget->refresh();
-    phaseWidget->setFID2D(FID_2D);
-    phaseWidget->phase0ValueDoubleSpinBox->setValue(0);
-    phaseWidget->phase1ValueDoubleSpinBox->setValue(0);
-    phaseWidget->phasePivotCheckBox->setEnabled(true);
-    phaseWidget->phasePivotCheckBox->setChecked(false);
-
+    // Before resetting the phase widget we break connections tentatively.
+    // Otherwise, the unintended phasing is performed to the data.
+    // (17 June 2020 K. Takeda)
+    phaseWidget->breakConnections();
+      phaseWidget->reset();
+      phaseWidget->setFID2D(FID_2D);
+      phaseWidget->phase0ValueDoubleSpinBox->setValue(0);
+      phaseWidget->phase1ValueDoubleSpinBox->setValue(0);
+      phaseWidget->phasePivotCheckBox->setEnabled(true);
+      phaseWidget->phasePivotCheckBox->setChecked(false);
+    phaseWidget->createConnections(); // We resume the connection
     clearProcessOperations();
 
 }

@@ -1379,6 +1379,12 @@ bool TfpgaTerminal::initData()
         al2=expSettings->acquisitionWidget->multiplicity;
     }
 
+    // 20200616: We prohibit the plotters to draw data while we reset nmrData.
+    for(int k=0; k<fidPlotters.size();k++)
+    {
+        fidPlotters[k]->plotter->fidSetted=false;
+    }
+
     mutex.lock();
       nmrData->FID.clear();
       nmrData->setAl(al2);
@@ -1419,10 +1425,10 @@ bool TfpgaTerminal::initData()
 
      for(int k=0; k<fidPlotters.size();k++)
      {
-  //     qDebug() << fidPlotters[k]->plotter->xini;
            if(fidPlotters[k]->plotter->xini > nmrData->al()-2) fidPlotters[k]->plotter->xini=0;
-  //     qDebug() << fidPlotters[k]->plotter->xfin;
            if(fidPlotters[k]->plotter->xfin > nmrData->al()-1) fidPlotters[k]->plotter->xfin=nmrData->al()-1;
+           // 20200616: We now allow the plotters to draw data.
+           fidPlotters[k]->plotter->fidSetted=true;
      }
 
     return true;
