@@ -113,7 +113,7 @@ void KExportWidget::performExportAscii()
     if(!isAncestorDefined()) {return;}
     if(ancestor()->FID_2D->FID.isEmpty()) {return;}
 
-    qDebug() << QString(Q_FUNC_INFO) << dataFilePath();
+   // qDebug() << QString(Q_FUNC_INFO) << dataFilePath();
 
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';

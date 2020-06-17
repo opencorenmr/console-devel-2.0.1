@@ -100,7 +100,7 @@ HEADERS  += mainwindow.h \
 
 win32: RC_ICONS = ../images/nmrProcess.ico
 
-mac: QMAKE_MAC_SDK = macosx10.14
+#mac: QMAKE_MAC_SDK = macosx10.14
 mac: ICON = ../images/nmrProcess.icns
 
 RESOURCES += \

@@ -1521,10 +1521,10 @@ bool TfpgaTerminal::accumulation()
 
         for(int k=0; k<fidPlotters.size(); k++)
         {
-            fidPlotters[k]->FIDSelectSpinBox->setMaximum(ppg->receiverInfo.nc());
-           fidPlotters[k]->plotter->setFID(nmrData->FID[fidPlotters[k]->FIDSelectSpinBox->value()]);
-            if(ppg->receiverInfo.nc()>1) fidPlotters[k]->FIDSelectSpinBox->show();
-            else fidPlotters[k]->FIDSelectSpinBox->hide();            
+           fidPlotters[k]->FIDSelectSpinBox->setMaximum(ppg->receiverInfo.nc());
+         //  fidPlotters[k]->plotter->setFID(nmrData->FID[fidPlotters[k]->FIDSelectSpinBox->value()]);
+           if(ppg->receiverInfo.nc()>1) fidPlotters[k]->FIDSelectSpinBox->show();
+           else fidPlotters[k]->FIDSelectSpinBox->hide();
         }
         repeatScanQ=false;
 
@@ -1561,7 +1561,7 @@ bool TfpgaTerminal::repeatScan()
         {
           fidPlotters[k]->FIDSelectSpinBox->setMaximum(1);
           fidPlotters[k]->FIDSelectSpinBox->hide();
-          fidPlotters[k]->plotter->setFID(nmrData->FID[nmrData->currentFID()]);
+        //  fidPlotters[k]->plotter->setFID(nmrData->FID[nmrData->currentFID()]);
 //  qDebug()<<QString(Q_FUNC_INFO)<<"nmrData dx: " << nmrData->FID[nmrData->FID.size()-1]->dx();
 //  qDebug()<<QString(Q_FUNC_INFO)<<"plotter dx: " << fidPlotters[k]->plotter->fid->dx();
         }
