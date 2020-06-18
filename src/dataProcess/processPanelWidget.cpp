@@ -377,7 +377,7 @@ void TProcessPanelWidget::createWidgets()
       operationListWidget->setFixedWidth(100);
       operationListWidget->addItems(QStringList()
                                     << "File"
-                                 //   << "Image"
+                                    << "Image"
                                     << "Cut/Add"
                                     << "Apodization"
                                     << "Transform"
@@ -466,7 +466,7 @@ void TProcessPanelWidget::createPanel()
     setFixedWidth(400); setFixedHeight(400);
 
     stackedWidget->addWidget(processFileWidget);
-   // stackedWidget->addWidget(imageGenWidget);
+    stackedWidget->addWidget(imageGenWidget);
     stackedWidget->addWidget(addCutPointsWidget);
     stackedWidget->addWidget(apodizationWidget);
     stackedWidget->addWidget(transformWidget);
