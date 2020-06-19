@@ -8,6 +8,7 @@
 #include <QSpinBox>
 #include <QDebug>
 #include <QComboBox>
+#include <QPlainTextEdit>
 #include <QStringList>
 #include <QSettings>
 #include "../fid.h"
@@ -21,6 +22,13 @@ public:
     ~TImageGenWidget() {;}
 
     QSpinBox *plotterIDSpinBox;
+    QPlainTextEdit *epsPlainTextEdit;
+    QPushButton *saveEPSPushButton;
+    QPushButton *createEPSPushButton;
+    QLineEdit *boundingBox1LineEdit;
+    QLineEdit *boundingBox2LineEdit;
+    QLineEdit *boundingBox3LineEdit;
+    QLineEdit *boundingBox4LineEdit;
 
     void createWidgets();
     void createPanel();
@@ -29,6 +37,8 @@ public:
 signals:
 
 public slots:
+    void createEPS();
+
 
 private:
 
