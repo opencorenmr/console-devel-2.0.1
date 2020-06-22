@@ -377,7 +377,7 @@ void TProcessPanelWidget::createWidgets()
       operationListWidget->setFixedWidth(100);
       operationListWidget->addItems(QStringList()
                                     << "File"
-                                    << "Image"
+                                    << "Image (eps)"
                                     << "Cut/Add"
                                     << "Apodization"
                                     << "Transform"

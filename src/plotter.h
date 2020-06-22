@@ -180,7 +180,7 @@ signals:
 public slots:
     void updatePlotRange(int i, int f);
     void updateXCursorPosition(int xi);
-    void setPenWidth(int w) {if(w<1)FPenWidth=1; else if(w>10)FPenWidth=10; else FPenWidth=w;}
+    void setPenWidth(int w) {if(w<1)FPenWidth=1; else FPenWidth=w;}
     void hExpand();
     void hShrink();
     void moveRight();
