@@ -384,8 +384,9 @@ void TAxisFormatWidget::apply()
       }
     }
     ancestor()->processOperations->processElements.append(as);
+    // common settings
     ancestor()->updateProcessSettings();
-
+    // settings specific to AxisStyle
     createSettings(ancestor()->processSettings,
                     QString::number(ancestor()->processOperations->processElements.size()-1));
 

@@ -189,6 +189,17 @@ void TPhaseWidget::addOperation()
 //      phRot->setPhase1(phaseRotation->phase1());
       phRot->setPhase1(phase1ValueDoubleSpinBox->value());
       phRot->setPivot(phaseRotation->pivot());
+
+    // if the type of the last operation is also phase, we overwrite it.
+    if(!ancestor()->processOperations->processElements.isEmpty())
+    {
+       if(ancestor()->processOperations->processElements.last()->processType()==TProcessElement::Phase)
+       {
+         ancestor()->processOperations->processElements.removeLast();
+       }
+    }
+
+
     ancestor()->processOperations->processElements.append(phRot);
     // common settings
     ancestor()->updateProcessSettings();

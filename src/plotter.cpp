@@ -591,7 +591,7 @@ void FIDPlotter::createActions()
 
     penWidthSpinBox = new QSpinBox;
     penWidthSpinBox->setMinimum(1);
-    penWidthSpinBox->setMaximum(10);
+    penWidthSpinBox->setMaximum(64);
 
     scaleComboBox = new QComboBox;
     scaleComboBox->addItems(QStringList() << tr("auto") << tr("manual"));

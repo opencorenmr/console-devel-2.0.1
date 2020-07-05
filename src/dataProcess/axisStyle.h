@@ -14,11 +14,13 @@ public:
 
     enum AxisDomain {TimeDomain,FrequencyDomain,Other};
     int domain() {return FDomain;}
+    QString domainString();
     void setDomain(int ad);
     void setDomain(QString qs);
 
     enum AxisUnit {nsec,usec,msec,sec,GHz,MHz,kHz,Hz,ppm};
     int unit() {return FUnit;}
+    QString unitString();
     void setUnit(int au);
     void setUnit(QString qs);
 

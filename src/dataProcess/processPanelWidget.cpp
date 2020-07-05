@@ -251,7 +251,7 @@ void TProcessFileWidget::openFile()
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
                                                     path,
-                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d)"));
+                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d *.smd)"));
     if (fileName.isEmpty()) {return;}
 
     setDataFilePath(QFileInfo(fileName).absolutePath());
@@ -276,6 +276,15 @@ void TProcessFileWidget::openFile()
          QMessageBox::warning(this,QString(Q_FUNC_INFO)+tr(""), FID_2D->errorMessage);
          return;
       }
+    }
+    else if(0==QString::compare(fileExt,"smd"))
+    {
+        if(!FID_2D->ReadsmdFile(fileName))
+        {
+                      //qDebug()<<FID_2D->errorMessage;
+           QMessageBox::warning(this,QString(Q_FUNC_INFO)+tr(""), FID_2D->errorMessage);
+           return;
+        }
     }
     else
     {
@@ -369,17 +378,15 @@ void TProcessPanelWidget::createWidgets()
     plotters->setDevicePixelRatio(devicePixelRatio());
     plotters->setBackgroundColor0(QColor("white"));
     plotters->setBackgroundColor1(QColor("skyblue"));
-    //plotters->FIDPlotters[0]->plotter->setBackgroundColor0(QColor("white"));
-    //plotters->FIDPlotters[0]->plotter->setBackgroundColor1(QColor("white"));
 
     plotters->show();
     plotters->setFID2D(FID_2D);
 
     operationListWidget = new QListWidget;
       operationListWidget->setFixedWidth(100);
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
       operationListWidget->addItems(QStringList()
                                     << "File"
+                                    << "Image (eps)"
                                     << "Cut/Add"
                                     << "Apodization"
                                     << "Transform"
@@ -394,24 +401,6 @@ void TProcessPanelWidget::createWidgets()
                                     << "Peak"
                                     << "Interpolate(tmp)"
                                     );
-#else
-      operationListWidget->addItems(QStringList()
-                                    << "File"
-                                    << "Cut/Add"
-                                    << "Apodization"
-                                    << "Transform"
-                                    << "Phase"
-                                    << "Axis Format"
-                                    << "Array/2D"
-                                 //   << "Covariance"
-                                    << "exportData"
-                                    << "Create FID"
-                                    << "Math"
-                                    << "Peak"
-                                    << "Nutation(tmp)"
-                                    << "Interpolate(tmp)"
-                                    );
-#endif
 
       // Return Values (Array included)
       // View (plotter manipulation)
@@ -472,6 +461,9 @@ void TProcessPanelWidget::createWidgets()
 
     interpolateWidget = new KInterpolateWidget;
       interpolateWidget->setAncestor(this);
+
+    imageGenWidget = new TImageGenWidget;
+      imageGenWidget->setAncestor(this);
 }
 
 void TProcessPanelWidget::createPanel()
@@ -483,6 +475,7 @@ void TProcessPanelWidget::createPanel()
     setFixedWidth(400); setFixedHeight(400);
 
     stackedWidget->addWidget(processFileWidget);
+    stackedWidget->addWidget(imageGenWidget);
     stackedWidget->addWidget(addCutPointsWidget);
     stackedWidget->addWidget(apodizationWidget);
     stackedWidget->addWidget(transformWidget);
@@ -554,6 +547,8 @@ void TProcessPanelWidget::updateNumberOfPlotters(int i)
 {
     apodizationWidget->applyModeWidget->currentPlotterSpinBox->setMaximum(i-1);
     transformWidget->applyModeWidget->currentPlotterSpinBox->setMaximum(i-1);
+
+    imageGenWidget->plotterIDSpinBox->setMaximum(i-1);
 }
 
 void TProcessPanelWidget::clearProcessOperations()
@@ -662,7 +657,10 @@ void TProcessPanelWidget::updateProcessSettings()
     commandHistoryListWidget->clear();
     for(int k=0; k<processOperations->processElements.size(); k++)
     {
-        commandHistoryListWidget->addItem(processOperations->processElements.at(k)->command());
+        commandHistoryListWidget->addItem(
+                    QString::number(k+1) + ": " +
+                    processOperations->processElements.at(k)->command()
+                    );
     }
 
     processSettings->beginGroup("main");
