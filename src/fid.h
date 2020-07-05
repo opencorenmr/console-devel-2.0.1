@@ -238,7 +238,8 @@ class TFID_2D
     bool Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
     bool Writesm2Files(QString fn);
 
-
+    bool ReadopaFile(QString fn); // called by ReadopaFile"s", declared below.
+    bool ReadopaFiles(QString fn); // ascii data, parameter is supposed to be stored in .opp, just like .opd (Jul 2020 KT)
     bool ReadoppFile(QString fn);
     bool ReadopdFile(QString fn);
     bool ReadopFiles(QString fn);
