@@ -18,7 +18,16 @@ void TPhaseRotation::setPivot(int p)
 }
 
 QStringList TPhaseRotation::processInformation() {return QStringList() << "process=phase";}
-QString TPhaseRotation::command() {return "phase";}
+QString TPhaseRotation::command()
+{
+    QString qs;
+    qs= "phase (0th order: " + QString::number(phase0())
+            + ", 1st order: " + QString::number(phase1())
+            + ", pivot: " + QString::number(pivot())
+            + ")";
+
+    return qs;
+}
 
 
 bool TPhaseRotation::process(TFID_2D *fid_2d)
@@ -89,15 +98,6 @@ bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
     else return process(fid_2d->FID[k]);
 }
 
-//bool TPhaseRotation::process(TFID_2D *fid_2d)
-//{
-//    bool r=false;
-//    for(int c=0; c<fid_2d->FID.size(); c++)
-//    {
-//        r=process(fid_2d->FID[c]);
-//    }
-//    return r;
-//}
 
 bool TPhaseRotation::process(TFID *fid)
 {

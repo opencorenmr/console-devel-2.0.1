@@ -52,7 +52,8 @@ SOURCES += main.cpp\
     ../dataProcess/peakPickWidget.cpp \
     ../dataProcess/peakPick.cpp \
     ../dataProcess/arraySum.cpp \
-    ../dataProcess/flatten.cpp
+    ../dataProcess/flatten.cpp  \
+    ../dataProcess/imageGenWidget.cpp
 
 
 
@@ -95,12 +96,13 @@ HEADERS  += mainwindow.h \
     ../dataProcess/peakPickWidget.h \
     ../dataProcess/peakPick.h \
     ../dataProcess/arraySum.h \
-    ../dataProcess/flatten.h
+    ../dataProcess/flatten.h \
+    ../dataProcess/imageGenWidget.h
 
 
 win32: RC_ICONS = ../images/nmrProcess.ico
 
-mac: QMAKE_MAC_SDK = macosx10.14
+#mac: QMAKE_MAC_SDK = macosx10.14
 mac: ICON = ../images/nmrProcess.icns
 
 RESOURCES += \

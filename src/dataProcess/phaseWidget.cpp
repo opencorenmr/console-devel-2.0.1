@@ -103,10 +103,21 @@ void TPhaseWidget::createConnections()
     connect(phase0ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase0()));
     connect(phase1ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase1()));
     connect(phasePivotSpinBox,SIGNAL(valueChanged(int)),this,SLOT(setPivot(int)));
-
     connect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(addOperation()));
     connect(phasePivotCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetPhasePivot()));
 }
+
+void TPhaseWidget::breakConnections()
+{
+    disconnect(phase0ResolutionComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setResolution0()));
+    disconnect(phase1ResolutionComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setResolution1()));
+    disconnect(phase0ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase0()));
+    disconnect(phase1ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase1()));
+    disconnect(phasePivotSpinBox,SIGNAL(valueChanged(int)),this,SLOT(setPivot(int)));
+    disconnect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(addOperation()));
+    disconnect(phasePivotCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetPhasePivot()));
+}
+
 
 void TPhaseWidget::setPivot(int p)
 {
@@ -123,6 +134,12 @@ void TPhaseWidget::initialize()
     phase1ResolutionComboBox->setCurrentIndex(1);
     setResolution0();
     setResolution1();
+    previousPhase0Value=0;
+    previousPhase1Value=0;
+}
+
+void TPhaseWidget::reset()
+{
     previousPhase0Value=0;
     previousPhase1Value=0;
 }
@@ -172,6 +189,17 @@ void TPhaseWidget::addOperation()
 //      phRot->setPhase1(phaseRotation->phase1());
       phRot->setPhase1(phase1ValueDoubleSpinBox->value());
       phRot->setPivot(phaseRotation->pivot());
+
+    // if the type of the last operation is also phase, we overwrite it.
+    if(!ancestor()->processOperations->processElements.isEmpty())
+    {
+       if(ancestor()->processOperations->processElements.last()->processType()==TProcessElement::Phase)
+       {
+         ancestor()->processOperations->processElements.removeLast();
+       }
+    }
+
+
     ancestor()->processOperations->processElements.append(phRot);
     // common settings
     ancestor()->updateProcessSettings();

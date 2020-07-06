@@ -4091,17 +4091,14 @@ bool TpulseProgram::m_loop(TppgLines &ppgLines)
 //-----------------------------------------------------------------------------
 bool TpulseProgram::m_endlp(TppgLines &ppgLines) {
 
-//    qDebug()<<"Loop ending. loop manager:" <<loopManager;
+ //   qDebug()<< currentCH <<": Loop ending. loop manager:" <<loopManager;
 
     bool ok;
     int l;
 
-    if(!ppgLines.currentLine.startsWith('('))
+    if(!ppgLines.currentLine.startsWith('(')) // endLoop without parenthesis
     {
-       l=loopManager.last();
-        //errorMessage=QString(Q_FUNC_INFO)
-        //        + ": endlp(c) is expected, where c is 1 or 2.";
-        //return false;
+       l=loopManager.last();       
     }
     else
     {
@@ -4117,7 +4114,7 @@ bool TpulseProgram::m_endlp(TppgLines &ppgLines) {
       }
 
       QString q1 = ppgLines.currentLine.left(index).trimmed();
-      ppgLines.currentLine=ppgLines.currentLine.remove(0,index+1).trimmed();
+      ppgLines.currentLine=ppgLines.currentLine.remove(0,index+1).trimmed();      
 
       l=q1.toInt(&ok);
       if(!ok)
@@ -4131,27 +4128,29 @@ bool TpulseProgram::m_endlp(TppgLines &ppgLines) {
           return false;
       }
 
-
-      if (!loopManager.contains(l))
-      {
-          errorMessage=QString(Q_FUNC_INFO)+": loop counter #" + QString::number(l) +" has not started.";
-          return false;
-      }
-
-      if(loopManager.last()!=l)
-      {
-          errorMessage=QString(Q_FUNC_INFO)+": you need to close loop #" +QString::number(loopManager.last())
-                  + " before loop #" +QString::number(l) + ".";
-          return false;
-      }
-
-
     }
 
     //
     // If the currentCH is in the asynchronous operation, we do nothing and return,
     //
     if(asyncManager.contains(currentCH)) return true;    
+
+
+    if (!loopManager.contains(l))
+    {
+        errorMessage=QString(Q_FUNC_INFO)+": loop counter #" + QString::number(l) +" has not started.";
+    //    qDebug() << "loopManager" << loopManager;
+        return false;
+    }
+
+    if(loopManager.last()!=l)
+    {
+        errorMessage=QString(Q_FUNC_INFO)+": you need to close loop #" +QString::number(loopManager.last())
+                + " before loop #" +QString::number(l) + ".";
+        return false;
+    }
+
+
 
     if(loopManager.isEmpty())
     {

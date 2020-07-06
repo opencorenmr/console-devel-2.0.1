@@ -31,8 +31,10 @@ int main(int argc, char *argv[])
                      +"."+QString::number(VERSION_NUMBER2)
                      +"."+QString::number(VERSION_NUMBER3)
                      + QObject::tr(" #") + QString::number(BUILD_NUMBER)
-                     + QObject::tr(" (") + QString::number(RELEASE_YEAR) + QObject::tr(" ")
-                     + QObject::tr(RELEASE_MONTH) + QObject::tr(")")
+                     + QObject::tr(" (")
+                     + QString::number(RELEASE_DATE) + QObject::tr(" ")
+                     + QObject::tr(RELEASE_MONTH) + QObject::tr(" ")
+                     + QString::number(RELEASE_YEAR) + QObject::tr(")")
                      );
 
 //    if(w.fpgaTerminal->openOnStartupCheckBox->isChecked())

@@ -74,7 +74,8 @@ SOURCES += main.cpp\
     dataProcess/peakPickWidget.cpp \
     dataProcess/peakPick.cpp \
     dataProcess/interpolate.cpp \
-    dataProcess/interpolateWidget.cpp
+    dataProcess/interpolateWidget.cpp \
+    dataProcess/imageGenWidget.cpp
 
 
 
@@ -142,13 +143,14 @@ HEADERS  += mainwindow.h \
     dataProcess/peakPickWidget.h \
     dataProcess/peakPick.h \
     dataProcess/interpolate.h \
-    dataProcess/interpolateWidget.h
+    dataProcess/interpolateWidget.h \
+    dataProcess/imageGenWidget.h
 
 
 
 linux: HEADERS += gpib488console.h
 
-mac: QMAKE_MAC_SDK = macosx10.14
+#mac: QMAKE_MAC_SDK = macosx10.14
 mac: ICON = images/opencoreNMR.icns
 
 mac:INCLUDEPATH += /usr/local/include

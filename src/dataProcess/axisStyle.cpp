@@ -20,6 +20,14 @@ void TAxisStyle::setDomain(QString qs)
     else if(0==QString::compare(qs,"frequency",Qt::CaseInsensitive)) setDomain(FrequencyDomain);
     else setDomain(Other);
 }
+QString TAxisStyle::domainString()
+{
+    QString qs;
+    if(domain()==TimeDomain) {qs="time";}
+    else if(domain()==FrequencyDomain) {qs="frequency";}
+    else {qs="other";}
+    return qs;
+}
 
 void TAxisStyle::setUnit(int au) {FUnit=au;}
 void TAxisStyle::setUnit(QString qs)
@@ -33,6 +41,22 @@ void TAxisStyle::setUnit(QString qs)
     else setUnit(msec); // ad hoc default
 
 }
+QString TAxisStyle::unitString()
+{
+    QString qs;
+    if(unit()==nsec) {qs="nsec";}
+    else if(unit()==usec) {qs="usec";}
+    else if(unit()==msec) {qs="msec";}
+    else if(unit()==sec) {qs="sec";}
+    else if(unit()==GHz) {qs="GHz";}
+    else if(unit()==MHz) {qs="MHz";}
+    else if(unit()==kHz) {qs="kHz";}
+    else if(unit()==Hz) {qs="Hz";}
+    else if(unit()==ppm) {qs="ppm";}
+
+    return qs;
+
+}
 
 QStringList TAxisStyle::processInformation()
 {
@@ -40,7 +64,21 @@ QStringList TAxisStyle::processInformation()
     return QStringList();
 }
 
-QString TAxisStyle::command() {return "axisStyle";}
+QString TAxisStyle::command()
+{
+    QString qs1,qs2,qs3;
+
+    qs1="ref. point: ";
+    qs2="ref. value: ";
+
+    qs3= "axisStyle ("
+            + domainString() + ", "
+            + unitString() + ", "
+            + label() + ", "
+            + qs1 + QString::number(referencePoint()) + ", "
+            + qs2 + QString::number(referenceValue());
+    return qs3;
+}
 
 bool TAxisStyle::process(TFID_2D *fid_2d, int k)
 {

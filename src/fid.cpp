@@ -33,38 +33,241 @@ bool TFID_2D::ReadsmdFile(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString smd = path+base+".smd";
 
-    TFID *bFID=new TFID(2);
-    if(!bFID->ReadsmdFile(smd))
+    // qDebug()<< "1";
+
+    QMutexLocker locker(&mutex);
+
+    QFile file(fn);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        errorMessage=bFID->errorMessage;
-        delete bFID;
-        return false;
+         errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         return false;
+    }
+
+    QString source; source.clear();
+    QTextStream in(&file);
+
+    bool pointDefined=false;
+    bool dwDefined=false;
+    bool sf1Defined=false;
+
+    bool ok;
+
+    parameters.clear();
+
+    while (!in.atEnd())
+    {
+        source=in.readLine();
+        source.remove(QChar(' '), Qt::CaseInsensitive);
+        if(source.startsWith('#')) break;
+        parameters.append(source);
+
+        if(source.startsWith("point=",Qt::CaseInsensitive))
+        {
+            pointDefined=true;
+            int i=source.mid(6).toInt(&ok);
+            if(!ok) {errorMessage="Invalid expression for point="; file.close(); return false;}
+            setAl(i);
+        }
+        if(source.startsWith("dw=",Qt::CaseInsensitive))
+        {
+            dwDefined=true;
+            double d=source.mid(3).toDouble(&ok);
+            if(!ok) {errorMessage="Invalid expression for dw="; file.close(); return false;}
+            setDW(d);
+        }
+        if(source.startsWith("sf1=",Qt::CaseInsensitive))
+        {
+            sf1Defined=true;
+            double s=source.mid(4).toDouble(&ok);
+            if(!ok) {errorMessage="Invalid expression for sf1="; file.close(); return false;}
+            setSF1(s);
+        }
+
+    }
+
+    if(!pointDefined)
+    {
+        errorMessage="point=xxx is missing.";  file.close(); return false;
+    }
+    if(!dwDefined)
+    {
+        errorMessage="dw=xxx is missing.";  file.close(); return false;
+    }
+    if(!sf1Defined)
+    {
+        errorMessage="sf1=xxx is missing.";  file.close(); return false;
     }
 
     FID.clear();
-    FID.append(new TFID(bFID->al()));
-    for(int k=0; k<bFID->al(); k++)
-    {
-        FID.last()->real->sig[k]=bFID->real->sig.at(k);
-        FID.last()->imag->sig[k]=bFID->imag->sig.at(k);
-    }
-    FID.last()->updateAbs();
+    FID.append(new TFID(al()));
+    FID.last()->setDW(dw());
+    FID.last()->setSF1(sf1());
 
-    delete bFID;
+    QString line;
+    QStringList sl;
+    for(int k=0; k<al(); k++)
+    {
+        if(in.atEnd())
+        {
+            errorMessage="Data is shorter than " + QString::number(al());
+            file.close(); return false;
+        }
+
+        line = in.readLine();
+        line=line.trimmed();
+        line.replace("\t"," ");
+        ok=line.contains("  ");
+        while(ok)
+        {
+            line.replace("  "," ");
+            ok=line.contains("  ");
+        }
+
+        sl=line.split(' ');
+        if(sl.size()<1)
+        {
+            errorMessage = "Data is empty at " + QString::number(k);
+            file.close(); return false;
+        }
+
+        if(sl.size()==1)
+        {
+            FID[0]->real->sig[k]=sl.at(0).toDouble();
+            FID[0]->imag->sig[k]=0.0;
+        }
+        else
+        {
+            FID[0]->real->sig[k]=sl.at(0).toDouble();
+            FID[0]->imag->sig[k]=sl.at(1).toDouble();
+        }
+
+    }
+
+
+    file.close();
+
+    FID.last()->updateAbs();
+    FID.last()->setEmpty(false);
+
+    comments.clear();
+
+    setCurrentFID(0);
+
     return true;
 
 }
 
+bool TFID_2D::ReadopaFile(QString fn)
+// still incomplete... (6 Jul 2020 KT)
+{
+    QMutexLocker locker(&mutex);
+
+    QFile file(fn);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+         errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         return false;
+    }
+
+    QString source; source.clear();
+    QTextStream in(&file);
+
+    bool ok;
+    QString line;
+    QStringList sl;
+
+    FID.append(new TFID(al()));
+    FID[FID.size()-1]->setSF1(sf1());
+    FID[FID.size()-1]->setDW(dw());
+
+    int k=0;
+
+    while(k<al())
+    {
+//    for(int k=0; k<al(); k++)
+//    {
+        if(in.atEnd())
+        {
+            errorMessage="Data is shorter than " + QString::number(al());
+            file.close(); return false;
+        }
+
+        line = in.readLine();
+        line=line.trimmed();
+        line.replace("\t"," ");
+        ok=line.contains("  ");
+        while(ok)
+        {
+            line.replace("  "," ");
+            ok=line.contains("  ");
+        }
+
+        sl=line.split(' ');
+        if(sl.size()<1)
+        {
+            errorMessage = "Data is empty at " + QString::number(k);
+            file.close(); return false;
+        }
+
+        if(sl.size()==1)
+        {
+            FID.last()->real->sig[k]=sl.at(0).toDouble();
+            FID.last()->imag->sig[k]=0.0;
+        }
+        else
+        {
+            FID.last()->real->sig[k]=sl.at(0).toDouble();
+            FID.last()->imag->sig[k]=sl.at(1).toDouble();
+        }
+
+        k++;
+    }
+
+    FID.last()->updateAbs();
+    FID.last()->setCustomXAxis(isXAxisCustom());
+    FID.last()->setXInitialValue(xInitialValue());
+    FID.last()->setDx(dx());
+    FID.last()->setXAxisLabel(xAxisLabel());
+    FID.last()->setXAxisUnitSymbol(xAxisUnitSymbol());
+    FID.last()->setPrefix(prefix());
+    FID.last()->setPlotPrefix(plotPrefix());
+    FID.last()->setDomain(TFID::TimeDomain);
+
+    FID.last()->setEmpty(false);
+
+
+
+
+    file.close();
+    setCurrentFID(0);
+    return true;
+}
+
+bool TFID_2D::ReadopaFiles(QString fn)
+{
+    QFileInfo fi;
+    fi.setFile(fn);
+    QString base = fi.completeBaseName();
+    QString path = fi.absolutePath()+'/';
+    QString opp = path+base+".opp";
+    QString opa = path+base+".opa";
+
+    if(!ReadoppFile(opp)) return false;
+    if(!ReadopaFile(opa)) return false;
+
+    return true;
+}
 
 bool TFID_2D::ReadopFiles(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString opp = path+base+".opp";
     QString opd = path+base+".opd";
@@ -80,7 +283,7 @@ bool TFID_2D::Readsm2Files(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
@@ -95,7 +298,7 @@ bool TFID_2D::WriteopFiles(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString opp = path+base+".opp";
     QString opd = path+base+".opd";
@@ -110,7 +313,7 @@ bool TFID_2D::Writesm2Files(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
@@ -640,7 +843,7 @@ bool TFID::exportAscii(QString fn, int xini, int xfin)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString fileName = path+base+".dat";
 
@@ -671,7 +874,7 @@ bool TFID::exportAscii(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString fileName = path+base+".dat";
 
@@ -701,7 +904,7 @@ bool TFID::WriteopFiles(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString opp = path+base+".opp";
     QString opd = path+base+".opd";
@@ -718,7 +921,7 @@ bool TFID::Writesm2Files(QString fn)
 {
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
@@ -831,7 +1034,7 @@ bool TFID::WritesmdFile(QString fn)
 
     QFileInfo fi;
     fi.setFile(fn);
-    QString base = fi.baseName();
+    QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString smd = path+base+".smd";
 

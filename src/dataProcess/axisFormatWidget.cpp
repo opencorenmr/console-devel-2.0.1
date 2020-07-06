@@ -374,14 +374,21 @@ void TAxisFormatWidget::apply()
       as->setLabel(axisStyle->label());
       as->setReferencePoint(axisStyle->referencePoint());
       as->setReferenceValue(axisStyle->referenceValue());
-//    as=this->axisStyle;
-    ancestor()->processOperations->processElements.append(as);
-    ancestor()->updateProcessSettings();
 
+    // If the type of the last operation is also AxisStyle, we overwrite it.
+    if(!ancestor()->processOperations->processElements.isEmpty())
+    {
+      if(ancestor()->processOperations->processElements.last()->processType()==TProcessElement::AxisStyle)
+      {
+        ancestor()->processOperations->processElements.removeLast();
+      }
+    }
+    ancestor()->processOperations->processElements.append(as);
+    // common settings
+    ancestor()->updateProcessSettings();
+    // settings specific to AxisStyle
     createSettings(ancestor()->processSettings,
                     QString::number(ancestor()->processOperations->processElements.size()-1));
-    //emit performRequest();
-
 
 }
 
