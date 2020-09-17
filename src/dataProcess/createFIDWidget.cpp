@@ -28,6 +28,9 @@ void TCreateFIDWidget::createWidgets()
       dwDoubleSpinBox->setMaximum(1e100);
       dwDoubleSpinBox->setValue(1.0);
     sf1DoubleSpinBox = new QDoubleSpinBox;
+      sf1DoubleSpinBox->setMinimum(0);
+      sf1DoubleSpinBox->setMaximum(1e100);
+      sf1DoubleSpinBox->setValue(100);
     freqDoubleSpinBox = new QDoubleSpinBox;
     createModeComboBox = new QComboBox;
       createModeComboBox->addItems(QStringList() << "ascii data");
@@ -65,10 +68,12 @@ void TCreateFIDWidget::createPanel()
     createModeComboBox->setCurrentIndex(0);
     stackedWidget->setCurrentIndex(0);
 
-    gLayout0->addWidget(new QLabel(tr("Mode")),0,0,1,1);
-    gLayout0->addWidget(createModeComboBox,0,1,1,1);
-    gLayout0->addWidget(new QLabel(tr("dwell time")),1,0,1,1);
-    gLayout0->addWidget(dwDoubleSpinBox,1,1,1,1);
+//    gLayout0->addWidget(new QLabel(tr("Mode")),0,0,1,1);
+//    gLayout0->addWidget(createModeComboBox,0,1,1,1);
+    gLayout0->addWidget(new QLabel(tr("dwell time")),0,0,1,1);
+    gLayout0->addWidget(dwDoubleSpinBox,0,1,1,1);
+    gLayout0->addWidget(new QLabel(tr("Hz/ppm")),1,0,1,1);
+    gLayout0->addWidget(sf1DoubleSpinBox,1,1,1,1);
     gLayout0->addWidget(stackedWidget,2,0,1,2);
     gLayout0->addWidget(createFIDPushButton,3,0,1,2);
 }
@@ -102,7 +107,17 @@ void TCreateFIDWidget::createFIDFromAsci()
     for(int k=0; k<sl1.size(); k++)
     {
        sl2=sl1.at(k).trimmed().split(QRegExp("\\s+"));
-       if(sl2.size()==2)
+       if(sl2.size()==1)
+       {
+           re=sl2.at(0).toDouble(&ok);
+           im=0.0;
+           if(ok)
+           {
+               inPhase.append(re);
+               quadrature.append(im);
+           }
+       }
+       else if(sl2.size()==2)
        {
            re=sl2.at(0).toDouble(&ok);
            im=sl2.at(1).toDouble(&ok);
@@ -136,6 +151,7 @@ void TCreateFIDWidget::createFIDFromAsci()
 
     // Then we set dw according to the dwDoubleSpinBox, and al.
     FID_2D->setDW(dwDoubleSpinBox->value());
+    FID_2D->setSF1(sf1DoubleSpinBox->value());
     FID_2D->setAl(inPhase.size());
     for(int k=0; k< FID_2D->al(); k++)
     {
