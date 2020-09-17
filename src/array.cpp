@@ -37,6 +37,9 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     arrayCheckBox = new QCheckBox(tr("Array Experiment"));
     arrayCheckBox->setEnabled(false);
 
+    autoRepeatCheckBox = new QCheckBox(tr("Auto Repeat"));
+    autoRepeatSpinBox = new QSpinBox();
+    autoRepeatSpinBox->setMinimum(1);
 
     QGridLayout *leftLayout = new QGridLayout; leftLayout->setMargin(0);
     QVBoxLayout *rightLayout = new QVBoxLayout; rightLayout->setMargin(0);
@@ -97,6 +100,9 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
       bl->addWidget(deleteButton);
     leftLayout->addWidget(widget3,4,0,1,2);
 
+    leftLayout->addWidget(autoRepeatCheckBox,5,0,1,1);
+    leftLayout->addWidget(autoRepeatSpinBox, 5,1,1,1);
+
 
     arrayTableWidget = new QTableWidget;
 //#if defined(_WIN32)
@@ -109,6 +115,7 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     arrayTableWidget->setColumnWidth(0,6*QFontMetrics(font()).width(QChar('M')));
     arrayTableWidget->setColumnWidth(1,4*QFontMetrics(font()).width(QChar('M')));
     arrayTableWidget->setColumnWidth(2,20*QFontMetrics(font()).width(QChar('M')));
+
 
     QWidget *widget4=new QWidget;
     QHBoxLayout *bl2=new QHBoxLayout(widget4);

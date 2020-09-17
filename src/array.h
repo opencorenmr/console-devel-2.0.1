@@ -10,6 +10,7 @@
 #include <QTextEdit>
 #include <QTableWidget>
 #include <QPlainTextEdit>
+#include <QSpinBox>
 
 #include "pulseProgram.h"
 #include "arrayCounter.h"
@@ -29,6 +30,9 @@ public:
     void setPPG(TpulseProgram *p) {ppg=p; ppgSetted=true;}
     QCheckBox *arrayCheckBox;
     QComboBox *arrayVariableComboBox,*arrayTypeComboBox,*arrayDimensionComboBox;
+
+    QCheckBox *autoRepeatCheckBox;
+    QSpinBox *autoRepeatSpinBox;
 
     QStringList arrayScript();
     void loadArrayScript(QString filename);
