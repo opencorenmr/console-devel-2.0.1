@@ -1733,6 +1733,10 @@ void TfpgaTerminal::copyFID(TFID *f)
    // nCopyOperations=0;(transferPPG)
    // check multiplicity
 
+   //
+   // nCopyOperation is initialized in repeatScan() and accumulation()
+   //
+
    //mutex.lock();
 
    if(nmrData->al()!=f->al() &&
@@ -1750,11 +1754,11 @@ void TfpgaTerminal::copyFID(TFID *f)
        nmrData->setDW(f->dw());
    }
 
+   // optional phase reversal
    if(ppg->receiverInfo.isPhaseReverseEnabled()) f->phaseReverse();
+   // optional phase rotation
    if(ppg->receiverInfo.isPhaseRotationEnabled()) f->rotate(ppg->receiverInfo.phaseRotationAngle());
-
-   //fidDomain::process(nmrData->FID[nmrData->currentFID()], fidDomain::TimeDomain);
-
+   // optional fft
    if(ppg->receiverInfo.isFFTEnabled())
    {
        TFFT fft;
@@ -1765,6 +1769,7 @@ void TfpgaTerminal::copyFID(TFID *f)
        fDomain.process(nmrData->FID[nmrData->currentFID()]);
    }
 
+   // optional spin noise
    if(expSettings->acquisitionWidget->replaceRealWithAbsCheckBox->isChecked())
    {
        TReplaceRealWithAbsolute rrwa;
@@ -1797,13 +1802,6 @@ void TfpgaTerminal::copyFID(TFID *f)
         expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinAverageData)
      {
          ofs=nCopyOperations; // *1
-         //if((ofs+1) > nmrData->FID[nmrData->currentFID()]->al()) nmrData->setAl(ofs+1);
-
-//         for(int k=0; k<fidPlotters.size();k++)
-//         {
-//           fidPlotters[k]->plotter->xini=0;
-//           fidPlotters[k]->plotter->xfin=expSettings->acquisitionWidget->multiplicity-1;
-//         }
      }
 
      double scale=ppg->receiverInfo.dfScale();
@@ -1813,10 +1811,8 @@ void TfpgaTerminal::copyFID(TFID *f)
      {
          if(repeatScanQ)
          {
-             nmrData->FID[nmrData->currentFID()]->real->sig[ofs] = scale*f->real->average();
-             nmrData->FID[nmrData->currentFID()]->imag->sig[ofs] = scale*f->imag->average();
-//             nmrData->FID[nmrData->currentFID()]->real->sig[ofs] = scale*f->real->sum();
-//             nmrData->FID[nmrData->currentFID()]->imag->sig[ofs] = scale*f->imag->sum();
+           nmrData->FID[nmrData->currentFID()]->real->sig[ofs] = scale*f->real->average();
+           nmrData->FID[nmrData->currentFID()]->imag->sig[ofs] = scale*f->imag->average();
          }
          else // accum
          {
