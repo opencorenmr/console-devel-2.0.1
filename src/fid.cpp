@@ -294,7 +294,7 @@ bool TFID_2D::Readsm2Files(QString fn)
     return true;
 }
 
-bool TFID_2D::WriteopFiles(QString fn)
+bool TFID_2D::WriteopFiles(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -304,12 +304,12 @@ bool TFID_2D::WriteopFiles(QString fn)
     QString opd = path+base+".opd";
 
     if(!WriteoppFile(opp)) return false;
-    if(!WriteopdFile(opd)) return false;
+    if(!WriteopdFile(opd,flag)) return false;
 
     return true;
 }
 
-bool TFID_2D::Writesm2Files(QString fn)
+bool TFID_2D::Writesm2Files(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -319,7 +319,7 @@ bool TFID_2D::Writesm2Files(QString fn)
     QString sm2d = path+base+".sm2d";
 
     if(!Writesm2pFile(sm2p)) return false;
-    if(!Writesm2dFile(sm2d)) return false;
+    if(!Writesm2dFile(sm2d,flag)) return false;
 
     return true;
 }
@@ -900,7 +900,7 @@ bool TFID::exportAscii(QString fn)
 
 }
 
-bool TFID::WriteopFiles(QString fn)
+bool TFID::WriteopFiles(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -911,13 +911,13 @@ bool TFID::WriteopFiles(QString fn)
 
 
     if(!WriteoppFile(opp)) return false;
-    if(!WriteopdFile(opd)) return false;
+    if(!WriteopdFile(opd,flag)) return false;
 
     return true;
 }
 
 
-bool TFID::Writesm2Files(QString fn)
+bool TFID::Writesm2Files(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -928,7 +928,7 @@ bool TFID::Writesm2Files(QString fn)
 
 
     if(!Writesm2pFile(sm2p)) return false;
-    if(!Writesm2dFile(sm2d)) return false;
+    if(!Writesm2dFile(sm2d,flag)) return false;
 
     return true;
 }
@@ -981,12 +981,12 @@ bool TFID::Writesm2pFile(QString fn)
     return true;
 }
 
-bool TFID::WriteopdFile(QString fn)
+bool TFID::WriteopdFile(QString fn, QIODevice::OpenModeFlag flag)
 {
     QMutexLocker locker(&mutex);
 
     QFile file(fn);
-    if (!file.open(QIODevice::WriteOnly))
+    if (!file.open(flag))
     {
          errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
          return false;
@@ -1004,12 +1004,12 @@ bool TFID::WriteopdFile(QString fn)
 }
 
 
-bool TFID::Writesm2dFile(QString fn)
+bool TFID::Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag)
 {
     QMutexLocker locker(&mutex);
 
     QFile file(fn);
-    if (!file.open(QIODevice::WriteOnly))
+    if (!file.open(flag))
     {
          errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
          return false;

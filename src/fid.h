@@ -127,13 +127,13 @@ class TFID
 
     // binary data (float)
     bool Writesm2pFile(QString fn);
-    bool Writesm2dFile(QString fn);
-    bool Writesm2Files(QString fn);
+    bool Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
+    bool Writesm2Files(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
 
     // binary data (double)
     bool WriteoppFile(QString fn);
-    bool WriteopdFile(QString fn);
-    bool WriteopFiles(QString fn);
+    bool WriteopdFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
+    bool WriteopFiles(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
 
     bool exportAscii(QString fn);
     bool exportAscii(QString fn,int xini, int xfin);
@@ -236,7 +236,7 @@ class TFID_2D
     bool Readsm2Files(QString fn);
     bool Writesm2pFile(QString fn);
     bool Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
-    bool Writesm2Files(QString fn);
+    bool Writesm2Files(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
 
     bool ReadopaFile(QString fn); // called by ReadopaFile"s", declared below.
     bool ReadopaFiles(QString fn); // ascii data, parameter is supposed to be stored in .opp, just like .opd (Jul 2020 KT)
@@ -245,7 +245,7 @@ class TFID_2D
     bool ReadopFiles(QString fn);
     bool WriteoppFile(QString fn);
     bool WriteopdFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
-    bool WriteopFiles(QString fn);
+    bool WriteopFiles(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
     bool WriteopaFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly); // asci
 
     int currentFID() {return FCurrentFID;}

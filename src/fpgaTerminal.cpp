@@ -723,13 +723,10 @@ void TfpgaTerminal::arrayIncrement()
     fi.setFile(fn);
     QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
-
     QString opd = path+base+"_array.opd";
     QString opp = path+base+"_array.opp";
-
-        QString sm2d = path+base+"_array.sm2d";
-        QString sm2p = path+base+"_array.sm2p";
-
+    QString sm2d = path+base+"_array.sm2d";
+    QString sm2p = path+base+"_array.sm2p";
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
@@ -1465,11 +1462,6 @@ bool TfpgaTerminal::initData()
 {
 
     int al2=ppg->receiverInfo.al();
-    if(al2>16384)
-    {
-       QMessageBox::warning(this,tr(""),"al is too large.");
-       return false;
-    }
 
     if(expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinData)
     {
@@ -1478,6 +1470,12 @@ bool TfpgaTerminal::initData()
     else if (expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinAverageData)
     {
         al2=expSettings->acquisitionWidget->multiplicity;
+    }
+
+    if(al2>65536)
+    {
+       QMessageBox::warning(this,tr(""),"al is too large.");
+       return false;
     }
 
     // 20200616: We prohibit the plotters to draw data while we reset nmrData.
@@ -2110,18 +2108,29 @@ void TfpgaTerminal::onSaveButtonClicked()
                + expSettings->nameLineEdit->text() + '/'
                + expSettings->nameLineEdit->text();
 
+    QString arau;
+    if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+    {
+        arau="_autorepeat";
+    }
+    else
+    {
+        arau="_array";
+    }
+
+
     QFileInfo fi;
     fi.setFile(fn);
     QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2d = path+base+"_unfinished.sm2d";
     QString sm2p = path+base+"_unfinished.sm2p";
-    QString asm2d = path+base+"_array.sm2d";
+    QString asm2d = path+base+arau+".sm2d";
     QString opd = path+base+"_unfinished.opd";
     QString opp = path+base+"_unfinished.opp";
-    QString aopd = path+base+"_array.opd";
+    QString aopd = path+base+arau+".opd";
     QString opa = path+base+"_unfinished.opa";
-    QString aopa = path+base+"_array.opa";
+    QString aopa = path+base+arau+".opa";
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
