@@ -51,7 +51,7 @@ public slots:
    void prepareArray(int vIndex);
 //   void setEditable(bool b);
    void onRequestButtonClicked();
-   void onAutoRepeatCheckBocToggled(bool b);
+   void onAutoRepeatCheckBoxToggled(bool b);
 
 private slots:
    void onAddButtonClicked();

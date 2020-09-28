@@ -433,7 +433,6 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
 
       connect(favoriteJobWidget,SIGNAL(loadJobRequest(QString)),expSettings,SLOT(readJob(QString)));
 
-      connect(expSettings->arrayWidget,SIGNAL(autoRepeatRequest(int)),this,SLOT(setAutoRepeatCounter(int)));
 }
 //----------------------------------------------------------------------------
 TfpgaTerminal::~TfpgaTerminal()
@@ -668,15 +667,20 @@ void TfpgaTerminal::autoRepeat()
         else nmrData->WriteopaFile(opa);
     }
 
+   // We increment autorepeat counter
+   setAutoRepeatCounter(autoRepeatCounter()+1);
+   // Counter label on the status bar
+   QString qs= "auto repeat: (" +
+             QString::number(autoRepeatCounter())
+             + "/"
+             + QString::number(expSettings->arrayWidget->autoRepeatSpinBox->value())
+             + ")";
+   emit updateAutoRepeatLabelRequest(qs);
 
-   if(autoRepeatCounter()==expSettings->arrayWidget->autoRepeatSpinBox->value())
+
+   if(autoRepeatCounter()==expSettings->arrayWidget->autoRepeatSpinBox->value()+1)
    {
        runQ=false;
-   }
-   if(expSettings->arrayWidget->arrayCounter.hasFinished)
-   {
-     runQ=false;
-     transferPPG(ppg->updatedPPG);
    }
    else
    {
@@ -693,20 +697,18 @@ void TfpgaTerminal::autoRepeat()
 
      updateAuxParams();
      if(!ppg->updatedPPG.isEmpty()) transferPPG(ppg->updatedPPG);
+     // It is essential to use transferPPG(QStringList), NOT transferPPG(QString)!
      transferPPG(QStringList()<<"g");
 
      runQ=true;
      ppg->updatedPPG.clear();
    }
 
-
-
    connect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
-
 
 }
 //----------------------------------------------------------------------------
-void TfpgaTerminal::onArrayPromptReceived()
+void TfpgaTerminal::arrayIncrement()
 {
 
     QMutexLocker locker(&mutex);
@@ -797,6 +799,8 @@ void TfpgaTerminal::onArrayPromptReceived()
 
      updateAuxParams();
      if(!ppg->updatedPPG.isEmpty()) transferPPG(ppg->updatedPPG);
+
+     // It is essential to use transferPPG(QStringList), NOT transferPPG(QString)!
      transferPPG(QStringList()<<"g");
 
      runQ=true;
@@ -806,6 +810,18 @@ void TfpgaTerminal::onArrayPromptReceived()
 
 
    connect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
+}
+//----------------------------------------------------------------------------
+void TfpgaTerminal::onArrayPromptReceived()
+{
+  if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+  {
+      autoRepeat();
+  }
+  else
+  {
+      arrayIncrement();
+  }
 }
 //----------------------------------------------------------------------------
 void TfpgaTerminal::displayData()
@@ -961,8 +977,9 @@ void TfpgaTerminal::FTDIOpen()
         QMessageBox::warning(this,tr(""),
                            tr("<p>Built-in VCP driver detected."
                               "You need to disable it to open USB connection. "
-                              "Open a terminal and execute the following commands:"
+                              "Disconnect the USB cable, open a terminal, and execute the following command:"
                               "<p> sudo kextunload -bundle com.apple.driver.AppleUSBFTDI"
+                              "<p>Then, you may connect the USB cable again."
                               ));
 
         return;
@@ -1203,18 +1220,29 @@ void TfpgaTerminal::onReadyPromptReceived()
 
     QFileInfo fi;
     fi.setFile(fn);
+
+    QString arau;
+    if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+    {
+        arau="_autorepeat";
+    }
+    else
+    {
+        arau="_array";
+    }
+
     QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2d = path+base+".sm2d";
     QString sm2p = path+base+".sm2p";
-    QString asm2d = path+base+"_array.sm2d";
-    QString asm2p = path+base+"_array.sm2p";
+    QString asm2d = path+base+arau+".sm2d";
+    QString asm2p = path+base+arau+".sm2p";
     QString opd = path+base+".opd";
     QString opp = path+base+".opp";
-    QString aopd = path+base+"_array.opd";
-    QString aopp = path+base+"_array.opp";
+    QString aopd = path+base+arau+".opd";
+    QString aopp = path+base+arau+".opp";
     QString opa = path+base+".opa";
-    QString aopa = path+base+"_array.opa";
+    QString aopa = path+base+arau+".opa";
 
     if(QFile::exists(opd))
     {
@@ -1515,16 +1543,12 @@ bool TfpgaTerminal::accumulation()
         showJobWidget();
 //        QMessageBox::warning(this,tr(""),"Job queue exists.\n");
 
-
         if (QMessageBox::No == QMessageBox::question(this, "",
                                         "Job queue exists. <p>Do you want to cut in and run?",
                                         QMessageBox::No|QMessageBox::Yes)) return false;
-        }
-
+    }
 
     if(runQ) return false;
-
-
 
     if(!checkPath())
     {
@@ -1566,10 +1590,24 @@ bool TfpgaTerminal::accumulation()
       else if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
       {
         arrayQ=true;
+        // We initialize the auto-repeat counter to 1.
+        // It is going to be counted up to
+        //    expSettings->arrayWidget->autoRepeatSpinBox->value()
+        setAutoRepeatCounter(1);
+        setAR(expSettings->arrayWidget->autoRepeatSpinBox->value());
+
+        // Counter label on the status bar
+        QString qs= "auto repeat: (" +
+                  QString::number(autoRepeatCounter())
+                  + "/"
+                  + QString::number(expSettings->arrayWidget->autoRepeatSpinBox->value())
+                  + ")";
+        emit updateAutoRepeatLabelRequest(qs);
 
       }  // autoRepeat
       else
       {
+        setAR(1);
         emit hideArrayCounterRequest();
       }
 
@@ -1578,6 +1616,7 @@ bool TfpgaTerminal::accumulation()
       {
         expSettings->acquisitionWidget->onSeparateDataStorageOptionChanged();
         ppg->updatedPPG.clear();
+
       }
 
       if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked())

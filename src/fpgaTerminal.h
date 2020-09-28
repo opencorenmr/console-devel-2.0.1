@@ -166,6 +166,7 @@ public:
 
 signals:
 
+    void updateAutoRepeatLabelRequest(QString);
     void updateVariableResult(bool ok, QString errorMessage);
     void setArrayTableRequest(TpulseProgram *p);
     void transferStarted();
@@ -205,6 +206,7 @@ public slots:
     void onRunPromptReceived();
     void onReadyPromptReceived();
     void onArrayPromptReceived();
+    void arrayIncrement();
     void autoRepeat();
     void copyPPG(TpulseProgram *p);
 

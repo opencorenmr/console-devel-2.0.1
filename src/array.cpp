@@ -145,24 +145,25 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
 
     connect(arrayCheckBox,SIGNAL(toggled(bool)),this,SLOT(onArrayCheckBoxToggled(bool)));
 //    connect(autoRepeatCheckBox,SIGNAL(toggled(bool)),autoRepeatSpinBox,SLOT(setEnabled(bool)));
-    connect(autoRepeatCheckBox,SIGNAL(toggled(bool)),this, SLOT(onAutoRepearCheckBoxTogged(bool)));
+    connect(autoRepeatCheckBox,SIGNAL(toggled(bool)),this, SLOT(onAutoRepeatCheckBoxToggled(bool)));
     connect(autoRepeatSpinBox,SIGNAL(valueChanged(int)),this,SIGNAL(autoRepeatRequest(int)));
+    connect(autoRepeatSpinBox,SIGNAL(valueChanged(int)),this,SIGNAL(modified()));
 
 }
 //--------------------------------------------------------------------------------
-void TArrayWidget::onAutoRepeatCheckBocToggled(bool isChecked)
+void TArrayWidget::onAutoRepeatCheckBoxToggled(bool isChecked)
 {
     autoRepeatSpinBox->setEnabled(isChecked);
-    arrayCheckBox->setChecked(isChecked);
 
     if(isChecked)
     {
-        emit setAR(autoRepeatSpinBox->value());
-        emit autoRepeatRequest(autoRepeatSpinBox->value());
+        arrayCheckBox->setChecked(false);
+      //  emit setAR(autoRepeatSpinBox->value());
+      //  emit autoRepeatRequest(autoRepeatSpinBox->value());
     }
     else
     {
-        emit setAR(1);
+      //  emit setAR(1);
     }
 
     emit modified();
