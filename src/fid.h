@@ -135,6 +135,9 @@ class TFID
     bool WriteopdFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
     bool WriteopFiles(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
 
+    // ascii
+    bool WriteopaFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
+
     bool exportAscii(QString fn);
     bool exportAscii(QString fn,int xini, int xfin);
 
@@ -236,6 +239,7 @@ class TFID_2D
     bool Readsm2Files(QString fn);
     bool Writesm2pFile(QString fn);
     bool Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
+    bool Writesm2dFile(QStringList fnList, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
     bool Writesm2Files(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
 
     bool ReadopaFile(QString fn); // called by ReadopaFile"s", declared below.
@@ -245,7 +249,9 @@ class TFID_2D
     bool ReadopFiles(QString fn);
     bool WriteoppFile(QString fn);
     bool WriteopdFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
+    bool WriteopdFile(QStringList fnList, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
     bool WriteopFiles(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly);
+    bool WriteopaFile(QStringList fnList, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly); // asci
     bool WriteopaFile(QString fn, QIODevice::OpenModeFlag flag=QIODevice::WriteOnly); // asci
 
     int currentFID() {return FCurrentFID;}
