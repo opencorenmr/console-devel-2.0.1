@@ -142,6 +142,8 @@ public:
     void FTDIOpen();
     void FTDIClose();
 
+    int autoRepeatCounter() {return FAutoRepeatCounter;}
+
 /*
 #if defined(_WIN32)
     TGPIB488Console *GPIB488Console;
@@ -187,6 +189,7 @@ signals:
 
 public slots:
 
+    void setAutoRepeatCounter(int k) {FAutoRepeatCounter=k;}
     void updateAuxParams();
     void setAR(int ar);
 // void updateVariable(TVariable *v);
@@ -202,6 +205,7 @@ public slots:
     void onRunPromptReceived();
     void onReadyPromptReceived();
     void onArrayPromptReceived();
+    void autoRepeat();
     void copyPPG(TpulseProgram *p);
 
     void setNA(int na) {nmrData->setNA(na);}
@@ -263,6 +267,7 @@ private slots:
 
 
 private:
+    int FAutoRepeatCounter;
     int FDevicePixelRatio;
 //    QWidget *optionPanel;
 //    void createOptionPanel();

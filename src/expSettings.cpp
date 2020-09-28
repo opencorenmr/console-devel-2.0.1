@@ -504,6 +504,8 @@ void TExpSettings::readJob(QString fileName)
     settings.beginGroup("Array");
       arrayWidget->initialSetup(ppg);
       bool arrayCheckBoxChecked=settings.value("arrayCheckBox").toBool();
+      bool autoRepeatCheckBoxChecked=settings.value("autoRepeatCheckBox",false).toBool();
+      int autoRepearSpinBoxValue=settings.value("autoRepeatSpinBox",1).toInt();
       int arrayDimensions=settings.value("dimensions",QVariant(0)).toInt();
       QList<int> arrayCounts;
       for(int i=0; i<arrayDimensions; i++)
@@ -540,6 +542,10 @@ void TExpSettings::readJob(QString fileName)
        arrayWidget->refresh();
     }
 
+      arrayWidget->autoRepeatCheckBox->setChecked(autoRepeatCheckBoxChecked);
+      arrayWidget->autoRepeatSpinBox->setValue(autoRepearSpinBoxValue);
+      arrayWidget->autoRepeatSpinBox->setEnabled(autoRepeatCheckBoxChecked);
+
       arrayWidget->arrayCheckBox->setChecked(arrayCheckBoxChecked);
       if(arrayCheckBoxChecked)
       {
@@ -570,6 +576,7 @@ void TExpSettings::readJob(QString fileName)
     emit addJobListRequest(fileName);
 
     setCarrierFreq();  // Added in build 168.  2016.3.3 KT
+
 
     setModified(false);
     // Having read a job, we set FIsModified to false.
@@ -913,6 +920,8 @@ void TExpSettings::writeJob(QString fileName)
 
 
     settings.beginGroup("Array");
+      settings.setValue("autoRepeatCheckBox",arrayWidget->autoRepeatCheckBox->isChecked());
+      settings.setValue("autoRepeatSpinBox",arrayWidget->autoRepeatSpinBox->value());
       settings.setValue("arrayCheckBox",arrayWidget->arrayCheckBox->isChecked());
       settings.setValue("dimensions",
                         arrayWidget->arrayCounter.NOfCounts.size());
@@ -930,7 +939,7 @@ void TExpSettings::writeJob(QString fileName)
 
 //      qDebug() << sl;
       settings.setValue("arrayVariables",sl);
-      settings.endGroup();
+    settings.endGroup();
 
       for(int a=0; a<sl.size(); a++)
       {

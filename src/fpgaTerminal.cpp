@@ -433,6 +433,7 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
 
       connect(favoriteJobWidget,SIGNAL(loadJobRequest(QString)),expSettings,SLOT(readJob(QString)));
 
+      connect(expSettings->arrayWidget,SIGNAL(autoRepeatRequest(int)),this,SLOT(setAutoRepeatCounter(int)));
 }
 //----------------------------------------------------------------------------
 TfpgaTerminal::~TfpgaTerminal()
@@ -631,6 +632,80 @@ void TfpgaTerminal::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode sMode)
 
 }
 //----------------------------------------------------------------------------
+void TfpgaTerminal::autoRepeat()
+{
+    QMutexLocker locker(&mutex);
+    disconnect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
+
+   // save data
+    QString fn=expSettings->pathLineEdit->text().trimmed() + '/'
+               + expSettings->nameLineEdit->text() + '/'
+               + expSettings->nameLineEdit->text();
+
+    QFileInfo fi;
+    fi.setFile(fn);
+    QString base = fi.completeBaseName();
+    QString path = fi.absolutePath()+'/';
+    QString opd = path+base+"_autorepeat.opd";
+    QString opp = path+base+"_autorepeat.opp";
+    QString sm2d = path+base+"_autorepeat.sm2d";
+    QString sm2p = path+base+"_autorepeat.sm2p";
+
+    nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
+
+    if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
+    else  nmrData->Writesm2dFile(sm2d);
+    if(QFile::exists(opd)) nmrData->WriteopdFile(opd,QIODevice::Append);
+    else  nmrData->WriteopdFile(opd);
+
+    nmrData->Writesm2pFile(sm2p);
+    nmrData->WriteoppFile(opp);
+
+    if(expSettings->saveAsciiCheckBox->isChecked())
+    {
+        QString opa = path+base+"_autorepeat.opa";
+        if(QFile::exists(opa)) nmrData->WriteopaFile(opa,QIODevice::Append);
+        else nmrData->WriteopaFile(opa);
+    }
+
+
+   if(autoRepeatCounter()==expSettings->arrayWidget->autoRepeatSpinBox->value())
+   {
+       runQ=false;
+   }
+   if(expSettings->arrayWidget->arrayCounter.hasFinished)
+   {
+     runQ=false;
+     transferPPG(ppg->updatedPPG);
+   }
+   else
+   {
+     for(int k=0; k<ppg->receiverInfo.nc(); k++) // we cover hypercomplex acq cases
+     {
+       nmrData->FID[k]->initialize();
+       nmrData->FID[k]->dummyCount=ppg->receiverInfo.nd();
+       nmrData->FID[k]->actualNA=0;
+     }
+     nmrData->setCurrentFID(0);
+
+     ppg->updatedPPG.clear();
+     runQ=false;
+
+     updateAuxParams();
+     if(!ppg->updatedPPG.isEmpty()) transferPPG(ppg->updatedPPG);
+     transferPPG(QStringList()<<"g");
+
+     runQ=true;
+     ppg->updatedPPG.clear();
+   }
+
+
+
+   connect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
+
+
+}
+//----------------------------------------------------------------------------
 void TfpgaTerminal::onArrayPromptReceived()
 {
 
@@ -656,12 +731,12 @@ void TfpgaTerminal::onArrayPromptReceived()
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
-        if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
-        else  nmrData->Writesm2dFile(sm2d);
+    if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
+    else  nmrData->Writesm2dFile(sm2d);
     if(QFile::exists(opd)) nmrData->WriteopdFile(opd,QIODevice::Append);
     else  nmrData->WriteopdFile(opd);
 
-        nmrData->Writesm2pFile(sm2p);
+    nmrData->Writesm2pFile(sm2p);
     nmrData->WriteoppFile(opp);
 
 
@@ -671,11 +746,6 @@ void TfpgaTerminal::onArrayPromptReceived()
         if(QFile::exists(opa)) nmrData->WriteopaFile(opa,QIODevice::Append);
         else nmrData->WriteopaFile(opa);
     }
-
-
-
-
-
 
    // update variable
    expSettings->arrayWidget->arrayCounter.increment(ppg);
@@ -732,6 +802,9 @@ void TfpgaTerminal::onArrayPromptReceived()
      runQ=true;
      ppg->updatedPPG.clear();
    }
+
+
+
    connect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
 }
 //----------------------------------------------------------------------------
@@ -1490,6 +1563,11 @@ bool TfpgaTerminal::accumulation()
         arrayQ=true;
 
       } // arrayCheckBoxIsChecked
+      else if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+      {
+        arrayQ=true;
+
+      }  // autoRepeat
       else
       {
         emit hideArrayCounterRequest();

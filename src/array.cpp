@@ -38,8 +38,10 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     arrayCheckBox->setEnabled(false);
 
     autoRepeatCheckBox = new QCheckBox(tr("Auto Repeat"));
+    autoRepeatCheckBox->setChecked(false);
     autoRepeatSpinBox = new QSpinBox();
-    autoRepeatSpinBox->setMinimum(1);
+    autoRepeatSpinBox->setMinimum(2);
+    autoRepeatSpinBox->setEnabled(false);
 
     QGridLayout *leftLayout = new QGridLayout; leftLayout->setMargin(0);
     QVBoxLayout *rightLayout = new QVBoxLayout; rightLayout->setMargin(0);
@@ -141,16 +143,57 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
 
     connect(requestButton,SIGNAL(clicked()),this,SLOT(onRequestButtonClicked()));
 
-    connect(arrayCheckBox,SIGNAL(toggled(bool)),this,SLOT(onArrayCheckBoxClicked(bool)));
+    connect(arrayCheckBox,SIGNAL(toggled(bool)),this,SLOT(onArrayCheckBoxToggled(bool)));
+//    connect(autoRepeatCheckBox,SIGNAL(toggled(bool)),autoRepeatSpinBox,SLOT(setEnabled(bool)));
+    connect(autoRepeatCheckBox,SIGNAL(toggled(bool)),this, SLOT(onAutoRepearCheckBoxTogged(bool)));
+    connect(autoRepeatSpinBox,SIGNAL(valueChanged(int)),this,SIGNAL(autoRepeatRequest(int)));
 
 }
 //--------------------------------------------------------------------------------
-void TArrayWidget::onArrayCheckBoxClicked(bool checked)
+void TArrayWidget::onAutoRepeatCheckBocToggled(bool isChecked)
+{
+    autoRepeatSpinBox->setEnabled(isChecked);
+    arrayCheckBox->setChecked(isChecked);
+
+    if(isChecked)
+    {
+        emit setAR(autoRepeatSpinBox->value());
+        emit autoRepeatRequest(autoRepeatSpinBox->value());
+    }
+    else
+    {
+        emit setAR(1);
+    }
+
+    emit modified();
+
+    return;
+
+}
+//--------------------------------------------------------------------------------
+void TArrayWidget::onArrayCheckBoxToggled(bool checked)
 {
     if(!checked)
     {
         arrayCheckBox->setEnabled(false);
         emit setAR(1);
+
+        // setAR is connected to TfpgaTerminal::setAR(int)
+        //
+        // void TfpgaTerminal::setAR(int ar)
+        // {
+        //    if (!device->ppgConnected) return;  // Do nothing if connection to FPGA has not been established.
+        //    ppg->receiverInfo.setAR(ar);
+        //    transferPPG(QStringList()<<TreceiverCommand::updateAR(ar));
+        // }
+
+        // --- rcvrcom.cpp ---
+        // QString TreceiverCommand::updateAR(int ar)
+        // {
+        //   return "set AR " + intToHex(ar,8);
+        // }
+
+
         emit modified();
     }
 }
@@ -621,6 +664,9 @@ void TArrayWidget::onRequestButtonClicked()
     }
     else
     {
+        // We disable autorepeat if it has been set checked (27 Sep 2020 KT).
+        autoRepeatCheckBox->setChecked(false);
+
         messageTextEdit->insertPlainText("\nOk. We are ready for the array experiment.");
         messageTextEdit->moveCursor(QTextCursor::End);
         arrayCheckBox->setEnabled(true);

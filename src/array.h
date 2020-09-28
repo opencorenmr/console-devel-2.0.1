@@ -43,6 +43,7 @@ public:
 
 signals:
     void setAR(int ar);
+    void autoRepeatRequest(int k);
     void modified();
 
 public slots:
@@ -50,14 +51,14 @@ public slots:
    void prepareArray(int vIndex);
 //   void setEditable(bool b);
    void onRequestButtonClicked();
-
+   void onAutoRepeatCheckBocToggled(bool b);
 
 private slots:
    void onAddButtonClicked();
    void onDeleteButtonClicked();
    void onItemSelected();
    void onVariableSelected();
-   void onArrayCheckBoxClicked(bool);
+   void onArrayCheckBoxToggled(bool);
 protected:
 
     QLabel *iniUnitLabel, *incUnitLabel;
