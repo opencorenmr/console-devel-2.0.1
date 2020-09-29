@@ -17,6 +17,7 @@ SOURCES += main.cpp\
     highlighter.cpp \
     gates.cpp \
     inifile.cpp \
+    toggleParams.cpp \
     variables.cpp \
     pulseProgram.cpp \
     TxRxThread.cpp \
@@ -86,6 +87,7 @@ HEADERS  += mainwindow.h \
     highlighter.h \
     gates.h \
     inifile.h \
+    toggleParams.h \
     variables.h \
     pulseProgram.h \
     TxRxThread.h \
