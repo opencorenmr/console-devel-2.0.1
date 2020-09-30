@@ -79,7 +79,7 @@ public:
     QCheckBox *digitalFilterCheckBox;
 
     QPushButton *defaultPushButton;
-    QPushButton *advancedOptionPushButton;
+    QPushButton *toggleParamsPushButton;
     TToggleParams *toggleParamsWidget;
 
 
@@ -96,7 +96,7 @@ public slots:
     void onSeparateDataStorageSpinBoxChanged(int i);
     void onOffsetChanged();
 
-    void onAdvancedOptionPushButtonClicked();
+    void onToggleParamsPushButtonClicked();
 
 private slots:
 
