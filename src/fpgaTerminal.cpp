@@ -631,7 +631,84 @@ void TfpgaTerminal::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode sMode)
 
 }
 //----------------------------------------------------------------------------
-void TfpgaTerminal::onArrayPromptReceived()
+void TfpgaTerminal::autoRepeat()
+{
+    QMutexLocker locker(&mutex);
+    disconnect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
+
+   // save data
+    QString fn=expSettings->pathLineEdit->text().trimmed() + '/'
+               + expSettings->nameLineEdit->text() + '/'
+               + expSettings->nameLineEdit->text();
+
+    QFileInfo fi;
+    fi.setFile(fn);
+    QString base = fi.completeBaseName();
+    QString path = fi.absolutePath()+'/';
+    QString opd = path+base+"_autorepeat.opd";
+    QString opp = path+base+"_autorepeat.opp";
+    QString sm2d = path+base+"_autorepeat.sm2d";
+    QString sm2p = path+base+"_autorepeat.sm2p";
+
+    nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
+
+    if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
+    else  nmrData->Writesm2dFile(sm2d);
+    if(QFile::exists(opd)) nmrData->WriteopdFile(opd,QIODevice::Append);
+    else  nmrData->WriteopdFile(opd);
+
+    nmrData->Writesm2pFile(sm2p);
+    nmrData->WriteoppFile(opp);
+
+    if(expSettings->saveAsciiCheckBox->isChecked())
+    {
+        QString opa = path+base+"_autorepeat.opa";
+        if(QFile::exists(opa)) nmrData->WriteopaFile(opa,QIODevice::Append);
+        else nmrData->WriteopaFile(opa);
+    }
+
+   // We increment autorepeat counter
+   setAutoRepeatCounter(autoRepeatCounter()+1);
+   // Counter label on the status bar
+   QString qs= "auto repeat: (" +
+             QString::number(autoRepeatCounter())
+             + "/"
+             + QString::number(expSettings->arrayWidget->autoRepeatSpinBox->value())
+             + ")";
+   emit updateAutoRepeatLabelRequest(qs);
+
+
+   if(autoRepeatCounter()==expSettings->arrayWidget->autoRepeatSpinBox->value()+1)
+   {
+       runQ=false;
+   }
+   else
+   {
+     for(int k=0; k<ppg->receiverInfo.nc(); k++) // we cover hypercomplex acq cases
+     {
+       nmrData->FID[k]->initialize();
+       nmrData->FID[k]->dummyCount=ppg->receiverInfo.nd();
+       nmrData->FID[k]->actualNA=0;
+     }
+     nmrData->setCurrentFID(0);
+
+     ppg->updatedPPG.clear();
+     runQ=false;
+
+     updateAuxParams();
+     if(!ppg->updatedPPG.isEmpty()) transferPPG(ppg->updatedPPG);
+     // It is essential to use transferPPG(QStringList), NOT transferPPG(QString)!
+     transferPPG(QStringList()<<"g");
+
+     runQ=true;
+     ppg->updatedPPG.clear();
+   }
+
+   connect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
+
+}
+//----------------------------------------------------------------------------
+void TfpgaTerminal::arrayIncrement()
 {
 
     QMutexLocker locker(&mutex);
@@ -646,22 +723,19 @@ void TfpgaTerminal::onArrayPromptReceived()
     fi.setFile(fn);
     QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
-
     QString opd = path+base+"_array.opd";
     QString opp = path+base+"_array.opp";
-
-        QString sm2d = path+base+"_array.sm2d";
-        QString sm2p = path+base+"_array.sm2p";
-
+    QString sm2d = path+base+"_array.sm2d";
+    QString sm2p = path+base+"_array.sm2p";
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 
-        if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
-        else  nmrData->Writesm2dFile(sm2d);
+    if(QFile::exists(sm2d)) nmrData->Writesm2dFile(sm2d,QIODevice::Append);
+    else  nmrData->Writesm2dFile(sm2d);
     if(QFile::exists(opd)) nmrData->WriteopdFile(opd,QIODevice::Append);
     else  nmrData->WriteopdFile(opd);
 
-        nmrData->Writesm2pFile(sm2p);
+    nmrData->Writesm2pFile(sm2p);
     nmrData->WriteoppFile(opp);
 
 
@@ -671,11 +745,6 @@ void TfpgaTerminal::onArrayPromptReceived()
         if(QFile::exists(opa)) nmrData->WriteopaFile(opa,QIODevice::Append);
         else nmrData->WriteopaFile(opa);
     }
-
-
-
-
-
 
    // update variable
    expSettings->arrayWidget->arrayCounter.increment(ppg);
@@ -727,12 +796,29 @@ void TfpgaTerminal::onArrayPromptReceived()
 
      updateAuxParams();
      if(!ppg->updatedPPG.isEmpty()) transferPPG(ppg->updatedPPG);
+
+     // It is essential to use transferPPG(QStringList), NOT transferPPG(QString)!
      transferPPG(QStringList()<<"g");
 
      runQ=true;
      ppg->updatedPPG.clear();
    }
+
+
+
    connect(&rThread,SIGNAL(arrayPrompt()),this,SLOT(onArrayPromptReceived()));
+}
+//----------------------------------------------------------------------------
+void TfpgaTerminal::onArrayPromptReceived()
+{
+  if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+  {
+      autoRepeat();
+  }
+  else
+  {
+      arrayIncrement();
+  }
 }
 //----------------------------------------------------------------------------
 void TfpgaTerminal::displayData()
@@ -888,8 +974,9 @@ void TfpgaTerminal::FTDIOpen()
         QMessageBox::warning(this,tr(""),
                            tr("<p>Built-in VCP driver detected."
                               "You need to disable it to open USB connection. "
-                              "Open a terminal and execute the following commands:"
+                              "Disconnect the USB cable, open a terminal, and execute the following command:"
                               "<p> sudo kextunload -bundle com.apple.driver.AppleUSBFTDI"
+                              "<p>Then, you may connect the USB cable again."
                               ));
 
         return;
@@ -1130,18 +1217,29 @@ void TfpgaTerminal::onReadyPromptReceived()
 
     QFileInfo fi;
     fi.setFile(fn);
+
+    QString arau;
+    if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+    {
+        arau="_autorepeat";
+    }
+    else
+    {
+        arau="_array";
+    }
+
     QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2d = path+base+".sm2d";
     QString sm2p = path+base+".sm2p";
-    QString asm2d = path+base+"_array.sm2d";
-    QString asm2p = path+base+"_array.sm2p";
+    QString asm2d = path+base+arau+".sm2d";
+    QString asm2p = path+base+arau+".sm2p";
     QString opd = path+base+".opd";
     QString opp = path+base+".opp";
-    QString aopd = path+base+"_array.opd";
-    QString aopp = path+base+"_array.opp";
+    QString aopd = path+base+arau+".opd";
+    QString aopp = path+base+arau+".opp";
     QString opa = path+base+".opa";
-    QString aopa = path+base+"_array.opa";
+    QString aopa = path+base+arau+".opa";
 
     if(QFile::exists(opd))
     {
@@ -1364,11 +1462,6 @@ bool TfpgaTerminal::initData()
 {
 
     int al2=ppg->receiverInfo.al();
-    if(al2>16384)
-    {
-       QMessageBox::warning(this,tr(""),"al is too large.");
-       return false;
-    }
 
     if(expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinData)
     {
@@ -1377,6 +1470,12 @@ bool TfpgaTerminal::initData()
     else if (expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinAverageData)
     {
         al2=expSettings->acquisitionWidget->multiplicity;
+    }
+
+    if(al2>65536)
+    {
+       QMessageBox::warning(this,tr(""),"al is too large.");
+       return false;
     }
 
     // 20200616: We prohibit the plotters to draw data while we reset nmrData.
@@ -1442,16 +1541,12 @@ bool TfpgaTerminal::accumulation()
         showJobWidget();
 //        QMessageBox::warning(this,tr(""),"Job queue exists.\n");
 
-
         if (QMessageBox::No == QMessageBox::question(this, "",
                                         "Job queue exists. <p>Do you want to cut in and run?",
                                         QMessageBox::No|QMessageBox::Yes)) return false;
-        }
-
+    }
 
     if(runQ) return false;
-
-
 
     if(!checkPath())
     {
@@ -1490,8 +1585,27 @@ bool TfpgaTerminal::accumulation()
         arrayQ=true;
 
       } // arrayCheckBoxIsChecked
+      else if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+      {
+        arrayQ=true;
+        // We initialize the auto-repeat counter to 1.
+        // It is going to be counted up to
+        //    expSettings->arrayWidget->autoRepeatSpinBox->value()
+        setAutoRepeatCounter(1);
+        setAR(expSettings->arrayWidget->autoRepeatSpinBox->value());
+
+        // Counter label on the status bar
+        QString qs= "auto repeat: (" +
+                  QString::number(autoRepeatCounter())
+                  + "/"
+                  + QString::number(expSettings->arrayWidget->autoRepeatSpinBox->value())
+                  + ")";
+        emit updateAutoRepeatLabelRequest(qs);
+
+      }  // autoRepeat
       else
       {
+        setAR(1);
         emit hideArrayCounterRequest();
       }
 
@@ -1500,6 +1614,7 @@ bool TfpgaTerminal::accumulation()
       {
         expSettings->acquisitionWidget->onSeparateDataStorageOptionChanged();
         ppg->updatedPPG.clear();
+
       }
 
       if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked())
@@ -1733,6 +1848,10 @@ void TfpgaTerminal::copyFID(TFID *f)
    // nCopyOperations=0;(transferPPG)
    // check multiplicity
 
+   //
+   // nCopyOperation is initialized in repeatScan() and accumulation()
+   //
+
    //mutex.lock();
 
    if(nmrData->al()!=f->al() &&
@@ -1750,11 +1869,11 @@ void TfpgaTerminal::copyFID(TFID *f)
        nmrData->setDW(f->dw());
    }
 
+   // optional phase reversal
    if(ppg->receiverInfo.isPhaseReverseEnabled()) f->phaseReverse();
+   // optional phase rotation
    if(ppg->receiverInfo.isPhaseRotationEnabled()) f->rotate(ppg->receiverInfo.phaseRotationAngle());
-
-   //fidDomain::process(nmrData->FID[nmrData->currentFID()], fidDomain::TimeDomain);
-
+   // optional fft
    if(ppg->receiverInfo.isFFTEnabled())
    {
        TFFT fft;
@@ -1765,6 +1884,7 @@ void TfpgaTerminal::copyFID(TFID *f)
        fDomain.process(nmrData->FID[nmrData->currentFID()]);
    }
 
+   // optional spin noise
    if(expSettings->acquisitionWidget->replaceRealWithAbsCheckBox->isChecked())
    {
        TReplaceRealWithAbsolute rrwa;
@@ -1797,13 +1917,6 @@ void TfpgaTerminal::copyFID(TFID *f)
         expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinAverageData)
      {
          ofs=nCopyOperations; // *1
-         //if((ofs+1) > nmrData->FID[nmrData->currentFID()]->al()) nmrData->setAl(ofs+1);
-
-//         for(int k=0; k<fidPlotters.size();k++)
-//         {
-//           fidPlotters[k]->plotter->xini=0;
-//           fidPlotters[k]->plotter->xfin=expSettings->acquisitionWidget->multiplicity-1;
-//         }
      }
 
      double scale=ppg->receiverInfo.dfScale();
@@ -1813,10 +1926,8 @@ void TfpgaTerminal::copyFID(TFID *f)
      {
          if(repeatScanQ)
          {
-             nmrData->FID[nmrData->currentFID()]->real->sig[ofs] = scale*f->real->average();
-             nmrData->FID[nmrData->currentFID()]->imag->sig[ofs] = scale*f->imag->average();
-//             nmrData->FID[nmrData->currentFID()]->real->sig[ofs] = scale*f->real->sum();
-//             nmrData->FID[nmrData->currentFID()]->imag->sig[ofs] = scale*f->imag->sum();
+           nmrData->FID[nmrData->currentFID()]->real->sig[ofs] = scale*f->real->average();
+           nmrData->FID[nmrData->currentFID()]->imag->sig[ofs] = scale*f->imag->average();
          }
          else // accum
          {
@@ -1997,18 +2108,29 @@ void TfpgaTerminal::onSaveButtonClicked()
                + expSettings->nameLineEdit->text() + '/'
                + expSettings->nameLineEdit->text();
 
+    QString arau;
+    if(expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+    {
+        arau="_autorepeat";
+    }
+    else
+    {
+        arau="_array";
+    }
+
+
     QFileInfo fi;
     fi.setFile(fn);
     QString base = fi.completeBaseName();
     QString path = fi.absolutePath()+'/';
     QString sm2d = path+base+"_unfinished.sm2d";
     QString sm2p = path+base+"_unfinished.sm2p";
-    QString asm2d = path+base+"_array.sm2d";
+    QString asm2d = path+base+arau+".sm2d";
     QString opd = path+base+"_unfinished.opd";
     QString opp = path+base+"_unfinished.opp";
-    QString aopd = path+base+"_array.opd";
+    QString aopd = path+base+arau+".opd";
     QString opa = path+base+"_unfinished.opa";
-    QString aopa = path+base+"_array.opa";
+    QString aopa = path+base+arau+".opa";
 
     nmrData->comments=expSettings->commentTextEdit->toPlainText().split(QChar::ParagraphSeparator);
 

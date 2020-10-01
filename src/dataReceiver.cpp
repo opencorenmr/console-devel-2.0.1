@@ -54,16 +54,12 @@ void dataReceiver::run()
 
             if(count+k>localFid->al()-1) {
 
-                qDebug()<<"Index out of range (dataReceiver::run)   count: " << count << ", k: " << k;
+              //  qDebug()<<"Index out of range (dataReceiver::run)   count: " << count << ", k: " << k;
                 stopped=true;
                 break;
             }
 
             mutex.lock();
-//            localFid->real->sig[count+k]=(float)((pcBufRead[0+offset] << 24) + (pcBufRead[1+offset] << 16)
-//                                        + (pcBufRead[2+offset] << 8) + (pcBufRead[3+offset]));
-//            localFid->imag->sig[count+k]=(float)((pcBufRead[4+offset] << 24) + (pcBufRead[5+offset] << 16)
-//                                        + (pcBufRead[6+offset] << 8) + (pcBufRead[7+offset]));
             localFid->real->sig[count+k]=(double)((pcBufRead[0+offset] << 24) + (pcBufRead[1+offset] << 16)
                                         + (pcBufRead[2+offset] << 8) + (pcBufRead[3+offset]));
             localFid->imag->sig[count+k]=(double)((pcBufRead[4+offset] << 24) + (pcBufRead[5+offset] << 16)

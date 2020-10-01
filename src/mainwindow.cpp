@@ -495,6 +495,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&fpgaTerminal->expSettings->arrayWidget->arrayCounter,SIGNAL(updateCurrentCountRequest(QString)),
             arrayCounterLabel,SLOT(setText(QString)));
+    connect(fpgaTerminal,SIGNAL(updateAutoRepeatLabelRequest(QString)),arrayCounterLabel,SLOT(setText(QString)));
+
+
     connect(fpgaTerminal,SIGNAL(hideArrayCounterRequest()),this,SLOT(hideArrayCounter()));
 
     connect(fpgaTerminal,SIGNAL(jobComplete()),this,SLOT(saveSettings()));
@@ -831,9 +834,23 @@ void MainWindow::updateReceiverCounter()
                       *fpgaTerminal->ppg->receiverInfo.nc();
 
     if(fpgaTerminal->arrayQ)
+    {
+      if(fpgaTerminal->expSettings->arrayWidget->autoRepeatCheckBox->isChecked())
+      // auto repeat
+      {
+        secs += fpgaTerminal->ppg->variables.at(pdIndex)->value().toDouble()
+                 *fpgaTerminal->ppg->receiverInfo.na()*fpgaTerminal->ppg->receiverInfo.nc()
+                 *(fpgaTerminal->expSettings->arrayWidget->autoRepeatSpinBox->value()
+                   - fpgaTerminal->autoRepeatCounter() + 1);
+      }
+      else
+      // array
+      {
         secs += fpgaTerminal->ppg->variables.at(pdIndex)->value().toDouble()
                *fpgaTerminal->ppg->receiverInfo.na()*fpgaTerminal->ppg->receiverInfo.nc()
                *(fpgaTerminal->expSettings->arrayWidget->arrayCounter.remainingArrayCount()-1);
+      }
+    }
 
     remainingTimeLabel->setText(QString::number(round(secs)) + " s left");
 

@@ -81,11 +81,13 @@ int main(int argc, char *argv[])
 */
 
             splash->finish(&w);
+
             QMessageBox::warning(&w,QObject::tr(""),
                                QObject::tr("<p>Built-in VCP driver detected."
-                                  "You need to disable it to open USB connection. "
-                                  "Open a terminal and execute the following commands:"
-                                  "<p> sudo kextunload -bundle com.apple.driver.AppleUSBFTDI"
+                                           "You need to disable it to open USB connection. "
+                                           "Disconnect the USB cable, open a terminal, and execute the following command:"
+                                           "<p> sudo kextunload -bundle com.apple.driver.AppleUSBFTDI"
+                                           "<p>Then, you may connect the USB cable again."
                                   ));
           //  return;
         }

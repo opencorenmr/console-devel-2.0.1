@@ -294,7 +294,7 @@ bool TFID_2D::Readsm2Files(QString fn)
     return true;
 }
 
-bool TFID_2D::WriteopFiles(QString fn)
+bool TFID_2D::WriteopFiles(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -304,12 +304,12 @@ bool TFID_2D::WriteopFiles(QString fn)
     QString opd = path+base+".opd";
 
     if(!WriteoppFile(opp)) return false;
-    if(!WriteopdFile(opd)) return false;
+    if(!WriteopdFile(opd,flag)) return false;
 
     return true;
 }
 
-bool TFID_2D::Writesm2Files(QString fn)
+bool TFID_2D::Writesm2Files(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -319,7 +319,7 @@ bool TFID_2D::Writesm2Files(QString fn)
     QString sm2d = path+base+".sm2d";
 
     if(!Writesm2pFile(sm2p)) return false;
-    if(!Writesm2dFile(sm2d)) return false;
+    if(!Writesm2dFile(sm2d,flag)) return false;
 
     return true;
 }
@@ -619,6 +619,31 @@ bool TFID_2D::WriteopaFile(QString fn, QIODevice::OpenModeFlag flag)
 
 }
 
+bool TFID_2D::WriteopaFile(QStringList fnList, QIODevice::OpenModeFlag flag)
+{
+    int currentPosition=0;
+    int count=0;
+    bool ok;
+
+    QMutexLocker locker(&mutex);
+    while(count<FID.size())
+    {
+      ok=FID[count]->WriteopaFile(fnList.at(currentPosition),flag);
+      if(!ok)
+      {
+          errorMessage=QString(Q_FUNC_INFO)+ ": Failed to save data.";
+          return false;
+      }
+
+      currentPosition++;
+      if(currentPosition>fnList.size()-1) currentPosition=0;
+      count++;
+    }
+
+    return true;
+}
+
+
 bool TFID_2D::ReadopdFile(QString fn)
 {
     QMutexLocker locker(&mutex);
@@ -740,6 +765,59 @@ bool TFID_2D::Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag)
     return true;
 
 }
+
+
+bool TFID_2D::Writesm2dFile(QStringList fnList, QIODevice::OpenModeFlag flag)
+{
+    int currentPosition=0;
+    int count=0;
+    bool ok;
+
+    QMutexLocker locker(&mutex);
+    while(count<FID.size())
+    {
+      ok=FID[count]->Writesm2dFile(fnList.at(currentPosition),flag);
+      if(!ok)
+      {
+          errorMessage=QString(Q_FUNC_INFO)+ ": Failed to save data.";
+          return false;
+      }
+
+      currentPosition++;
+      if(currentPosition>fnList.size()-1) currentPosition=0;
+      count++;
+    }
+
+    return true;
+}
+
+
+bool TFID_2D::WriteopdFile(QStringList fnList, QIODevice::OpenModeFlag flag)
+{
+    int currentPosition=0;
+    int count=0;
+    bool ok;
+
+    QMutexLocker locker(&mutex);
+    while(count<FID.size())
+    {
+      ok=FID[count]->WriteopdFile(fnList.at(currentPosition),flag);
+      if(!ok)
+      {
+          errorMessage=QString(Q_FUNC_INFO)+ ": Failed to save data.";
+          return false;
+      }
+
+      currentPosition++;
+      if(currentPosition>fnList.size()-1) currentPosition=0;
+      count++;
+    }
+
+    return true;
+}
+
+
+
 
 bool TFID_2D::WriteopdFile(QString fn, QIODevice::OpenModeFlag flag)
 {
@@ -900,7 +978,7 @@ bool TFID::exportAscii(QString fn)
 
 }
 
-bool TFID::WriteopFiles(QString fn)
+bool TFID::WriteopFiles(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -911,13 +989,13 @@ bool TFID::WriteopFiles(QString fn)
 
 
     if(!WriteoppFile(opp)) return false;
-    if(!WriteopdFile(opd)) return false;
+    if(!WriteopdFile(opd,flag)) return false;
 
     return true;
 }
 
 
-bool TFID::Writesm2Files(QString fn)
+bool TFID::Writesm2Files(QString fn, QIODevice::OpenModeFlag flag)
 {
     QFileInfo fi;
     fi.setFile(fn);
@@ -928,7 +1006,7 @@ bool TFID::Writesm2Files(QString fn)
 
 
     if(!Writesm2pFile(sm2p)) return false;
-    if(!Writesm2dFile(sm2d)) return false;
+    if(!Writesm2dFile(sm2d,flag)) return false;
 
     return true;
 }
@@ -981,12 +1059,41 @@ bool TFID::Writesm2pFile(QString fn)
     return true;
 }
 
-bool TFID::WriteopdFile(QString fn)
+
+bool TFID::WriteopaFile(QString fn, QIODevice::OpenModeFlag flag)
 {
     QMutexLocker locker(&mutex);
 
     QFile file(fn);
-    if (!file.open(QIODevice::WriteOnly))
+    if (!file.open(flag | QIODevice::Text))
+    {
+         errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         return false;
+    }
+
+    QTextStream out(&file);
+
+        for(int k=0; k<al(); k++)
+        {
+           out << QString::number(real->sig.at(k),'g',12)
+               << " "
+               << QString::number(imag->sig.at(k),'g',12)
+               << "\n";
+        } // k
+        out << "\n";
+
+
+    file.close();
+    return true;
+
+}
+
+bool TFID::WriteopdFile(QString fn, QIODevice::OpenModeFlag flag)
+{
+    QMutexLocker locker(&mutex);
+
+    QFile file(fn);
+    if (!file.open(flag))
     {
          errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
          return false;
@@ -1004,12 +1111,12 @@ bool TFID::WriteopdFile(QString fn)
 }
 
 
-bool TFID::Writesm2dFile(QString fn)
+bool TFID::Writesm2dFile(QString fn, QIODevice::OpenModeFlag flag)
 {
     QMutexLocker locker(&mutex);
 
     QFile file(fn);
-    if (!file.open(QIODevice::WriteOnly))
+    if (!file.open(flag))
     {
          errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
          return false;
