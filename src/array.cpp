@@ -114,9 +114,9 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     arrayTableWidget->setColumnCount(3);
     arrayTableWidget->setHorizontalHeaderLabels(
                 QStringList() << tr("Variable") << tr("Order") << tr("Description") );
-    arrayTableWidget->setColumnWidth(0,6*QFontMetrics(font()).width(QChar('M')));
-    arrayTableWidget->setColumnWidth(1,4*QFontMetrics(font()).width(QChar('M')));
-    arrayTableWidget->setColumnWidth(2,20*QFontMetrics(font()).width(QChar('M')));
+    arrayTableWidget->setColumnWidth(0,6*QFontMetrics(font()).horizontalAdvance(QChar('M')));
+    arrayTableWidget->setColumnWidth(1,4*QFontMetrics(font()).horizontalAdvance(QChar('M')));
+    arrayTableWidget->setColumnWidth(2,20*QFontMetrics(font()).horizontalAdvance(QChar('M')));
 
 
     QWidget *widget4=new QWidget;
