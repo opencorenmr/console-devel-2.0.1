@@ -878,6 +878,13 @@ void FIDPlotter::exportImage()
    // QString fileName = QFileDialog::getSaveFileName();
     if(fileName.isEmpty()) return;
 
+    QFileInfo fi(fileName);
+    QString suffix=fi.suffix();
+    if(0!=QString::compare(suffix,"png",Qt::CaseInsensitive))
+    {
+        fileName.append(".png");
+    }
+
     QFile file(fileName);
     file.open(QIODevice::WriteOnly);
     plotter->pixmap.save(&file, "PNG");
