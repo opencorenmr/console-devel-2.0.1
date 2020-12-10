@@ -667,6 +667,24 @@ void TfpgaTerminal::autoRepeat()
         else nmrData->WriteopaFile(opa);
     }
 
+#if defined(__linux__)
+
+    if(GPIB488Console->writeOnArrayCheckBox->isChecked())
+    {
+        QString qs0;
+        int ai=autoRepeatCounter()-1; // auto-repeat counter starts with 1
+
+        QStringList sl0=GPIB488Console->writeOnArrayTextEdit->toPlainText().split('\n');
+        if(ai<=sl0.size()-1)
+        {
+          qs0=sl0.at(ai);
+          GPIB488Console->write(qs0);
+        }
+
+    }
+#endif
+
+
    // We increment autorepeat counter
    setAutoRepeatCounter(autoRepeatCounter()+1);
    // Counter label on the status bar
@@ -681,6 +699,17 @@ void TfpgaTerminal::autoRepeat()
    if(autoRepeatCounter()==expSettings->arrayWidget->autoRepeatSpinBox->value()+1)
    {
        runQ=false;
+#if defined(__linux__)
+    if(GPIB488Console->writeOnArrayCheckBox->isChecked())
+    {
+        QString qs0;
+        QStringList sl0=GPIB488Console->writeOnArrayTextEdit->toPlainText().split('\n');
+        if(!sl0.isEmpty()) qs0=sl0.at(0); else qs0="";
+        GPIB488Console->write(qs0);
+    }
+#endif
+
+
    }
    else
    {
@@ -746,12 +775,6 @@ void TfpgaTerminal::arrayIncrement()
         else nmrData->WriteopaFile(opa);
     }
 
-   // update variable
-   expSettings->arrayWidget->arrayCounter.increment(ppg);
-   updateVariableTable();
-
-   // qDebug() << arrayWidget->arrayCounter.currentCountString();
-
 #if defined(__linux__)
 
     if(GPIB488Console->writeOnArrayCheckBox->isChecked())
@@ -769,9 +792,24 @@ void TfpgaTerminal::arrayIncrement()
     }
 #endif
 
+   // update variable
+   expSettings->arrayWidget->arrayCounter.increment(ppg);
+   updateVariableTable();
+
+   // qDebug() << arrayWidget->arrayCounter.currentCountString();
+
    if(expSettings->arrayWidget->arrayCounter.hasFinished)
    {
        runQ=false;
+#if defined(__linux__)
+    if(GPIB488Console->writeOnArrayCheckBox->isChecked())
+    {
+        QString qs0;
+        QStringList sl0=GPIB488Console->writeOnArrayTextEdit->toPlainText().split('\n');
+        if(!sl0.isEmpty()) qs0=sl0.at(0); else qs0="";
+        GPIB488Console->write(qs0);
+    }
+#endif
        transferPPG(ppg->updatedPPG);
    }
    else
