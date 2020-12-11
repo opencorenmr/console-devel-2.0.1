@@ -367,7 +367,7 @@ bool TArrayWidget::setLinearArray(TVariable *variable)
     return true;
 }
 
-
+//--------------------------------------------------------------------------------
 bool TArrayWidget::setRandomArray(TVariable *variable)
 {
     variable->setArrayMode(TVariable::RandomArray);

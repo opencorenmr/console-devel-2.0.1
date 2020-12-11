@@ -26,11 +26,20 @@ public:
     TpulseProgram *ppg;
     QTableWidget *paramTableWidget;
     QComboBox *paramComboBox;
+    QLineEdit *valueLineEdit;
+    QPushButton *addPushButton, *editPushButton, *deletePuchButton,
+                *moveUpPushButton, *moveDownPushButton;
+    QPlainTextEdit *paramPlainTextEdit;
+    QPlainTextEdit *messageTextEdit;
 
     void setPPG(TpulseProgram *p) {ppg=p; ppgSetted=true;}
 
 public slots:
    void initialSetup(TpulseProgram *ppg);
+
+private slots:
+   void onAddButtonClicked();
+   void onDeleteButtonClicked();
 
 signals:
 
@@ -38,6 +47,9 @@ signals:
 private:
     void createWidgets();
     void createPanel();
+    void createConnections();
+    bool setRandomArray();
+    bool setFileNameArray();
 
     bool ppgSetted;
 
