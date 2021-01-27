@@ -1929,6 +1929,7 @@ void TfpgaTerminal::copyFID(TFID *f)
        rrwa.process(f);
    }
 
+   double scale=ppg->receiverInfo.dfScale();
 
      int ofs=0; // offset used for multipleAcquisition (JoinData)
      if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked() &&
@@ -1936,32 +1937,27 @@ void TfpgaTerminal::copyFID(TFID *f)
         // && nmrData->FID[nmrData->currentFID()]->actualNA>0)
      {
          ofs=nCopyOperations*f->al();
-         //ofs=nmrData->FID[nmrData->currentFID()]->al();
+         for(int k=0; k<f->al(); k++)
+         {
+           if(repeatScanQ)
+           {
+               nmrData->FID[nmrData->currentFID()]->real->sig[ofs+k] = scale*f->real->sig[k];
+               nmrData->FID[nmrData->currentFID()]->imag->sig[ofs+k] = scale*f->imag->sig[k];
+           }
+           else // accum
+           {
+             nmrData->FID[nmrData->currentFID()]->real->sig[ofs+k] += scale*f->real->sig[k];
+             nmrData->FID[nmrData->currentFID()]->imag->sig[ofs+k] += scale*f->imag->sig[k];
+           }
+         }
 
-//         if((ofs+f->al()) > nmrData->FID[nmrData->currentFID()]->al()) //=> do the following line.
-//         {
-//           nmrData->setAl(ofs+f->al());
-//         }
-
-//         for(int k=0; k<fidPlotters.size();k++)
-//         {
-//           fidPlotters[k]->plotter->xini=0;
-//           fidPlotters[k]->plotter->xfin=expSettings->acquisitionWidget->multiplicity-1;
-//         }
 
      }
 
-     if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked() &&
+     else if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked() &&
         expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinAverageData)
      {
          ofs=nCopyOperations; // *1
-     }
-
-     double scale=ppg->receiverInfo.dfScale();
-
-     if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked() &&
-        expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinAverageData)
-     {
          if(repeatScanQ)
          {
            nmrData->FID[nmrData->currentFID()]->real->sig[ofs] = scale*f->real->average();
@@ -1979,8 +1975,8 @@ void TfpgaTerminal::copyFID(TFID *f)
        {
          if(repeatScanQ)
          {
-             nmrData->FID[nmrData->currentFID()]->real->sig[ofs+k] = scale*f->real->sig[k];
-             nmrData->FID[nmrData->currentFID()]->imag->sig[ofs+k] = scale*f->imag->sig[k];
+             nmrData->FID[nmrData->currentFID()]->real->sig[k] = scale*f->real->sig[k];
+             nmrData->FID[nmrData->currentFID()]->imag->sig[k] = scale*f->imag->sig[k];
 
          //    qDebug() << QString(Q_FUNC_INFO) << "scale: "<< scale << "ofs:" << ofs << "k: " << k
          //             << nmrData->FID[nmrData->currentFID()]->real->sig[ofs+k] //= scale*f->real->sig[k];
@@ -1988,10 +1984,11 @@ void TfpgaTerminal::copyFID(TFID *f)
          }
          else // accum
          {
-           nmrData->FID[nmrData->currentFID()]->real->sig[ofs+k] += scale*f->real->sig[k];
-           nmrData->FID[nmrData->currentFID()]->imag->sig[ofs+k] += scale*f->imag->sig[k];
+           nmrData->FID[nmrData->currentFID()]->real->sig[k] += scale*f->real->sig[k];
+           nmrData->FID[nmrData->currentFID()]->imag->sig[k] += scale*f->imag->sig[k];
          }
        }
+       nmrData->FID[nmrData->currentFID()]-> actualNA+=ppg->receiverInfo.step();
      }
 
      nmrData->FID[nmrData->currentFID()]->updateAbs();
@@ -2006,7 +2003,18 @@ void TfpgaTerminal::copyFID(TFID *f)
    if(nCopyOperations==expSettings->acquisitionWidget->multiplicity)
    {
        nCopyOperations=0;
-       nmrData->FID[nmrData->currentFID()]-> actualNA+=ppg->receiverInfo.step();//actualNA++;
+
+       if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked() &&
+          expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinData)
+       {
+         nmrData->FID[nmrData->currentFID()]-> actualNA+=ppg->receiverInfo.step(); // step(): number of in-FPGA-accum.
+       }
+
+       if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked() &&
+          expSettings->acquisitionWidget->multipleAcquisitionMode==TAcquisitionWidget::JoinAverageData)
+       {
+         nmrData->FID[nmrData->currentFID()]-> actualNA+=ppg->receiverInfo.step(); // step(): number of in-FPGA-accum.
+       }
 
       // qDebug() << "actualNA: "<< nmrData->FID[nmrData->currentFID()]->actualNA;
 
