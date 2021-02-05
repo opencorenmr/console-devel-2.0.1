@@ -58,6 +58,7 @@ public slots:
 
 private slots:
     void performOperation();
+    void setZero();
     void createSettings(QSettings *settings, QString section);
     void readSettings(QSettings *settings, QString section);
 

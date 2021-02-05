@@ -144,6 +144,13 @@ void TPhaseWidget::reset()
     previousPhase1Value=0;
 }
 
+void TPhaseWidget::setZero()
+{
+    phase0ValueDoubleSpinBox->setValue(0);
+    phase1ValueDoubleSpinBox->setValue(0);
+
+}
+
 void TPhaseWidget::createSettings(QSettings *settings, QString section)
 {
     settings->beginGroup(section);

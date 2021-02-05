@@ -28,7 +28,11 @@ bool TProcessOperations::saveToFile(QString filename)
       processSettings->setValue("type", processElements.at(index)->processType());
       processSettings->setValue("command", processElements.at(index)->command());
       processSettings->setValue("applyMode",processElements.at(index)->applyMode());
-      processSettings->setValue("applyIndex",processElements.at(index)->applyIndex());
+      // We only need to write applyIndex only when applyMode() is not zero (apply to all)
+      if(processElements.at(index)->applyMode()>0)
+      {
+        processSettings->setValue("applyIndex",processElements.at(index)->applyIndex());
+      }
 //      assert(processElements.at(index)->processType() == CutAdd
 //             || processElements.at(index)->processType() == Apodization
 //             || processElements.at(index)->processType() == Phase
