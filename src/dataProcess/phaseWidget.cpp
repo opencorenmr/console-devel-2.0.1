@@ -56,6 +56,9 @@ void TPhaseWidget::createWidgets()
     phase1ResolutionComboBox->setCurrentIndex(1);
 
     applyPushButton=new QPushButton(tr("Save change"));
+    applyPushButton->setEnabled(false);
+    restorePushButton=new QPushButton(tr("Restore change"));
+    restorePushButton->setEnabled(false);
 }
 
 void TPhaseWidget::createPanel()
@@ -87,11 +90,15 @@ void TPhaseWidget::createPanel()
         gridLayout1->addWidget(phase1ResolutionComboBox,2,1,1,1);
       groupBox1->setLayout(gridLayout1);
 
+      QHBoxLayout *hLayout1 = new QHBoxLayout;
+      hLayout1->addWidget(applyPushButton);
+    //  hLayout1->addWidget(restorePushButton);
+
       mainLayout->addWidget(groupBox0);
       mainLayout->addWidget(groupBox1);
    //   mainLayout->addWidget(applyModeWidget);
       mainLayout->addStretch();
-      mainLayout->addWidget(applyPushButton);
+      mainLayout->addLayout(hLayout1);
       setLayout(mainLayout);
 
 }
@@ -100,8 +107,8 @@ void TPhaseWidget::createConnections()
 {
     connect(phase0ResolutionComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setResolution0()));
     connect(phase1ResolutionComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setResolution1()));
-    connect(phase0ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase0()));
-    connect(phase1ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase1()));
+    connect(phase0ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(changePhase0To()));
+    connect(phase1ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(changePhase1To()));
     connect(phasePivotSpinBox,SIGNAL(valueChanged(int)),this,SLOT(setPivot(int)));
     connect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(addOperation()));
     connect(phasePivotCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetPhasePivot()));
@@ -111,8 +118,8 @@ void TPhaseWidget::breakConnections()
 {
     disconnect(phase0ResolutionComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setResolution0()));
     disconnect(phase1ResolutionComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setResolution1()));
-    disconnect(phase0ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase0()));
-    disconnect(phase1ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(setPhase1()));
+    disconnect(phase0ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(changePhase0To()));
+    disconnect(phase1ValueDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(changePhase1To()));
     disconnect(phasePivotSpinBox,SIGNAL(valueChanged(int)),this,SLOT(setPivot(int)));
     disconnect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(addOperation()));
     disconnect(phasePivotCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetPhasePivot()));
@@ -128,20 +135,25 @@ void TPhaseWidget::setPivot(int p)
 
 void TPhaseWidget::initialize()
 {
+    phaseRotation->resetPhase();
+    phaseRotation->resetAccumPhase();
     phase0ValueDoubleSpinBox->setValue(0);
     phase0ResolutionComboBox->setCurrentIndex(5);
     phase1ValueDoubleSpinBox->setValue(0);
     phase1ResolutionComboBox->setCurrentIndex(1);
     setResolution0();
     setResolution1();
-    previousPhase0Value=0;
-    previousPhase1Value=0;
+//    previousPhase0Value=0;
+//    previousPhase1Value=0;
+    applyPushButton->setEnabled(false);
 }
 
 void TPhaseWidget::reset()
 {
-    previousPhase0Value=0;
-    previousPhase1Value=0;
+    phaseRotation->resetPhase();
+    phaseRotation->resetAccumPhase();
+//    previousPhase0Value=0;
+//    previousPhase1Value=0;
 }
 
 void TPhaseWidget::setZero()
@@ -174,7 +186,7 @@ void TPhaseWidget::readSettings(QSettings *settings, QString section)
 void TPhaseWidget::refresh()
 {
 
-    setPhase();
+    changePhaseTo();
 
 }
 
@@ -191,20 +203,26 @@ void TPhaseWidget::addOperation()
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
     TPhaseRotation *phRot = new TPhaseRotation; //qDebug() << phRot;
-//      phRot->setPhase0(phaseRotation->phase0());
-      phRot->setPhase0(phase0ValueDoubleSpinBox->value());
-//      phRot->setPhase1(phaseRotation->phase1());
-      phRot->setPhase1(phase1ValueDoubleSpinBox->value());
+      phRot->setInitialPhase0(phaseRotation->initialPhase0());
+      phRot->setInitialPhase1(phaseRotation->initialPhase1());
+      phRot->setAccumPhase0(phaseRotation->accumPhase0());
+      phRot->setAccumPhase1(phaseRotation->accumPhase1());
       phRot->setPivot(phaseRotation->pivot());
+      phRot->setPhase0(phRot->accumPhase0() - phRot->initialPhase0());
+      phRot->setPhase1(phRot->accumPhase1() - phRot->initialPhase1());
 
-    // if the type of the last operation is also phase, we overwrite it.
-    if(!ancestor()->processOperations->processElements.isEmpty())
-    {
-       if(ancestor()->processOperations->processElements.last()->processType()==TProcessElement::Phase)
-       {
-         ancestor()->processOperations->processElements.removeLast();
-       }
-    }
+    phaseRotation->setInitialPhase0(phaseRotation->accumPhase0());
+    phaseRotation->setInitialPhase1(phaseRotation->accumPhase1());
+
+
+    //if the type of the last operation is also phase, we overwrite it.
+    //if(!ancestor()->processOperations->processElements.isEmpty())
+    //{
+    //   if(ancestor()->processOperations->processElements.last()->processType()==TProcessElement::Phase)
+    //   {
+    //     ancestor()->processOperations->processElements.removeLast();
+    //   }
+    //}
 
 
     ancestor()->processOperations->processElements.append(phRot);
@@ -212,6 +230,12 @@ void TPhaseWidget::addOperation()
     ancestor()->updateProcessSettings();
     // settings specific to phase rotation
     createSettings(ancestor()->processSettings,QString::number(ancestor()->processOperations->processElements.size()-1));
+
+    applyPushButton->setEnabled(false);
+//    restorePushButton->setEnabled(false);
+    phasePivotCheckBox->setEnabled(true);
+    phasePivotSpinBox->setEnabled(true);
+
 }
 
 void TPhaseWidget::clickSetPhasePivot()
@@ -236,42 +260,62 @@ void TPhaseWidget::clickSetPhasePivot()
     }
 }
 
-void TPhaseWidget::setPhase0()
+void TPhaseWidget::changePhase0To()
 {
-    double diff=phase0ValueDoubleSpinBox->value()-previousPhase0Value;
+//    double diff=phase0ValueDoubleSpinBox->value()-previousPhase0Value;
 
    // qDebug() << QString(Q_FUNC_INFO) << "prev. phase0: " << previousPhase0Value
    //          << "diff: " << diff;
 
-    previousPhase0Value=phase0ValueDoubleSpinBox->value();
-    phaseRotation->setPhase0(diff);
+//    previousPhase0Value=phase0ValueDoubleSpinBox->value();
+    phaseRotation->changePhase0To(phase0ValueDoubleSpinBox->value());
     phaseRotation->setPhase1(0);
 
     //qDebug() << phaseRotation->phase0();
 
     performOperation();
     if(isAncestorDefined()) ancestor()->plotters->update();
+
+    if(phaseRotation->initialPhase0()==phaseRotation->accumPhase0() &&
+       phaseRotation->initialPhase1()==phaseRotation->accumPhase1() )
+      applyPushButton->setEnabled(false);
+    else
+      applyPushButton->setEnabled(true);
 //    emit updatePlottersRequest();
 }
-void TPhaseWidget::setPhase1()
+
+void TPhaseWidget::changePhase1To()
 {
-    double diff=phase1ValueDoubleSpinBox->value()-previousPhase1Value;
-    previousPhase1Value=phase1ValueDoubleSpinBox->value();
     phaseRotation->setPhase0(0);
-    phaseRotation->setPhase1(diff);
+    phaseRotation->changePhase1To(phase1ValueDoubleSpinBox->value());
 
     performOperation();
     if(isAncestorDefined()) ancestor()->plotters->update();
-//    emit updatePlottersRequest();
+
+
+    if(phaseRotation->initialPhase1()==phaseRotation->accumPhase1())
+    {
+        phasePivotCheckBox->setEnabled(true);
+        phasePivotSpinBox->setEnabled(true);
+    }
+    else
+    {
+        phasePivotCheckBox->setEnabled(false);
+        phasePivotSpinBox->setEnabled(false);
+    }
+
+    if(phaseRotation->initialPhase0()==phaseRotation->accumPhase0() &&
+       phaseRotation->initialPhase1()==phaseRotation->accumPhase1() )
+      applyPushButton->setEnabled(false);
+    else
+      applyPushButton->setEnabled(true);
 }
 
-void TPhaseWidget::setPhase()
+void TPhaseWidget::changePhaseTo()
 {
 
-    double diff0=phase0ValueDoubleSpinBox->value()-previousPhase0Value;
-    phaseRotation->setPhase0(diff0);
-    double diff1=phase1ValueDoubleSpinBox->value()-previousPhase1Value;
-    phaseRotation->setPhase1(diff1);
+    phaseRotation->changePhase0To(phase0ValueDoubleSpinBox->value());
+    phaseRotation->changePhase1To(phase1ValueDoubleSpinBox->value());
 
     performOperation();
 

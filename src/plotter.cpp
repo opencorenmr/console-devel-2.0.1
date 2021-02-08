@@ -1656,7 +1656,7 @@ void Plotter::drawGrid(QPainter *painter)
     if(!rect.isValid()) return;
 
     PlotSettings settings = zoomStack[curZoom];
-    QPen quiteDark=palette().dark().color().light();
+    QPen quiteDark=palette().dark().color().lighter();
     QPen light=palette().light().color();
     light.setColor(Qt::gray);
 

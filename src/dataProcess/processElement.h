@@ -77,12 +77,22 @@ public:
     virtual void setAxisDomain(int) {;}
 
     // virtual functions for phase
+    virtual double initialPhase0() {return 0;}
+    virtual double initialPhase1() {return 0;}
+    virtual void setInitialPhase0(double ) {return;}
+    virtual void setInitialPhase1(double ) {return;}
     virtual int pivot() {return 0;}
     virtual double phase0() {return 0;}
     virtual double phase1() {return 0;}
+    virtual double accumPhase0() {return 0;}
+    virtual double accumPhase1() {return 0;}
     virtual void setPivot(int ) {return;}
     virtual void setPhase0(double ) {return;}
     virtual void setPhase1(double ) {return;}
+    virtual void setAccumPhase0(double ) {return;}
+    virtual void setAccumPhase1(double ) {return;}
+    virtual void changePhase0To(double ) {return;}
+    virtual void changePhase1To(double ) {return;}
 
     // virtual functions for TAxisStyle
     virtual int axisStyle() {return 0;}

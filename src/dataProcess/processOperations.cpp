@@ -58,9 +58,11 @@ bool TProcessOperations::saveToFile(QString filename)
           break;
 
         case TProcessElement::Phase:
-          processSettings->setValue("phase0", processElements.at(index)->phase0());
+          processSettings->setValue("initialPhase0", processElements.at(index)->initialPhase0());
+          processSettings->setValue("initialPhase1", processElements.at(index)->initialPhase1());
+          processSettings->setValue("finalPhase0", processElements.at(index)->accumPhase0());
+          processSettings->setValue("finalPhase1", processElements.at(index)->accumPhase1());
           processSettings->setValue("pivot", processElements.at(index)->pivot());
-          processSettings->setValue("phase1", processElements.at(index)->phase1());
           break;
         case TProcessElement::FFT:
         case TProcessElement::IFFT:
@@ -118,32 +120,40 @@ bool TProcessOperations::loadFromFile(QString filename)
             processElements.last()->setHeadPoints(settings.value("headPoints",0).toInt());
             processElements.last()->setTailPoints(settings.value("tailPoints",0).toInt());
             processElements.last()->setAveragePoints(settings.value("averagePoints",0).toInt());
-
             break;
+
           case TProcessElement::Apodization:
             processElements.append(new TApodization);
             processElements.last()->setApodizationType(settings.value("apodizationType",0).toInt());
             processElements.last()->setWidth(settings.value("width",0).toDouble());
             processElements.last()->setInverse(settings.value("inverse",false).toBool());
             break;
+
           case TProcessElement::FFT:
             processElements.append(new TFFT);
             processElements.last()->setLaplace(settings.value("laplace",false).toBool());
             processElements.last()->setLaplaceWidth(settings.value("laplaceWidth",0).toDouble());
             processElements.last()->setAxisDomain(settings.value("axisDomain",0).toInt());
             break;
+
           case TProcessElement::IFFT:
             processElements.append(new TIFFT);
             processElements.last()->setLaplace(settings.value("laplace",false).toBool());
             processElements.last()->setLaplaceWidth(settings.value("laplaceWidth",0).toDouble());
             processElements.last()->setAxisDomain(settings.value("axisDomain",0).toInt());
             break;
+
           case TProcessElement::Phase:
             processElements.append(new TPhaseRotation);
-            processElements.last()->setPhase0(settings.value("phase0",0).toDouble());
+            processElements.last()->setInitialPhase0(settings.value("initialPhase0",0).toDouble());
+            processElements.last()->setInitialPhase1(settings.value("initialPhase1",0).toDouble());
+            processElements.last()->setAccumPhase0(settings.value("finalPhase0",0).toDouble());
+            processElements.last()->setAccumPhase1(settings.value("finalPhase1",0).toDouble());
             processElements.last()->setPivot(settings.value("pivot",0).toInt());
-            processElements.last()->setPhase1(settings.value("phase1",0).toDouble());
+            processElements.last()->setPhase0(processElements.last()->accumPhase0()-processElements.last()->initialPhase0());
+            processElements.last()->setPhase1(processElements.last()->accumPhase1()-processElements.last()->initialPhase1());
             break;
+
           case TProcessElement::AxisStyle:
             processElements.append(new TAxisStyle);
             processElements.last()->setDomain(settings.value("domain",0).toInt());

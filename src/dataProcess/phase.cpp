@@ -3,13 +3,48 @@
 
 TPhaseRotation::TPhaseRotation()
 {
-  setProcessType(TProcessType::Phase);
   //qDebug() << "TPhaseRotation constructor.";
+  setProcessType(TProcessType::Phase);
+  setPreviousPhase0(0);
+  setPreviousPhase1(0);
+  resetPhase();
+  resetInitialPhase();
+  resetAccumPhase();
 }
 
 TPhaseRotation::~TPhaseRotation()
 {
   //qDebug() << "TPhaseRotation destructor.";
+}
+
+void TPhaseRotation::incPhase0(double dp0)
+{
+    setPreviousPhase0(phase0());
+    setPhase0(dp0);
+    setAccumPhase0(accumPhase0()+dp0);
+}
+
+void TPhaseRotation::incPhase1(double dp1)
+{
+    setPreviousPhase1(phase1());
+    setPhase1(dp1);
+    setAccumPhase1(accumPhase1()+dp1);
+}
+
+void TPhaseRotation::changePhase0To(double p0)
+{
+    setPreviousPhase0(phase0());
+    double d=p0-accumPhase0();
+    setPhase0(d);
+    setAccumPhase0(accumPhase0()+d);
+}
+
+void TPhaseRotation::changePhase1To(double p1)
+{
+    setPreviousPhase1(phase1());
+    double d=p1-accumPhase1();
+    setPhase1(d);
+    setAccumPhase1(accumPhase1()+d);
 }
 
 void TPhaseRotation::setPivot(int p)
@@ -21,8 +56,8 @@ QStringList TPhaseRotation::processInformation() {return QStringList() << "proce
 QString TPhaseRotation::command()
 {
     QString qs;
-    qs= "phase (0th order: " + QString::number(phase0())
-            + ", 1st order: " + QString::number(phase1())
+    qs= "phase (0th order: " + QString::number(accumPhase0())
+            + ", 1st order: " + QString::number(accumPhase1())
             + ", pivot: " + QString::number(pivot())
             + ")";
 
