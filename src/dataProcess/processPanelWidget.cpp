@@ -115,8 +115,8 @@ void TProcessPanelWidget::exportProcess()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export process settings"),
                                                     path,
                                                     tr("Process setting file (*.process)"),
-                                                    nullptr,
-                                                    QFileDialog::DontConfirmOverwrite
+                                                    nullptr
+                                                   //, QFileDialog::DontConfirmOverwrite
                                                     );
     if(fileName.isNull()) return;
     if (fileName.isEmpty()) {return;}
@@ -129,10 +129,11 @@ void TProcessPanelWidget::exportProcess()
     QString newFileName = path+base+".process";
     if(QFile::exists(newFileName))
     {
-       if(QMessageBox::No == QMessageBox::question(this, "Override Confirmation?",
-                                        "File already exists. <p>Do you want to override?",
-                                         QMessageBox::No|QMessageBox::Yes)) return;
-       else QFile::remove(newFileName);
+       //if(QMessageBox::No == QMessageBox::question(this, "Override Confirmation?",
+       //                                 "File already exists. <p>Do you want to override?",
+       //                                  QMessageBox::No|QMessageBox::Yes)) return;
+       //else
+       QFile::remove(newFileName);
 
     }
 
