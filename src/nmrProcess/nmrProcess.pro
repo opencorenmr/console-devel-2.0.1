@@ -13,6 +13,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    ../dataProcess/cartesianMap.cpp \
     ../dataProcess/interpolate.cpp \
     ../dataProcess/interpolateWidget.cpp \
         mainwindow.cpp \
@@ -58,6 +59,7 @@ SOURCES += main.cpp\
 
 
 HEADERS  += mainwindow.h \
+    ../dataProcess/cartesianMap.h \
     ../dataProcess/interpolate.h \
     ../dataProcess/interpolateWidget.h \
     ../fid.h \
