@@ -878,6 +878,13 @@ void FIDPlotter::exportImage()
    // QString fileName = QFileDialog::getSaveFileName();
     if(fileName.isEmpty()) return;
 
+    QFileInfo fi(fileName);
+    QString suffix=fi.suffix();
+    if(0!=QString::compare(suffix,"png",Qt::CaseInsensitive))
+    {
+        fileName.append(".png");
+    }
+
     QFile file(fileName);
     file.open(QIODevice::WriteOnly);
     plotter->pixmap.save(&file, "PNG");
@@ -1649,7 +1656,7 @@ void Plotter::drawGrid(QPainter *painter)
     if(!rect.isValid()) return;
 
     PlotSettings settings = zoomStack[curZoom];
-    QPen quiteDark=palette().dark().color().light();
+    QPen quiteDark=palette().dark().color().lighter();
     QPen light=palette().light().color();
     light.setColor(Qt::gray);
 

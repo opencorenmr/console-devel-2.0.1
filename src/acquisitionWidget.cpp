@@ -35,6 +35,11 @@ void TAcquisitionWidget::createWidgets()
     multipleAcquisitionComboBox->setEnabled(false);
     multiplicity=1;
 
+    toggleParamsPushButton = new QPushButton(tr("Toggle Parameters"));
+    toggleParamsPushButton->setEnabled(false);
+
+    toggleParamsWidget = new TToggleParams(this);
+
 
     inFPGAAccumCheckBox = new QCheckBox(tr("In-FPGA accumulations"));
     inFPGAAccumSpinBox = new QSpinBox;
@@ -211,8 +216,10 @@ void TAcquisitionWidget::createPanel()
     mainLayout->addLayout(hLayout1);  // separate data storage
     mainLayout->addLayout(hLayout2);  // multipule acquisition
     //mainLayout->addLayout(hLayout4);  // spectralDensity accum
+    mainLayout->addWidget(toggleParamsPushButton);
     mainLayout->addWidget(line1);
 
+    connect(toggleParamsPushButton,SIGNAL(clicked()),this,SLOT(onToggleParamsPushButtonClicked()));
 
 
 
@@ -266,11 +273,13 @@ void TAcquisitionWidget::onSeparateDataStorageOptionChanged()
 
             ppg->receiverInfo.setNC(m);
             newNA=m*origNA();
+            toggleParamsPushButton->setEnabled(true);
     }
     else
     {
         ppg->receiverInfo.setNC(1);
         newNA=origNA();
+        toggleParamsPushButton->setEnabled(false);
     }
 
     if(naIndex>-1 && naIndex<ppg->variables.size()) ppg->variables[naIndex]->setNumeric(QVariant(newNA));
@@ -278,6 +287,12 @@ void TAcquisitionWidget::onSeparateDataStorageOptionChanged()
 
     emit commandRequest(ppg->updatedPPG);
     emit modified();
+}
+
+void TAcquisitionWidget::onToggleParamsPushButtonClicked()
+{
+    toggleParamsWidget->show();
+
 }
 
 void TAcquisitionWidget::onMultipleAcquisitionOptionChanged()
@@ -296,6 +311,7 @@ void TAcquisitionWidget::onMultipleAcquisitionOptionChanged()
             multipleAcquisitionMode=SeparateData;
             ppg->receiverInfo.setNC(multiplicity);
             ppg->receiverInfo.setNA(multiplicity*origNA());
+            toggleParamsPushButton->setEnabled(true);
 
         }
         else if(multipleAcquisitionComboBox->currentIndex()==1)  // Add
@@ -304,6 +320,7 @@ void TAcquisitionWidget::onMultipleAcquisitionOptionChanged()
             multipleAcquisitionMode=AddData;
             ppg->receiverInfo.setNC(1);
             ppg->receiverInfo.setNA(multiplicity*origNA());
+            toggleParamsPushButton->setEnabled(false);
 
         }
         else if(multipleAcquisitionComboBox->currentIndex()==2) // Join
@@ -314,11 +331,16 @@ void TAcquisitionWidget::onMultipleAcquisitionOptionChanged()
             //newAL=m*origAL;
             //if(newAL>16384) newAL=16384;
 
+           toggleParamsPushButton->setEnabled(false);
+
+
         }
         else if(multipleAcquisitionComboBox->currentIndex()==3) // Join Average
         {
            multipleAcquisitionMode=JoinAverageData;
            ppg->receiverInfo.setNC(1);
+           toggleParamsPushButton->setEnabled(false);
+
         }
         //else {return;}
     }

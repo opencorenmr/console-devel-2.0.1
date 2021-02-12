@@ -37,6 +37,11 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     arrayCheckBox = new QCheckBox(tr("Array Experiment"));
     arrayCheckBox->setEnabled(false);
 
+    autoRepeatCheckBox = new QCheckBox(tr("Auto Repeat"));
+    autoRepeatCheckBox->setChecked(false);
+    autoRepeatSpinBox = new QSpinBox();
+    autoRepeatSpinBox->setMinimum(2);
+    autoRepeatSpinBox->setEnabled(false);
 
     QGridLayout *leftLayout = new QGridLayout; leftLayout->setMargin(0);
     QVBoxLayout *rightLayout = new QVBoxLayout; rightLayout->setMargin(0);
@@ -97,6 +102,9 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
       bl->addWidget(deleteButton);
     leftLayout->addWidget(widget3,4,0,1,2);
 
+    leftLayout->addWidget(autoRepeatCheckBox,5,0,1,1);
+    leftLayout->addWidget(autoRepeatSpinBox, 5,1,1,1);
+
 
     arrayTableWidget = new QTableWidget;
 //#if defined(_WIN32)
@@ -106,9 +114,10 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     arrayTableWidget->setColumnCount(3);
     arrayTableWidget->setHorizontalHeaderLabels(
                 QStringList() << tr("Variable") << tr("Order") << tr("Description") );
-    arrayTableWidget->setColumnWidth(0,6*QFontMetrics(font()).width(QChar('M')));
-    arrayTableWidget->setColumnWidth(1,4*QFontMetrics(font()).width(QChar('M')));
-    arrayTableWidget->setColumnWidth(2,20*QFontMetrics(font()).width(QChar('M')));
+    arrayTableWidget->setColumnWidth(0,6*QFontMetrics(font()).horizontalAdvance(QChar('M')));
+    arrayTableWidget->setColumnWidth(1,4*QFontMetrics(font()).horizontalAdvance(QChar('M')));
+    arrayTableWidget->setColumnWidth(2,20*QFontMetrics(font()).horizontalAdvance(QChar('M')));
+
 
     QWidget *widget4=new QWidget;
     QHBoxLayout *bl2=new QHBoxLayout(widget4);
@@ -134,16 +143,58 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
 
     connect(requestButton,SIGNAL(clicked()),this,SLOT(onRequestButtonClicked()));
 
-    connect(arrayCheckBox,SIGNAL(toggled(bool)),this,SLOT(onArrayCheckBoxClicked(bool)));
+    connect(arrayCheckBox,SIGNAL(toggled(bool)),this,SLOT(onArrayCheckBoxToggled(bool)));
+//    connect(autoRepeatCheckBox,SIGNAL(toggled(bool)),autoRepeatSpinBox,SLOT(setEnabled(bool)));
+    connect(autoRepeatCheckBox,SIGNAL(toggled(bool)),this, SLOT(onAutoRepeatCheckBoxToggled(bool)));
+    connect(autoRepeatSpinBox,SIGNAL(valueChanged(int)),this,SIGNAL(autoRepeatRequest(int)));
+    connect(autoRepeatSpinBox,SIGNAL(valueChanged(int)),this,SIGNAL(modified()));
 
 }
 //--------------------------------------------------------------------------------
-void TArrayWidget::onArrayCheckBoxClicked(bool checked)
+void TArrayWidget::onAutoRepeatCheckBoxToggled(bool isChecked)
+{
+    autoRepeatSpinBox->setEnabled(isChecked);
+
+    if(isChecked)
+    {
+        arrayCheckBox->setChecked(false);
+      //  emit setAR(autoRepeatSpinBox->value());
+      //  emit autoRepeatRequest(autoRepeatSpinBox->value());
+    }
+    else
+    {
+      //  emit setAR(1);
+    }
+
+    emit modified();
+
+    return;
+
+}
+//--------------------------------------------------------------------------------
+void TArrayWidget::onArrayCheckBoxToggled(bool checked)
 {
     if(!checked)
     {
         arrayCheckBox->setEnabled(false);
         emit setAR(1);
+
+        // setAR is connected to TfpgaTerminal::setAR(int)
+        //
+        // void TfpgaTerminal::setAR(int ar)
+        // {
+        //    if (!device->ppgConnected) return;  // Do nothing if connection to FPGA has not been established.
+        //    ppg->receiverInfo.setAR(ar);
+        //    transferPPG(QStringList()<<TreceiverCommand::updateAR(ar));
+        // }
+
+        // --- rcvrcom.cpp ---
+        // QString TreceiverCommand::updateAR(int ar)
+        // {
+        //   return "set AR " + intToHex(ar,8);
+        // }
+
+
         emit modified();
     }
 }
@@ -614,6 +665,9 @@ void TArrayWidget::onRequestButtonClicked()
     }
     else
     {
+        // We disable autorepeat if it has been set checked (27 Sep 2020 KT).
+        autoRepeatCheckBox->setChecked(false);
+
         messageTextEdit->insertPlainText("\nOk. We are ready for the array experiment.");
         messageTextEdit->moveCursor(QTextCursor::End);
         arrayCheckBox->setEnabled(true);

@@ -16,7 +16,7 @@ public:
 
     dataReceiver()
     {
-        localFid = new TFID(16384);
+        localFid = new TFID(65536);
         stopped=false;
     }
     void setDeviceHandle(FT_HANDLE devHandle) {FdevHandle=devHandle;}

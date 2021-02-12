@@ -10,6 +10,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+#include "toggleParams.h"
 #include "pulseProgram.h"
 
 class TlogicSwitch : public QObject
@@ -78,6 +79,8 @@ public:
     QCheckBox *digitalFilterCheckBox;
 
     QPushButton *defaultPushButton;
+    QPushButton *toggleParamsPushButton;
+    TToggleParams *toggleParamsWidget;
 
 
 signals:
@@ -92,6 +95,8 @@ public slots:
     void onSeparateDataStorageOptionChanged();
     void onSeparateDataStorageSpinBoxChanged(int i);
     void onOffsetChanged();
+
+    void onToggleParamsPushButtonClicked();
 
 private slots:
 

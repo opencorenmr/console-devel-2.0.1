@@ -2,7 +2,7 @@
 
 TTranspose::TTranspose()
 {
-
+    setProcessType(TProcessType::Transpose);
 }
 
 bool TTranspose::process(TFID_2D *fid_2d)

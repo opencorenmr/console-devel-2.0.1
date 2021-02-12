@@ -35,6 +35,7 @@ public:
     QComboBox *phase0ResolutionComboBox,*phase1ResolutionComboBox;
 
     QPushButton *applyPushButton;
+    QPushButton *restorePushButton;
 
 signals:
 //    void updatePlottersRequest();
@@ -49,15 +50,16 @@ public slots:
 
 
     void setPivot(int p);
-    void setPhase0();
-    void setPhase1();
-    void setPhase();
+    void changePhase0To();
+    void changePhase1To();
+    void changePhaseTo();
     void setResolution0();
     void setResolution1();
     void clickSetPhasePivot();
 
 private slots:
     void performOperation();
+    void setZero();
     void createSettings(QSettings *settings, QString section);
     void readSettings(QSettings *settings, QString section);
 
