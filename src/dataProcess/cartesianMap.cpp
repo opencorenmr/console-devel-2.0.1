@@ -64,7 +64,7 @@ void TCartesianMap3D::generateTables()
             for(int z=0; z<length1D(); z++)
             {
                 cartesianMapTable[x][y].append(QPoint(x+z,y));
-                int h=length1D() % 2;
+                int h=length1D() / 2;
                 int z2=z-h;
                 int x2=x-h;
                 int y2=y-h;
