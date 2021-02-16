@@ -2,6 +2,7 @@
 #define TCARTESIANMAP3D_H
 
 #include <QVector3D>
+#include <math.h>
 #include "processElement.h"
 #define PI 3.14159265358979
 
