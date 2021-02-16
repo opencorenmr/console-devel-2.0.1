@@ -116,5 +116,5 @@ linux: LIBS += -L/usr/local/lib -llapack -llapacke -lblas -lcblas -lgfortran -lm
 
 mac: LIBS += -framework Accelerate
 
-win32: LIBS += -L"c:\lib" -llapack -llapacke -lblas -lcblas -lgfortran -lquadmath -lm
+win32: LIBS += -Lc:/lib -llapack -llapacke -lblas -lcblas -lgfortran -lquadmath -lm
 win32: INCLUDEPATH += c:/lib
