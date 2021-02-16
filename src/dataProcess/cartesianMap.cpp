@@ -5,6 +5,7 @@
 
 TCartesianMap3D::TCartesianMap3D()
 {
+  setProcessType(TProcessType::CartesianMap3D);
   origPolarAngles.clear();
   clearIndices();
 }
@@ -13,7 +14,7 @@ TCartesianMap3D::TCartesianMap3D()
 TCartesianMap3D::~TCartesianMap3D()
 {
   origPolarAngles.clear();
-  while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
+//  while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
   while(!thetaTable.isEmpty()) thetaTable.removeLast();
   while(!phiTable.isEmpty()) phiTable.removeLast();
   while(!rTable.isEmpty()) rTable.removeLast();
@@ -92,7 +93,7 @@ bool TCartesianMap3D::setOrigPolarAngles(QString qs)
 
 void TCartesianMap3D::generateTables()
 {
-    while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
+   // while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
     while(!thetaTable.isEmpty()) thetaTable.removeLast();
     while(!phiTable.isEmpty()) phiTable.removeLast();
     while(!rTable.isEmpty()) rTable.removeLast();
@@ -100,21 +101,21 @@ void TCartesianMap3D::generateTables()
 
     for(int x=0; x<length1D(); x++)
     {
-        cartesianMapTable.append(QList<QList<QPoint> >());
+      //  cartesianMapTable.append(QList<QList<QPoint> >());
         rTable.append(QList<QList<double> >());
         thetaTable.append(QList<QList<double> >());
         phiTable.append(QList<QList<double> >());
         polarAngleTable.append(QList<QList<TPolarAngle> >());
         for(int y=0; y<length1D(); y++)
         {
-            cartesianMapTable[x].append(QList<QPoint>());
+        //    cartesianMapTable[x].append(QList<QPoint>());
             rTable[x].append(QList<double>());
             thetaTable[x].append(QList<double>());
             phiTable[x].append(QList<double>());
             polarAngleTable[x].append(QList<TPolarAngle>());
             for(int z=0; z<length1D(); z++)
             {
-                cartesianMapTable[x][y].append(QPoint(x+z,y));
+          //      cartesianMapTable[x][y].append(QPoint(x+z*length1D(),y));
                 int h=length1D() / 2;
                 int z2=z-h;
                 int x2=x-h;
@@ -319,6 +320,7 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
     for(int k=0; k<arrayLength; k++)
     {
         fid_2d->FID.append(new TFID(nCol));
+        fid_2d->FID.last()->setEmpty(false);
     }
 
     // We make tables
@@ -335,14 +337,14 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
     {
       if((int) ceil(rTable.at(x).at(y).at(z)) > fid_2d->al()-1) // Outside the sphere -> zero
       {
-          fid_2d->FID[x+z]->real->sig[y]=0.0;
-          fid_2d->FID[x+z]->imag->sig[y]=0.0;
+          fid_2d->FID[x+z*nCol]->real->sig[y]=0.0;
+          fid_2d->FID[x+z*nCol]->imag->sig[y]=0.0;
           qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
       }
       else if(rTable.at(x).at(y).at(z)==0) // Origin
       {
-          fid_2d->FID[x+z]->real->sig[y]=rOrigin;
-          fid_2d->FID[x+z]->imag->sig[y]=iOrigin;
+          fid_2d->FID[x+z*nCol]->real->sig[y]=rOrigin;
+          fid_2d->FID[x+z*nCol]->imag->sig[y]=iOrigin;
           qDebug() << "TCartesianMap3D::process: Origin found at (" << x <<"," << y << "," << z << ").";
       }
       else
@@ -387,8 +389,8 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
 
           }
           // We need to "radially" interpolate!
-          fid_2d->FID[x+z]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
-          fid_2d->FID[x+z]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
+          fid_2d->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
+          fid_2d->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
 
 
       }
@@ -403,6 +405,8 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
 
     // We update the absolute values
     for(int k=0; k<fid_2d->FID.size(); k++) fid_2d->FID[k]->updateAbs();
+
+    fid_2d->setCurrentFID(0);
 
     delete helpFID2D;
     return true;

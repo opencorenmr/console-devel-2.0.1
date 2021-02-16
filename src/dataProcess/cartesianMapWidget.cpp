@@ -61,6 +61,13 @@ void TCartesianMapWidget::addOperation(TCartesianMap3D *cMap3D)
     ancestor()->processSettings->endGroup();
     ancestor()->processSettings->sync();
 
+    for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
+    {
+
+      ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
+      ancestor()->plotters->FIDPlotters[k]->plotter->xfin=ancestor()->FID_2D->FID.at(0)->al()-1;
+
+    }
 
     ancestor()->plotters->update();
 
@@ -80,7 +87,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
 
-    if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText()))
+    if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
         QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
         delete cartesianMap3D;
@@ -104,7 +111,8 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 void TCartesianMapWidget::onSaveAngleTablePushButtonClicked()
 {
     QString path="~/";
-    if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
+    if(QDir(ancestor()->processFileWidget->dataFilePath()).exists())
+        path=ancestor()->processFileWidget->dataFilePath()+'/';
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save angle data"),
                                                     path
                                                     );
@@ -128,7 +136,8 @@ void TCartesianMapWidget::onSaveAngleTablePushButtonClicked()
 void TCartesianMapWidget::onLoadAngleTablePushButtonClicked()
 {
     QString path="~/";
-    if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
+    if(QDir(ancestor()->processFileWidget->dataFilePath()).exists())
+        path=ancestor()->processFileWidget->dataFilePath()+'/';
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open angle data"),
                                                     path
                                                     );

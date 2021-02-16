@@ -779,7 +779,7 @@ void FIDPlotter::update()
     {  //qDebug() << QString(Q_FUNC_INFO) <<"size<1 ";
         return;
     }
-  //  qDebug() << QString(Q_FUNC_INFO) << "1";
+   // qDebug() << QString(Q_FUNC_INFO) << "1";
 
     FIDSelectSpinBox->setMaximum(fid2d->FID.size());
    // if(fid2d->FID.size() < FIDSelectSpinBox->value()) FIDSelectSpinBox->setMaximum(fid2d->FID.size());

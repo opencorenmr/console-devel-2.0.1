@@ -80,7 +80,7 @@ public:
     int length1D() {return FLength1D;}
     void setLength1D(int al);
     void generateCartesianMapTable();
-    QList<QList<QList<QPoint> > > cartesianMapTable;
+ //   QList<QList<QList<QPoint> > > cartesianMapTable;
     QList<QList<QList<double> > > thetaTable;
     QList<QList<QList<double> > > phiTable;
     QList<QList<QList<double> > > rTable;
