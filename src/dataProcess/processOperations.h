@@ -15,6 +15,7 @@
 #include "ifft.h"
 #include "phase.h"
 #include "replaceRealWithAbsolute.h"
+#include "cartesianMap.h"
 
 class TProcessOperations : public QObject
 {

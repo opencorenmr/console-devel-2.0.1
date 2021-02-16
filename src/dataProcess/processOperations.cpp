@@ -84,6 +84,11 @@ bool TProcessOperations::saveToFile(QString filename)
         case TProcessElement::ArraySum: break;
         case TProcessElement::Flatten: break;
 
+        case TProcessElement::CartesianMap3D:
+          processSettings->setValue("polarAngles",processElements.at(index)->cartesianMap3DPolarAnglesStr());
+
+          break;
+
 
         default:
           break;
@@ -174,6 +179,11 @@ bool TProcessOperations::loadFromFile(QString filename)
 
           case TProcessElement::Flatten:
             processElements.append(new TFlatten);
+            break;
+
+          case TProcessElement::CartesianMap3D:
+            processElements.append(new TCartesianMap3D);
+            processElements.last()->setCartesianMap3DPolarAnglesStr(settings.value("polarAngles","").toString());
             break;
 
         }

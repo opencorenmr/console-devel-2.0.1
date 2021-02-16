@@ -68,6 +68,8 @@ public:
     TCartesianMap3D();
     ~TCartesianMap3D();
 
+    QString cartesianMap3DPolarAnglesStr() {return origPolarAnglesStr();}
+    bool setCartesianMap3DPolarAnglesStr(QString qs) {return setOrigPolarAngles(qs);}
 
     bool process(TFID_2D *fid_2d);
 
@@ -88,6 +90,8 @@ public:
     bool findPointsABC(TPolarAngle p);
 
     QList<TPolarAngle> origPolarAngles;
+    QString origPolarAnglesStr();
+    bool setOrigPolarAngles(QString qs);
     // TODO: setOrigPolarAngles and/or readOrigPolarAngles
     int closestPolarAngleIndex(TPolarAngle polarAngle);
 
@@ -101,6 +105,7 @@ public:
     int southEastIndex() {return FSouthEastIndex;}
 
 private:
+
 
     void clearIndices();
 

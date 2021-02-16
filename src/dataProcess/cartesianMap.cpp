@@ -39,6 +39,57 @@ void TCartesianMap3D::setLength1D(int al)
     generateTables();
 }
 
+QString TCartesianMap3D::origPolarAnglesStr()
+{
+    QString qs;
+
+    for(int k=0; k<origPolarAngles.size(); k++)
+    {
+        qs.append(QString::number(origPolarAngles[k].theta()));
+        qs.append(' ');
+        qs.append(QString::number(origPolarAngles[k].phi()));
+        qs.append('\n');
+    }
+
+    return qs;
+}
+
+bool TCartesianMap3D::setOrigPolarAngles(QString qs)
+{
+    bool ok=true;
+    double th,ph;
+    QStringList sl1,sl2;
+    origPolarAngles.clear();
+
+    sl1=qs.split('\n');
+    for(int k=0; k<sl1.size(); k++)
+    {
+        sl2=sl1.at(k).trimmed().split(QRegExp("\\s+"));
+        if(sl2.size()!=2)
+        {
+            setErrorMessage("Invalid polar-angle data.");
+            return false;
+        }
+        else // 2 elements
+        {
+            th=sl2.at(0).toDouble(&ok);
+            ph=sl2.at(1).toDouble(&ok);
+            if(!ok)
+            {
+                setErrorMessage("Invalid polar-angle data: " + sl1.at(k));
+                return false;
+            }
+            else
+            {
+                origPolarAngles.append(TPolarAngle(th,ph));
+            }
+        }
+    }
+
+    return ok;
+}
+
+
 void TCartesianMap3D::generateTables()
 {
     while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
@@ -234,6 +285,11 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
     int nRow=fid_2d->FID.size();  //qDebug() << QString(Q_FUNC_INFO) << "nRow: " <<nRow;
     int nCol=fid_2d->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
 
+    if(nRow!=origPolarAngles.size())
+    {
+        setErrorMessage("Size of data does not match that of the polar angle list.");
+        return false;
+    }
     // We introduce a new TFID_2D class, named "helpFID2D", and copy data
     // In addition, we calculate the average value (rOrigin, iOrigin) at the origin, which will be used below.
     TFID_2D *helpFID2D = new TFID_2D;
@@ -256,7 +312,7 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
 
 
     //
-    // We clear the content of fid_2d, and then make a (nCol x nCol) x nCol square matrix
+    // We clear the content of fid_2d, and then make a (nCol x nCol) x nCol matrix
     //
     fid_2d->FID.clear();
     int arrayLength=nCol*nCol;
@@ -367,6 +423,9 @@ QString TCartesianMap3D::command()
 double TPolarAngle::regionalTheta(double t)
 {
     double tt=t;
+
+    if(tt>=0 && tt<=PI) {return tt;}
+
     if(tt<-PI)
     {
         while(tt<-PI) tt += 2*PI;

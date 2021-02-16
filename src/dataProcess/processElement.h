@@ -24,7 +24,8 @@ public:
                        AxisStyle,
                        ArraySum,
                        Transpose,
-                       Flatten
+                       Flatten,
+                       CartesianMap3D
                       };
 
 
@@ -110,6 +111,9 @@ public:
     virtual double referenceValue() {return 0;}
     virtual void setReferenceValue(double) {;}
 
+    // virtual functions for TCartesianMap3D
+    virtual QString cartesianMap3DPolarAnglesStr() {return "";}
+    virtual bool setCartesianMap3DPolarAnglesStr(QString) {return false;}
 
 public slots:
     void setApplyMode(int ap) {FApplyMode=ap;}

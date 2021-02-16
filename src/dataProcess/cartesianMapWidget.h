@@ -22,6 +22,7 @@ public:
     QPlainTextEdit *thetaPhiTextEdit;
     QPushButton *loadAngleTablePushButton;
     QPushButton *saveAngleTablePushButton;
+//    QPushButton *setAngleTablePushButton;
     QPushButton *applyAngleTablePushButton;
     QString dataFilePath() {return FDataFilePath;}
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
@@ -29,6 +30,7 @@ public:
 public slots:
     void onLoadAngleTablePushButtonClicked();
     void onSaveAngleTablePushButtonClicked();
+//    void onSetAngleTablePushButtonClicked();
     void onApplyAngleTablePushButtonClicked();
 
 private:
@@ -36,7 +38,7 @@ private:
     void createWidgets();
     void createLayout();
     void createConnections();
-    void addOperation();
+    void addOperation(TCartesianMap3D *cMap3D);
     QString FDataFilePath;
 };
 
