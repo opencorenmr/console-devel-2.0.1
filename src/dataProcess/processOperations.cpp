@@ -89,6 +89,11 @@ bool TProcessOperations::saveToFile(QString filename)
 
           break;
 
+        case TProcessElement::FFT3D:
+          processSettings->setValue("n1",processElements.at(index)->FFT3D_n1());
+          processSettings->setValue("n2",processElements.at(index)->FFT3D_n2());
+
+          break;
 
         default:
           break;
@@ -184,6 +189,12 @@ bool TProcessOperations::loadFromFile(QString filename)
           case TProcessElement::CartesianMap3D:
             processElements.append(new TCartesianMap3D);
             processElements.last()->setCartesianMap3DPolarAnglesStr(settings.value("polarAngles","").toString());
+            break;
+
+          case TProcessElement::FFT3D:
+            processElements.append(new TFFT3D);
+            processElements.last()->FFT3D_setN1(settings.value("n1",0).toInt());
+            processElements.last()->FFT3D_setN2(settings.value("n2",0).toInt());
             break;
 
         }

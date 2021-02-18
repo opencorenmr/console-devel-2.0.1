@@ -12,18 +12,17 @@ TApplyModeWidget::TApplyModeWidget(QWidget *parent) : QWidget(parent)
       currentPlotterSpinBox->setMinimum(0);
       currentPlotterSpinBox->setMaximum(0);
     QHBoxLayout *hLayout1 = new QHBoxLayout;
-    hLayout1->addStretch();
-    hLayout1->addWidget(new QLabel(tr("Apply to ")));
-    hLayout1->addWidget(applyModeComboBox);
-    hLayout1->addWidget(new QLabel(tr(" data")));
     QHBoxLayout *hLayout2 = new QHBoxLayout;
-    hLayout2->addStretch();
-    hLayout2->addWidget(new QLabel(tr("in plotter #")));
+//    hLayout1->addStretch();
+    hLayout1->addWidget(new QLabel(tr("Apply to")));
+    hLayout2->addWidget(applyModeComboBox);
+    hLayout2->addWidget(new QLabel(tr("data in plotter #")));
+//    hLayout2->addStretch();
     hLayout2->addWidget(currentPlotterSpinBox);
 
-    QVBoxLayout *vLayout1 = new QVBoxLayout(this);
-    vLayout1->addLayout(hLayout1);
-    vLayout1->addLayout(hLayout2);
+    QVBoxLayout *vLayout0 = new QVBoxLayout(this);
+    vLayout0->addLayout(hLayout1);
+    vLayout0->addLayout(hLayout2);
 
     connect(applyModeComboBox,SIGNAL(currentIndexChanged(int)),
             this,SLOT(onApplyModeComboBoxCurrentIndexChanged()));

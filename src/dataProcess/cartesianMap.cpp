@@ -324,7 +324,7 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
     }
 
     // We make tables
-    setLength1D(nCol);
+    setLength1D(nCol); // It calls generateTables();
 
     //
     // Interpolation!
@@ -428,8 +428,6 @@ double TPolarAngle::regionalTheta(double t)
 {
     double tt=t;
 
-    if(tt>=0 && tt<=PI) {return tt;}
-
     if(tt<-PI)
     {
         while(tt<-PI) tt += 2*PI;
@@ -438,8 +436,6 @@ double TPolarAngle::regionalTheta(double t)
     {
         while(tt>PI) tt -= 2*PI;
     }
-
-    if(tt<0) tt=-1*tt;
 
     return tt;
 

@@ -12,7 +12,26 @@ class TPolarAngle
 {
 public:
     TPolarAngle() {setTheta(0); setPhi(0);}
-    TPolarAngle(double t, double p) {setTheta(t); setPhi(p);}
+    TPolarAngle(double t, double p)
+    {
+        double x,y,z;
+        z=cos(t);
+        x=sin(t)*cos(p);
+        y=sin(t)*sin(p);
+        double r=sqrt(x*x+y*y+z*z);
+        if(r>0)
+        {
+            setTheta(acos(z/r));
+            setPhi(atan2(y,x));
+        }
+        else
+        {
+            setTheta(0);
+            setPhi(0);
+        }
+
+    }
+
     TPolarAngle(double x, double y, double z)
     {
       double r=sqrt(x*x+y*y+z*z);
@@ -28,6 +47,27 @@ public:
       }
     }
     ~TPolarAngle() {}
+
+    void setThetaPhi(double t, double p)
+    {
+        double x,y,z;
+        z=cos(t);
+        x=sin(t)*cos(p);
+        y=sin(t)*sin(p);
+        double r=sqrt(x*x+y*y+z*z);
+        if(r>0)
+        {
+            setTheta(acos(z/r));
+            setPhi(atan2(y,x));
+        }
+        else
+        {
+            setTheta(0);
+            setPhi(0);
+        }
+
+    }
+
     double theta() {return FTheta;}
     double phi() {return FPhi;}
 
