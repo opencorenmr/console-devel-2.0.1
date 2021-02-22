@@ -24,7 +24,9 @@ public:
                        AxisStyle,
                        ArraySum,
                        Transpose,
-                       Flatten
+                       Flatten,
+                       CartesianMap3D,
+                       FFT3D
                       };
 
 
@@ -110,6 +112,16 @@ public:
     virtual double referenceValue() {return 0;}
     virtual void setReferenceValue(double) {;}
 
+    // virtual functions for TCartesianMap3D
+    virtual QString cartesianMap3DPolarAnglesStr() {return "";}
+    virtual bool setCartesianMap3DPolarAnglesStr(QString) {return false;}
+
+    //virtual functions for TFFT3D;
+    virtual void FFT3D_setLengths(int,int) {;}
+    virtual void FFT3D_setN1(int) {;}
+    virtual void FFT3D_setN2(int) {;}
+    virtual int FFT3D_n1() {return 0;}
+    virtual int FFT3D_n2() {return 0;}
 
 public slots:
     void setApplyMode(int ap) {FApplyMode=ap;}

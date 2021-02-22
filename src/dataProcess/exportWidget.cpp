@@ -117,7 +117,7 @@ void KExportWidget::performExportAscii()
 
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
-    QString fileName=QFileDialog::getSaveFileName(this,tr("Save"),path,tr("*.opp or *.opd"));
+    QString fileName=QFileDialog::getSaveFileName(this,tr("Save"),path);
     if(fileName.isEmpty()) {return;}
 
     QString sep;
@@ -351,7 +351,7 @@ void KExportWidget::exportAbs(){
             out << ancestor()->FID_2D->FID.at(i)->abs->sig.at(j);
             if(j!=ancestor()->FID_2D->al()-1){out << " ";}
         }
-        out << endl;
+        out << Qt::endl;
     }
 
     file.close();
