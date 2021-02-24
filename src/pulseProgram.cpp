@@ -200,7 +200,7 @@ TpulseProgram::TpulseProgram(int channels) {
 
   specialFunctionNames << "sin" << "cos" << "sinc" << "exp" << "tan" << "atan"
                        << "tanh" << "atan2" << "cosh" << "sinh"
-                       << "log" << "log10" << "sech";
+                       << "log" << "log10" << "sech" << "acos" << "asin";
 
 
   reservedWords << preambleCommands << asyncPPGCommands << specialFunctionNames
@@ -1874,7 +1874,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
     //qDebug() << nOfIteration;
 
     int k=0;
-    while(k<nOfIteration)
+    while(k<(int)nOfIteration)
     //for (int k=0; k<nOfIteration; k++)
     {
         sharpK=k; // read by processGate
@@ -1989,7 +1989,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
                 sl0=qs0.split(','); // ',' is the only separator for in-line tables
             }
 
-            if(sl0.size()!=nOfIteration*bunch)
+            if(sl0.size()!=(int)nOfIteration*bunch)
             {
                 errorMessage=QString(Q_FUNC_INFO)+ ": Table length does not match with the number of iteration ("+
                         QString::number(nOfIteration)+").";
@@ -2042,7 +2042,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
 
       // In the last part of the shaped pulse, we compensate the error arising from the division above
       // 31 July 2019 (K. Takeda)
-      if(nOfIteration>1 && k==nOfIteration-1)
+      if(nOfIteration>1 && k==(int)nOfIteration-1)
       {
         i64 = quint64(round(getTimeResult*CLK))
                 - i64*(nOfIteration-1);
@@ -5672,7 +5672,7 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
 
         int fIndex=-1;
         QStringList functions=QStringList()<<"sin"<<"cos"<<"sqrt"<<"sinc"<<"abs"<<"exp"<<"tanh"<<"cosh"<<"sinh"
-                                          <<"log"<<"log10"<<"sech";
+                                          <<"log"<<"log10"<<"sech"<<"acos"<<"asin";
         for(int k=0; k<functions.size(); k++)
             if(0==QString::compare(token,functions.at(k),Qt::CaseInsensitive)) fIndex=k;
 
@@ -5768,7 +5768,8 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
               case 9: result=log(a); break;
               case 10: result=log10(a); break;
               case 11: result=1/cosh(a); break;
-              case 12: //;
+              case 12: result=acos(a); break;
+              case 13: result=asin(a); break;
               default:
                 errorMessage=QString(Q_FUNC_INFO)+": unknown function"; ok=false; return 0;
           }
