@@ -200,7 +200,7 @@ TpulseProgram::TpulseProgram(int channels) {
 
   specialFunctionNames << "sin" << "cos" << "sinc" << "exp" << "tan" << "atan"
                        << "tanh" << "atan2" << "cosh" << "sinh"
-                       << "log" << "log10" << "sech" << "acos" << "asin";
+                       << "log" << "log10" << "sech" << "acos" << "asin" << "round";
 
 
   reservedWords << preambleCommands << asyncPPGCommands << specialFunctionNames
@@ -5672,7 +5672,7 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
 
         int fIndex=-1;
         QStringList functions=QStringList()<<"sin"<<"cos"<<"sqrt"<<"sinc"<<"abs"<<"exp"<<"tanh"<<"cosh"<<"sinh"
-                                          <<"log"<<"log10"<<"sech"<<"acos"<<"asin";
+                                          <<"log"<<"log10"<<"sech"<<"acos"<<"asin"<<"round";
         for(int k=0; k<functions.size(); k++)
             if(0==QString::compare(token,functions.at(k),Qt::CaseInsensitive)) fIndex=k;
 
@@ -5770,6 +5770,7 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
               case 11: result=1/cosh(a); break;
               case 12: result=acos(a); break;
               case 13: result=asin(a); break;
+              case 14: result=round(a); break;
               default:
                 errorMessage=QString(Q_FUNC_INFO)+": unknown function"; ok=false; return 0;
           }

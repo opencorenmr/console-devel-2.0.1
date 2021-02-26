@@ -359,7 +359,7 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
             e1=helpFID2D->FID.at(parallelIndex())->imag->sig.at((int) floor(r));
             e2=helpFID2D->FID.at(parallelIndex())->imag->sig.at((int) ceil(r));
 
-
+            // qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
           }
           else // Both lateral and radial interpolation
           {
@@ -368,6 +368,9 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
             {
                 return false;
             }
+
+            // qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
+
             double da,db,dc,ea,eb,ec;
             da=helpFID2D->FID.at(FPointAIndex)->real->sig.at((int) floor(r));
             db=helpFID2D->FID.at(FPointBIndex)->real->sig.at((int) floor(r));
@@ -474,8 +477,8 @@ int TPolarAngle::orientation(TPolarAngle pa1, TPolarAngle pa2)
     TEastWest eastWest=East;
 
 
-    if(fabs(regionalTheta(pa1.theta())-regionalTheta(pa2.theta()))
-            && fabs(regionalPhi(pa1.phi())-regionalPhi(pa2.phi())))
+    if(fabs(regionalTheta(pa1.theta())-regionalTheta(pa2.theta())) < DBL_EPSILON
+            && fabs(regionalPhi(pa1.phi())-regionalPhi(pa2.phi())) < DBL_EPSILON)
     {
         return Parallel;
     }
