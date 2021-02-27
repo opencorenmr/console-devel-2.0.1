@@ -105,6 +105,7 @@ public:
 
 class TCartesianMap3D : public TProcessElement
 {
+    Q_OBJECT
 public:
     TCartesianMap3D();
     ~TCartesianMap3D();
@@ -145,9 +146,15 @@ public:
     int southWestIndex() {return FSouthWestIndex;}
     int southEastIndex() {return FSouthEastIndex;}
 
+signals:
+    void currentCount(int);
+    void complete();
+
 private:
 
-
+    TFID_2D *FID_2D;
+//    void prepareCalc();
+    void run();
     void clearIndices();
 
     int FLength1D;

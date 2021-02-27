@@ -90,7 +90,6 @@ bool TCartesianMap3D::setOrigPolarAngles(QString qs)
     return ok;
 }
 
-
 void TCartesianMap3D::generateTables()
 {
    // while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
@@ -281,15 +280,24 @@ int TCartesianMap3D::closestPolarAngleIndex(TPolarAngle polarAngle)
 }
 
 
-bool TCartesianMap3D::process(TFID_2D *fid_2d)
+
+void TCartesianMap3D::run()
 {
-    int nRow=fid_2d->FID.size();  //qDebug() << QString(Q_FUNC_INFO) << "nRow: " <<nRow;
-    int nCol=fid_2d->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
+  forever
+  {
+    if(stopped) return;
+
+
+
+
+    int nRow=FID_2D->FID.size();  //qDebug() << QString(Q_FUNC_INFO) << "nRow: " <<nRow;
+    int nCol=FID_2D->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
 
     if(nRow!=origPolarAngles.size())
     {
+        errorQ=true;
         setErrorMessage("Size of data does not match that of the polar angle list.");
-        return false;
+        return;
     }
     // We introduce a new TFID_2D class, named "helpFID2D", and copy data
     // In addition, we calculate the average value (rOrigin, iOrigin) at the origin, which will be used below.
@@ -301,12 +309,12 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
         helpFID2D->FID.append(new TFID(nCol));
         for(int i=0; i<nRow; i++)
         {
-            helpFID2D->FID[k]->real->sig[i] = fid_2d->FID.at(k)->real->sig.at(i);
-            helpFID2D->FID[k]->imag->sig[i] = fid_2d->FID.at(k)->imag->sig.at(i);
+            helpFID2D->FID[k]->real->sig[i] = FID_2D->FID.at(k)->real->sig.at(i);
+            helpFID2D->FID[k]->imag->sig[i] = FID_2D->FID.at(k)->imag->sig.at(i);
         }
         helpFID2D->FID.last()->updateAbs();
-        rOrigin += fid_2d->FID.at(k)->real->sig.at(0);
-        iOrigin += fid_2d->FID.at(k)->imag->sig.at(0);
+        rOrigin += FID_2D->FID.at(k)->real->sig.at(0);
+        iOrigin += FID_2D->FID.at(k)->imag->sig.at(0);
     }
     rOrigin /= nRow;
     iOrigin /= nRow;
@@ -315,12 +323,12 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
     //
     // We clear the content of fid_2d, and then make a (nCol x nCol) x nCol matrix
     //
-    fid_2d->FID.clear();
+    FID_2D->FID.clear();
     int arrayLength=nCol*nCol;
     for(int k=0; k<arrayLength; k++)
     {
-        fid_2d->FID.append(new TFID(nCol));
-        fid_2d->FID.last()->setEmpty(false);
+        FID_2D->FID.append(new TFID(nCol));
+        FID_2D->FID.last()->setEmpty(false);
     }
 
     // We make tables
@@ -331,20 +339,21 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
     //
     for(int x=0; x<nCol; x++)
     {
+      emit currentCount(x);
     for(int y=0; y<nCol; y++)
     {
     for(int z=0; z<nCol; z++)
     {
-      if((int) ceil(rTable.at(x).at(y).at(z)) > fid_2d->al()-1) // Outside the sphere -> zero
+      if((int) ceil(rTable.at(x).at(y).at(z)) > FID_2D->al()-1) // Outside the sphere -> zero
       {
-          fid_2d->FID[x+z*nCol]->real->sig[y]=0.0;
-          fid_2d->FID[x+z*nCol]->imag->sig[y]=0.0;
+          FID_2D->FID[x+z*nCol]->real->sig[y]=0.0;
+          FID_2D->FID[x+z*nCol]->imag->sig[y]=0.0;
           qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
       }
       else if(rTable.at(x).at(y).at(z)==0) // Origin
       {
-          fid_2d->FID[x+z*nCol]->real->sig[y]=rOrigin;
-          fid_2d->FID[x+z*nCol]->imag->sig[y]=iOrigin;
+          FID_2D->FID[x+z*nCol]->real->sig[y]=rOrigin;
+          FID_2D->FID[x+z*nCol]->imag->sig[y]=iOrigin;
           qDebug() << "TCartesianMap3D::process: Origin found at (" << x <<"," << y << "," << z << ").";
       }
       else
@@ -366,7 +375,8 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
                // We try to find 3 directions from origPolarAngles
             if(!findPointsABC(polarAngleTable.at(x).at(y).at(z)))
             {
-                return false;
+                errorQ=true;
+                return;
             }
 
             // qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
@@ -392,8 +402,8 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
 
           }
           // We need to "radially" interpolate!
-          fid_2d->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
-          fid_2d->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
+          FID_2D->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
+          FID_2D->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
 
 
       }
@@ -407,12 +417,47 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
     }
 
     // We update the absolute values
-    for(int k=0; k<fid_2d->FID.size(); k++) fid_2d->FID[k]->updateAbs();
+    for(int k=0; k<FID_2D->FID.size(); k++) FID_2D->FID[k]->updateAbs();
 
-    fid_2d->setCurrentFID(0);
+    FID_2D->setCurrentFID(0);
 
     delete helpFID2D;
-    return true;
+
+
+
+
+    emit complete();
+
+
+    mutex.lock();
+    condition.wait(&mutex); // We let the thread sleep.
+    mutex.unlock();
+  } // foever
+}
+
+
+bool TCartesianMap3D::process(TFID_2D *fid_2d)
+{
+
+    FID_2D=fid_2d;
+    errorQ=false;
+
+    QMutexLocker locker(&mutex);
+    stopped=false;
+    if(!isRunning())
+    {
+      start(HighPriority);
+    }
+    else
+    {
+      condition.wakeOne();
+    }
+
+
+
+
+
+    return !errorQ;
 }
 
 

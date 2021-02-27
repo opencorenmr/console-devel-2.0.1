@@ -3,6 +3,8 @@
 #include <QGroupBox>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QEventLoop>
+#include <QProgressDialog>
 
 #include "cartesianMapWidget.h"
 #include "processPanelWidget.h"
@@ -86,6 +88,12 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     }
 
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
+    QProgressDialog *progressDialog = new QProgressDialog("Processing cartesian map...",
+                                                          QString(), 0, ancestor()->FID_2D->al());
+    progressDialog->setWindowModality(Qt::WindowModal);
+    progressDialog->setMinimumDuration(100);
+
+    connect(cartesianMap3D,SIGNAL(currentCount(int)), progressDialog, SLOT(setValue(int)));
 
     if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
@@ -94,7 +102,19 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
         return;
     }
 
-    if(!cartesianMap3D->process(ancestor()->FID_2D))
+
+    bool ok=cartesianMap3D->process(ancestor()->FID_2D);
+    QEventLoop loop;
+    loop.connect(cartesianMap3D, SIGNAL(complete()), &loop, SLOT(quit()));
+    loop.exec();
+
+    disconnect(cartesianMap3D,SIGNAL(currentCount(int)), progressDialog, SLOT(setValue(int)));
+    delete progressDialog;
+
+
+
+//    if(!cartesianMap3D->process(ancestor()->FID_2D))
+    if(!ok)
     {
       QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
       delete cartesianMap3D;

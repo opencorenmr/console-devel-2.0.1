@@ -1,6 +1,9 @@
 #ifndef TPROCESSELEMENT_H
 #define TPROCESSELEMENT_H
 
+#include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 #include <QObject>
 #include <QDebug>
 #include "../fid.h"
@@ -9,12 +12,22 @@
 #define TWOPI 6.28318530717958647692528676656
 
 
-class TProcessElement : public QObject
+//class TProcessElement : public QObject
+class TProcessElement : public QThread
 {
     Q_OBJECT
 public:
-    explicit TProcessElement(QObject *parent = nullptr);
-    ~TProcessElement() { ;}
+//    explicit TProcessElement(QObject *parent = nullptr);
+    TProcessElement();
+    ~TProcessElement()
+    {
+      mutex.lock();
+        stopped=true;
+        condition.wakeOne();
+      mutex.unlock();
+      wait();
+    }
+
 
     enum TProcessType {CutAdd,
                        Apodization,
@@ -28,6 +41,8 @@ public:
                        CartesianMap3D,
                        FFT3D
                       };
+
+    void stop() {QMutexLocker locker(&mutex); stopped=true; condition.wakeAll();}
 
 
     TProcessType processType() {return FProcessType;}
@@ -123,6 +138,11 @@ public:
     virtual int FFT3D_n1() {return 0;}
     virtual int FFT3D_n2() {return 0;}
 
+
+    QMutex mutex;
+    QWaitCondition condition;
+    bool volatile stopped;
+
 public slots:
     void setApplyMode(int ap) {FApplyMode=ap;}
     void setApplyIndex(int i) {FApplyIndex=i;}
@@ -137,6 +157,7 @@ private:
     QString FErrorMessage;
     int FApplyIndex;
     int FApplyMode;
+
 
 };
 
