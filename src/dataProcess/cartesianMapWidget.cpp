@@ -89,11 +89,16 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
     QProgressDialog *progressDialog = new QProgressDialog("Processing cartesian map...",
-                                                          QString(), 0, ancestor()->FID_2D->al());
-    progressDialog->setWindowModality(Qt::WindowModal);
+                                                          "Cancel", 0, ancestor()->FID_2D->al());
+    //progressDialog->setWindowModality(Qt::WindowModal);
     progressDialog->setMinimumDuration(100);
 
-    connect(cartesianMap3D,SIGNAL(currentCount(int)), progressDialog, SLOT(setValue(int)));
+
+    connect(progressDialog, SIGNAL(canceled()), cartesianMap3D, SLOT(cancel()));
+
+
+
+    connect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog, SLOT(setValue(int)));
 
     if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
@@ -102,18 +107,23 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
         return;
     }
 
-
     bool ok=cartesianMap3D->process(ancestor()->FID_2D);
+
     QEventLoop loop;
-    loop.connect(cartesianMap3D, SIGNAL(complete()), &loop, SLOT(quit()));
+    loop.connect(cartesianMap3D, SIGNAL(calcComplete()), &loop, SLOT(quit()));
+    loop.connect(cartesianMap3D, SIGNAL(canceled()), &loop, SLOT(quit()));
     loop.exec();
 
-    disconnect(cartesianMap3D,SIGNAL(currentCount(int)), progressDialog, SLOT(setValue(int)));
+    disconnect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog, SLOT(setValue(int)));
     delete progressDialog;
 
+    if(cartesianMap3D->wasCanceled)
+    {
+        QMessageBox::warning(this,"","Canceled.");
+        delete cartesianMap3D;
+        return;
+    }
 
-
-//    if(!cartesianMap3D->process(ancestor()->FID_2D))
     if(!ok)
     {
       QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
@@ -121,8 +131,11 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
       return;
     }
 
-    QStringList sl=thetaPhiTextEdit->toPlainText().split('\n');
+  //  QStringList sl=thetaPhiTextEdit->toPlainText().split('\n');
 
+    QEventLoop loop2;
+    loop2.connect(cartesianMap3D, SIGNAL(copyComplete()), &loop, SLOT(quit()));
+    loop.exec();
 
     addOperation(cartesianMap3D);
 

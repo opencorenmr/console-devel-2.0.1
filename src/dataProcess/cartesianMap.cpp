@@ -287,8 +287,7 @@ void TCartesianMap3D::run()
   {
     if(stopped) return;
 
-
-
+    emit calcCount(0);
 
     int nRow=FID_2D->FID.size();  //qDebug() << QString(Q_FUNC_INFO) << "nRow: " <<nRow;
     int nCol=FID_2D->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
@@ -300,36 +299,27 @@ void TCartesianMap3D::run()
         return;
     }
     // We introduce a new TFID_2D class, named "helpFID2D", and copy data
-    // In addition, we calculate the average value (rOrigin, iOrigin) at the origin, which will be used below.
     TFID_2D *helpFID2D = new TFID_2D;
     helpFID2D->FID.clear();
+    //
+    // We make a (nCol x nCol) x nCol matrix
+    //
+    int arrayLength=nCol*nCol;
+    for(int k=0; k<arrayLength; k++)
+    {
+        helpFID2D->FID.append(new TFID(nCol));
+        helpFID2D->FID.last()->setEmpty(false);
+    }
+
+    // We calculate the average value (rOrigin, iOrigin) at the origin, which will be used below.
     double rOrigin=0, iOrigin=0;
     for(int k=0; k<nRow; k++)
     {
-        helpFID2D->FID.append(new TFID(nCol));
-        for(int i=0; i<nRow; i++)
-        {
-            helpFID2D->FID[k]->real->sig[i] = FID_2D->FID.at(k)->real->sig.at(i);
-            helpFID2D->FID[k]->imag->sig[i] = FID_2D->FID.at(k)->imag->sig.at(i);
-        }
-        helpFID2D->FID.last()->updateAbs();
         rOrigin += FID_2D->FID.at(k)->real->sig.at(0);
         iOrigin += FID_2D->FID.at(k)->imag->sig.at(0);
     }
     rOrigin /= nRow;
     iOrigin /= nRow;
-
-
-    //
-    // We clear the content of fid_2d, and then make a (nCol x nCol) x nCol matrix
-    //
-    FID_2D->FID.clear();
-    int arrayLength=nCol*nCol;
-    for(int k=0; k<arrayLength; k++)
-    {
-        FID_2D->FID.append(new TFID(nCol));
-        FID_2D->FID.last()->setEmpty(false);
-    }
 
     // We make tables
     setLength1D(nCol); // It calls generateTables();
@@ -339,21 +329,23 @@ void TCartesianMap3D::run()
     //
     for(int x=0; x<nCol; x++)
     {
-      emit currentCount(x);
+      emit calcCount(x);
+      if(stopped) return;
+
     for(int y=0; y<nCol; y++)
     {
     for(int z=0; z<nCol; z++)
     {
-      if((int) ceil(rTable.at(x).at(y).at(z)) > FID_2D->al()-1) // Outside the sphere -> zero
+      if((int) ceil(rTable.at(x).at(y).at(z)) > nCol) // Outside the sphere -> zero
       {
-          FID_2D->FID[x+z*nCol]->real->sig[y]=0.0;
-          FID_2D->FID[x+z*nCol]->imag->sig[y]=0.0;
+          helpFID2D->FID[x+z*nCol]->real->sig[y]=0.0;
+          helpFID2D->FID[x+z*nCol]->imag->sig[y]=0.0;
           qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
       }
       else if(rTable.at(x).at(y).at(z)==0) // Origin
       {
-          FID_2D->FID[x+z*nCol]->real->sig[y]=rOrigin;
-          FID_2D->FID[x+z*nCol]->imag->sig[y]=iOrigin;
+          helpFID2D->FID[x+z*nCol]->real->sig[y]=rOrigin;
+          helpFID2D->FID[x+z*nCol]->imag->sig[y]=iOrigin;
           qDebug() << "TCartesianMap3D::process: Origin found at (" << x <<"," << y << "," << z << ").";
       }
       else
@@ -363,12 +355,12 @@ void TCartesianMap3D::run()
           checkParallel(polarAngleTable.at(x).at(y).at(z));
           if(parallelIndex()>-1) // Parallel data found -> no need to "laterally" interpolate
           {
-            d1=helpFID2D->FID.at(parallelIndex())->real->sig.at((int) floor(r));
-            d2=helpFID2D->FID.at(parallelIndex())->real->sig.at((int) ceil(r));
-            e1=helpFID2D->FID.at(parallelIndex())->imag->sig.at((int) floor(r));
-            e2=helpFID2D->FID.at(parallelIndex())->imag->sig.at((int) ceil(r));
+            d1=FID_2D->FID.at(parallelIndex())->real->sig.at((int) floor(r));
+            d2=FID_2D->FID.at(parallelIndex())->real->sig.at((int) ceil(r));
+            e1=FID_2D->FID.at(parallelIndex())->imag->sig.at((int) floor(r));
+            e2=FID_2D->FID.at(parallelIndex())->imag->sig.at((int) ceil(r));
 
-            // qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
+            qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
           }
           else // Both lateral and radial interpolation
           {
@@ -382,51 +374,64 @@ void TCartesianMap3D::run()
             // qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
 
             double da,db,dc,ea,eb,ec;
-            da=helpFID2D->FID.at(FPointAIndex)->real->sig.at((int) floor(r));
-            db=helpFID2D->FID.at(FPointBIndex)->real->sig.at((int) floor(r));
-            dc=helpFID2D->FID.at(FPointCIndex)->real->sig.at((int) floor(r));
+            da=FID_2D->FID.at(FPointAIndex)->real->sig.at((int) floor(r));
+            db=FID_2D->FID.at(FPointBIndex)->real->sig.at((int) floor(r));
+            dc=FID_2D->FID.at(FPointCIndex)->real->sig.at((int) floor(r));
             d1=FWeightA*da + FWeightB*db + FWeightC*dc;
-            da=helpFID2D->FID.at(FPointAIndex)->real->sig.at((int) ceil(r));
-            db=helpFID2D->FID.at(FPointBIndex)->real->sig.at((int) ceil(r));
-            dc=helpFID2D->FID.at(FPointCIndex)->real->sig.at((int) ceil(r));
+            da=FID_2D->FID.at(FPointAIndex)->real->sig.at((int) ceil(r));
+            db=FID_2D->FID.at(FPointBIndex)->real->sig.at((int) ceil(r));
+            dc=FID_2D->FID.at(FPointCIndex)->real->sig.at((int) ceil(r));
             d2=FWeightA*da + FWeightB*db + FWeightC*dc;
 
-            ea=helpFID2D->FID.at(FPointAIndex)->imag->sig.at((int) floor(r));
-            eb=helpFID2D->FID.at(FPointBIndex)->imag->sig.at((int) floor(r));
-            ec=helpFID2D->FID.at(FPointCIndex)->imag->sig.at((int) floor(r));
+            ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at((int) floor(r));
+            eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at((int) floor(r));
+            ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at((int) floor(r));
             e1=FWeightA*ea + FWeightB*eb + FWeightC*ec;
-            ea=helpFID2D->FID.at(FPointAIndex)->imag->sig.at((int) ceil(r));
-            eb=helpFID2D->FID.at(FPointBIndex)->imag->sig.at((int) ceil(r));
-            ec=helpFID2D->FID.at(FPointCIndex)->imag->sig.at((int) ceil(r));
+            ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at((int) ceil(r));
+            eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at((int) ceil(r));
+            ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at((int) ceil(r));
             e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
 
           }
           // We need to "radially" interpolate!
-          FID_2D->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
-          FID_2D->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
-
+          helpFID2D->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
+          helpFID2D->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
 
       }
 
-
-
-
-
     }
     }
     }
 
-    // We update the absolute values
-    for(int k=0; k<FID_2D->FID.size(); k++) FID_2D->FID[k]->updateAbs();
+
+    emit calcComplete();
+
+
+    //
+    // We clear the content of FID_2D,
+    // make a (nCol x nCol) x nCol matrix,
+    // and copy data from helpFID2D
+    //
+    FID_2D->FID.clear();
+    for(int k=0; k<arrayLength; k++)
+    {
+        emit copyCount(k);
+        FID_2D->FID.append(new TFID(nCol));
+        FID_2D->FID.last()->setEmpty(false);
+        for(int j=0; j<nCol; j++)
+        {
+           FID_2D->FID[k]->real->sig[j]=helpFID2D->FID.at(k)->real->sig.at(j);
+           FID_2D->FID[k]->imag->sig[j]=helpFID2D->FID.at(k)->imag->sig.at(j);
+        } // j
+        // We update the absolute values
+        FID_2D->FID[k]->updateAbs();
+    }
 
     FID_2D->setCurrentFID(0);
+    emit copyComplete();
 
     delete helpFID2D;
 
-
-
-
-    emit complete();
 
 
     mutex.lock();
@@ -444,6 +449,7 @@ bool TCartesianMap3D::process(TFID_2D *fid_2d)
 
     QMutexLocker locker(&mutex);
     stopped=false;
+    wasCanceled=false;
     if(!isRunning())
     {
       start(HighPriority);

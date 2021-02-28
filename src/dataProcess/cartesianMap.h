@@ -105,7 +105,7 @@ public:
 
 class TCartesianMap3D : public TProcessElement
 {
-    Q_OBJECT
+    Q_OBJECT // required for signals and slots
 public:
     TCartesianMap3D();
     ~TCartesianMap3D();
@@ -146,9 +146,21 @@ public:
     int southWestIndex() {return FSouthWestIndex;}
     int southEastIndex() {return FSouthEastIndex;}
 
+    bool wasCanceled;
 signals:
-    void currentCount(int);
-    void complete();
+    void calcCount(int);
+    void copyCount(int);
+    void calcComplete();
+    void copyComplete();
+    void canceled();
+
+public slots:
+    void cancel()
+    {
+       stopped=true;
+       wasCanceled=true;
+       emit canceled();
+    }
 
 private:
 
