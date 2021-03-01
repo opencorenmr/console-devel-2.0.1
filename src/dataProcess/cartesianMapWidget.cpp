@@ -87,14 +87,14 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     }
 
-    emit isIdle(false);
+    emit isCartesianMapIdle(false);
 
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
     if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
         QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
         delete cartesianMap3D;
-        emit isIdle(true);
+        emit isCartesianMapIdle(true);
         return;
     }
 
@@ -137,7 +137,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     {
         QMessageBox::warning(this,"Cartesian map","Canceled.");
         delete cartesianMap3D;
-        emit isIdle(true);
+        emit isCartesianMapIdle(true);
         return;
     }
 
@@ -145,7 +145,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     {
       QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
       delete cartesianMap3D;
-      emit isIdle(true);
+      emit isCartesianMapIdle(true);
       return;
     }
 
@@ -165,7 +165,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
 
     addOperation(cartesianMap3D);
-    emit isIdle(true);
+    emit isCartesianMapIdle(true);
 
 }
 
