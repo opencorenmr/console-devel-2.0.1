@@ -87,40 +87,57 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     }
 
+    emit isIdle(false);
+
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
-    QProgressDialog *progressDialog = new QProgressDialog("Processing cartesian map...",
-                                                          "Cancel", 0, ancestor()->FID_2D->al());
-    //progressDialog->setWindowModality(Qt::WindowModal);
-    progressDialog->setMinimumDuration(100);
-
-
-    connect(progressDialog, SIGNAL(canceled()), cartesianMap3D, SLOT(cancel()));
-
-
-
-    connect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog, SLOT(setValue(int)));
-
     if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
         QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
         delete cartesianMap3D;
+        emit isIdle(true);
         return;
     }
 
+    QProgressDialog *progressDialog0 = new QProgressDialog("Preparing cartesian map...",
+                                                          QString(), 0, ancestor()->FID_2D->FID.at(0)->al());
+
+    progressDialog0->setMinimumDuration(10);
+    connect(cartesianMap3D,SIGNAL(tableCount(int)), progressDialog0, SLOT(setValue(int)));
+
+
+
     bool ok=cartesianMap3D->process(ancestor()->FID_2D);
 
-    QEventLoop loop;
-    loop.connect(cartesianMap3D, SIGNAL(calcComplete()), &loop, SLOT(quit()));
-    loop.connect(cartesianMap3D, SIGNAL(canceled()), &loop, SLOT(quit()));
-    loop.exec();
+    QEventLoop loop0;
+    loop0.connect(cartesianMap3D, SIGNAL(genTableComplete()), & loop0, SLOT(quit()));
+    loop0.exec();
 
-    disconnect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog, SLOT(setValue(int)));
-    delete progressDialog;
+    disconnect(cartesianMap3D,SIGNAL(tableCount(int)), progressDialog0, SLOT(setValue(int)));
+    delete progressDialog0;
+
+
+
+    QProgressDialog *progressDialog1 = new QProgressDialog("Processing cartesian map...",
+                                                          "Cancel", 0, ancestor()->FID_2D->FID.at(0)->al());
+    progressDialog1->setMinimumDuration(10);
+
+    connect(progressDialog1, SIGNAL(canceled()), cartesianMap3D, SLOT(cancel()));
+    connect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog1, SLOT(setValue(int)));
+
+
+    QEventLoop loop1;
+    loop1.connect(cartesianMap3D, SIGNAL(calcComplete()), &loop1, SLOT(quit()));
+    loop1.connect(cartesianMap3D, SIGNAL(canceled()), &loop1, SLOT(quit()));
+    loop1.exec();
+
+    disconnect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog1, SLOT(setValue(int)));
+    delete progressDialog1;
 
     if(cartesianMap3D->wasCanceled)
     {
-        QMessageBox::warning(this,"","Canceled.");
+        QMessageBox::warning(this,"Cartesian map","Canceled.");
         delete cartesianMap3D;
+        emit isIdle(true);
         return;
     }
 
@@ -128,16 +145,27 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     {
       QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
       delete cartesianMap3D;
+      emit isIdle(true);
       return;
     }
 
   //  QStringList sl=thetaPhiTextEdit->toPlainText().split('\n');
+    QProgressDialog *progressDialog2 = new QProgressDialog("Applying change ...",
+                                                          QString(), 0,
+                                                          ancestor()->FID_2D->FID.at(0)->al()*ancestor()->FID_2D->FID.at(0)->al());
+
+    progressDialog2->setMinimumDuration(10);
+    connect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
 
     QEventLoop loop2;
-    loop2.connect(cartesianMap3D, SIGNAL(copyComplete()), &loop, SLOT(quit()));
-    loop.exec();
+    loop2.connect(cartesianMap3D, SIGNAL(copyComplete()), &loop2, SLOT(quit()));
+    loop2.exec();
+    disconnect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
+    delete progressDialog2;
+
 
     addOperation(cartesianMap3D);
+    emit isIdle(true);
 
 }
 

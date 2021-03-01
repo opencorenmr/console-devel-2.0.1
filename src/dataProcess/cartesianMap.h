@@ -148,6 +148,8 @@ public:
 
     bool wasCanceled;
 signals:
+    void tableCount(int);
+    void genTableComplete();
     void calcCount(int);
     void copyCount(int);
     void calcComplete();

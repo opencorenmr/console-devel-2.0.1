@@ -506,11 +506,13 @@ void TProcessPanelWidget::createPanel()
    // mainLayout->addWidget(console);
 
     setLayout(mainLayout);
+
 }
 
 void TProcessPanelWidget::createConnections()
 {
 
+    connect(cartesianMapWidget,SIGNAL(isIdle(bool)),stackedWidget,SLOT(setEnabled(bool)));
     connect(operationListWidget,SIGNAL(currentRowChanged(int)),stackedWidget,SLOT(setCurrentIndex(int)));
       operationListWidget->setCurrentRow(0);
 

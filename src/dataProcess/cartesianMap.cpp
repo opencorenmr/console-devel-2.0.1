@@ -325,7 +325,44 @@ void TCartesianMap3D::run()
     iOrigin /= nRow;
 
     // We make tables
-    setLength1D(nCol); // It calls generateTables();
+    FLength1D=nCol;
+    while(!thetaTable.isEmpty()) thetaTable.removeLast();
+    while(!phiTable.isEmpty()) phiTable.removeLast();
+    while(!rTable.isEmpty()) rTable.removeLast();
+    while(!polarAngleTable.isEmpty()) polarAngleTable.removeLast();
+
+    for(int x=0; x<length1D(); x++)
+    {
+        emit tableCount(x);
+
+        rTable.append(QList<QList<double> >());
+        thetaTable.append(QList<QList<double> >());
+        phiTable.append(QList<QList<double> >());
+        polarAngleTable.append(QList<QList<TPolarAngle> >());
+        for(int y=0; y<length1D(); y++)
+        {
+        //    cartesianMapTable[x].append(QList<QPoint>());
+            rTable[x].append(QList<double>());
+            thetaTable[x].append(QList<double>());
+            phiTable[x].append(QList<double>());
+            polarAngleTable[x].append(QList<TPolarAngle>());
+            for(int z=0; z<length1D(); z++)
+            {
+          //      cartesianMapTable[x][y].append(QPoint(x+z*length1D(),y));
+                int h=length1D() / 2;
+                int z2=z-h;
+                int x2=x-h;
+                int y2=y-h;
+                polarAngleTable[x][y].append(TPolarAngle(x2,y2,z2));
+                rTable[x][y].append(sqrt(x2*x2+y2*y2+z2*z2));
+                thetaTable[x][y].append(polarAngleTable[x][y][z].theta());
+                phiTable[x][y].append(polarAngleTable[x][y][z].phi());
+
+            } //
+        } //
+    } //
+
+    emit genTableComplete();
 
     //
     // Interpolation!
