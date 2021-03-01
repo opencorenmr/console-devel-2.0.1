@@ -217,9 +217,12 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
   FPointBIndex=bIndex;
   FPointCIndex=cIndex;
 
-  double rpa=TPolarAngle::vector3D(origPolarAngles.at(aIndex)).length();
-  double rpb=TPolarAngle::vector3D(origPolarAngles.at(bIndex)).length();
-  double rpc=TPolarAngle::vector3D(origPolarAngles.at(cIndex)).length();
+//  double rpa=TPolarAngle::vector3D(origPolarAngles.at(aIndex)).length();
+//  double rpb=TPolarAngle::vector3D(origPolarAngles.at(bIndex)).length();
+//  double rpc=TPolarAngle::vector3D(origPolarAngles.at(cIndex)).length();
+  double rpa=pa.length();
+  double rpb=pb.length();
+  double rpc=pc.length();
 
   double rps= rpa*rpb + rpb*rpc + rpc*rpa;
   if(rps>0)
