@@ -28,7 +28,7 @@ public:
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
 
 signals:
-    void isIdle(int);
+    void isCartesianMapIdle(bool);
 
 public slots:
     void onLoadAngleTablePushButtonClicked();
