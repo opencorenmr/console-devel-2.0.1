@@ -395,14 +395,23 @@ void TCartesianMap3D::run()
           checkParallel(polarAngleTable.at(x).at(y).at(z));
           if(parallelIndex()>-1) // Parallel data found -> no need to "laterally" interpolate
           {
-            d1=FID_2D->FID.at(parallelIndex())->real->sig.at((int) floor(r));
-            d2=FID_2D->FID.at(parallelIndex())->real->sig.at((int) ceil(r));
-            e1=FID_2D->FID.at(parallelIndex())->imag->sig.at((int) floor(r));
-            e2=FID_2D->FID.at(parallelIndex())->imag->sig.at((int) ceil(r));
-
             qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
+            if(fabs(round(r)-r)<DBL_EPSILON)
+            {
+              helpFID2D->FID[x+z*nCol]->real->sig[y] = FID_2D->FID.at(parallelIndex())->real->sig.at((int) r);
+              helpFID2D->FID[x+z*nCol]->imag->sig[y] = FID_2D->FID.at(parallelIndex())->imag->sig.at((int) r);
+            }
+            else
+            {
+              d1=FID_2D->FID.at(parallelIndex())->real->sig.at((int) floor(r));
+              d2=FID_2D->FID.at(parallelIndex())->real->sig.at((int) ceil(r));
+              e1=FID_2D->FID.at(parallelIndex())->imag->sig.at((int) floor(r));
+              e2=FID_2D->FID.at(parallelIndex())->imag->sig.at((int) ceil(r));
+              helpFID2D->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
+              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
+            }
           }
-          else // Both lateral and radial interpolation
+          else // lateral interpolation
           {
                // We try to find 3 directions from origPolarAngles
             if(!findPointsABC(polarAngleTable.at(x).at(y).at(z)))
@@ -413,29 +422,46 @@ void TCartesianMap3D::run()
 
             // qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
 
+            // qDebug() << FWeightA << FWeightB << FWeightC;
+
             double da,db,dc,ea,eb,ec;
-            da=FID_2D->FID.at(FPointAIndex)->real->sig.at((int) floor(r));
-            db=FID_2D->FID.at(FPointBIndex)->real->sig.at((int) floor(r));
-            dc=FID_2D->FID.at(FPointCIndex)->real->sig.at((int) floor(r));
-            d1=FWeightA*da + FWeightB*db + FWeightC*dc;
-            da=FID_2D->FID.at(FPointAIndex)->real->sig.at((int) ceil(r));
-            db=FID_2D->FID.at(FPointBIndex)->real->sig.at((int) ceil(r));
-            dc=FID_2D->FID.at(FPointCIndex)->real->sig.at((int) ceil(r));
-            d2=FWeightA*da + FWeightB*db + FWeightC*dc;
+            if(fabs(round(r)-r)<DBL_EPSILON)
+            {
+                da=FID_2D->FID.at(FPointAIndex)->real->sig.at((int) r);
+                db=FID_2D->FID.at(FPointBIndex)->real->sig.at((int) r);
+                dc=FID_2D->FID.at(FPointCIndex)->real->sig.at((int) r);
+                helpFID2D->FID[x+z*nCol]->real->sig[y] = FWeightA*da + FWeightB*db + FWeightC*dc;
+                ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at((int) r);
+                eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at((int) r);
+                ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at((int) r);
+                helpFID2D->FID[x+z*nCol]->imag->sig[y] = FWeightA*ea + FWeightB*eb + FWeightC*ec;
+            }
+            else // We need to "radially" interpolate!
+            {
+              da=FID_2D->FID.at(FPointAIndex)->real->sig.at((int) floor(r));
+              db=FID_2D->FID.at(FPointBIndex)->real->sig.at((int) floor(r));
+              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at((int) floor(r));
+              d1=FWeightA*da + FWeightB*db + FWeightC*dc;
+              da=FID_2D->FID.at(FPointAIndex)->real->sig.at((int) ceil(r));
+              db=FID_2D->FID.at(FPointBIndex)->real->sig.at((int) ceil(r));
+              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at((int) ceil(r));
+              d2=FWeightA*da + FWeightB*db + FWeightC*dc;
 
-            ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at((int) floor(r));
-            eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at((int) floor(r));
-            ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at((int) floor(r));
-            e1=FWeightA*ea + FWeightB*eb + FWeightC*ec;
-            ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at((int) ceil(r));
-            eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at((int) ceil(r));
-            ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at((int) ceil(r));
-            e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
+              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at((int) floor(r));
+              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at((int) floor(r));
+              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at((int) floor(r));
+              e1=FWeightA*ea + FWeightB*eb + FWeightC*ec;
+              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at((int) ceil(r));
+              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at((int) ceil(r));
+              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at((int) ceil(r));
+              e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
+              helpFID2D->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
+              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
 
+            } // else
           }
-          // We need to "radially" interpolate!
-          helpFID2D->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
-          helpFID2D->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
+
+
 
       }
 

@@ -149,20 +149,19 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
       return;
     }
 
-  //  QStringList sl=thetaPhiTextEdit->toPlainText().split('\n');
-    QProgressDialog *progressDialog2 = new QProgressDialog("Applying change ...",
-                                                          QString(), 0,
-                                                          ancestor()->FID_2D->FID.at(0)->al()*ancestor()->FID_2D->FID.at(0)->al());
+//    QProgressDialog *progressDialog2 = new QProgressDialog("Applying change ...",
+//                                                          QString(), 0,
+//                                                          ancestor()->FID_2D->FID.at(0)->al()*ancestor()->FID_2D->FID.at(0)->al());
 
-    progressDialog2->setMinimumDuration(10);
-    connect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
+//    progressDialog2->setMinimumDuration(10);
+//    connect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
 
-    QEventLoop loop2;
-    loop2.connect(cartesianMap3D, SIGNAL(copyComplete()), &loop2, SLOT(quit()));
-    loop2.exec();
-    disconnect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
-    delete progressDialog2;
-
+//    QEventLoop loop2;
+//    loop2.connect(cartesianMap3D, SIGNAL(copyComplete()), &loop2, SLOT(quit()));
+//    loop2.exec();
+//    disconnect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
+//    delete progressDialog2;
+//
 
     addOperation(cartesianMap3D);
     emit isCartesianMapIdle(true);
