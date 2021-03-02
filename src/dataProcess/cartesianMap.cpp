@@ -457,7 +457,6 @@ void TCartesianMap3D::run()
               e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
               helpFID2D->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
               helpFID2D->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
-
             } // else
           }
 

@@ -156,9 +156,9 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 //    progressDialog2->setMinimumDuration(10);
 //    connect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
 
-//    QEventLoop loop2;
-//    loop2.connect(cartesianMap3D, SIGNAL(copyComplete()), &loop2, SLOT(quit()));
-//    loop2.exec();
+    QEventLoop loop2;
+    loop2.connect(cartesianMap3D, SIGNAL(copyComplete()), &loop2, SLOT(quit()));
+    loop2.exec();
 //    disconnect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
 //    delete progressDialog2;
 //
