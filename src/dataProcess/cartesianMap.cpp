@@ -268,7 +268,7 @@ int TCartesianMap3D::closestPolarAngleIndex(TPolarAngle polarAngle)
     maxDotP=dotP;
     index=0;
 
-    for(int k=0; k<origPolarAngles.size(); k++)
+    for(int k=1; k<origPolarAngles.size(); k++)
     {
         v2=TPolarAngle::vector3D(origPolarAngles.at(k));
         dotP=QVector3D::dotProduct(v1,v2);
