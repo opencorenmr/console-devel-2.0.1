@@ -7,7 +7,7 @@
 #define BUILD_NUMBER 20210304
 #define RELEASE_YEAR 2021
 #define RELEASE_MONTH "Mar"
-#define RELEASE_DATE 2
+#define RELEASE_DATE 4
 
 int main(int argc, char *argv[])
 {
