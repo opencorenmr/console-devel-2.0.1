@@ -316,6 +316,10 @@ void TCartesianMap3D::run()
     for(int z=0; z<nCol; z++)
     {
       emit calcCount(z);
+      emit info("Processing ... ("
+              + QString::number(z) + "/"
+              + QString::number(nCol) + ")"
+              );
       if(stopped) return;
 
     for(int y=0; y<nCol; y++)
@@ -326,13 +330,24 @@ void TCartesianMap3D::run()
       {
           helpFID2D->FID[x+z*nCol]->real->sig[y]=0.0;
           helpFID2D->FID[x+z*nCol]->imag->sig[y]=0.0;
-          qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
+          emit info("Data zero was set at ("
+                + QString::number(x) + ","
+                + QString::number(y) + ","
+                + QString::number(z) + ")"
+                );
+
+   //       qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
       }
       else if(rTable.at(x).at(y).at(z)==0) // Origin
       {
           helpFID2D->FID[x+z*nCol]->real->sig[y]=rOrigin;
           helpFID2D->FID[x+z*nCol]->imag->sig[y]=iOrigin;
-          qDebug() << "TCartesianMap3D::process: Origin found at (" << x <<"," << y << "," << z << ").";
+          emit info("Origin found at ("
+                + QString::number(x) + ","
+                + QString::number(y) + ","
+                + QString::number(z) + ")"
+                );
+          // qDebug() << "TCartesianMap3D::process: Origin found at (" << x <<"," << y << "," << z << ").";
       }
       else
       {
@@ -344,7 +359,12 @@ void TCartesianMap3D::run()
           checkParallel(polarAngleTable.at(x).at(y).at(z));
           if(parallelIndex()>-1) // Parallel data found -> no need to "laterally" interpolate
           {
-            qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
+              emit info("Parallel axis found at ("
+                    + QString::number(x) + ","
+                    + QString::number(y) + ","
+                    + QString::number(z) + ")"
+                    );
+            // qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
             if(fabs(rr-r)<DBL_EPSILON)
             {
               helpFID2D->FID[x+z*nCol]->real->sig[y] = FID_2D->FID.at(parallelIndex())->real->sig.at(rr);
@@ -362,7 +382,7 @@ void TCartesianMap3D::run()
           }
           else // lateral interpolation
           {
-               // We try to find 3 directions from origPolarAngles
+            // We try to find 3 directions from origPolarAngles
             if(!findPointsABC(polarAngleTable.at(x).at(y).at(z)))
             {
                 errorQ=true;
@@ -442,15 +462,15 @@ void TCartesianMap3D::run()
     }
 
     FID_2D->setCurrentFID(0);
-    emit copyComplete();
 
     delete helpFID2D;
 
-
+    emit copyComplete();
 
     mutex.lock();
     condition.wait(&mutex); // We let the thread sleep.
     mutex.unlock();
+
   } // foever
 }
 

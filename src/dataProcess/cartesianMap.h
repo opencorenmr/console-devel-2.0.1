@@ -132,6 +132,7 @@ public:
 
     bool wasCanceled;
 signals:
+    void info(QString);
     void tableCount(int);
     void genTableComplete();
     void calcCount(int);

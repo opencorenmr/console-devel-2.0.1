@@ -98,10 +98,11 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
         return;
     }
 
-    QProgressDialog *progressDialog0 = new QProgressDialog("Preparing cartesian map...",
+    QProgressDialog *progressDialog0 = new QProgressDialog("Preparing...",
                                                           QString(), 0, ancestor()->FID_2D->FID.at(0)->al());
 
     progressDialog0->setMinimumDuration(10);
+    progressDialog0->setWindowTitle("Cartesian map");
     connect(cartesianMap3D,SIGNAL(tableCount(int)), progressDialog0, SLOT(setValue(int)));
 
 
@@ -117,13 +118,15 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
 
 
-    QProgressDialog *progressDialog1 = new QProgressDialog("Processing cartesian map...",
+    QString qs1="Processing...";
+    QProgressDialog *progressDialog1 = new QProgressDialog(qs1,
                                                           "Cancel", 0, ancestor()->FID_2D->FID.at(0)->al());
     progressDialog1->setMinimumDuration(10);
+    progressDialog1->setWindowTitle("Cartesian map");
 
     connect(progressDialog1, SIGNAL(canceled()), cartesianMap3D, SLOT(cancel()));
     connect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog1, SLOT(setValue(int)));
-
+    connect(cartesianMap3D,SIGNAL(info(QString)), progressDialog1, SLOT(setLabelText(QString)));
 
     QEventLoop loop1;
     loop1.connect(cartesianMap3D, SIGNAL(calcComplete()), &loop1, SLOT(quit()));
@@ -131,6 +134,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     loop1.exec();
 
     disconnect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog1, SLOT(setValue(int)));
+    disconnect(cartesianMap3D,SIGNAL(info(QString)), progressDialog1, SLOT(setLabelText(QString)));
     delete progressDialog1;
 
     if(cartesianMap3D->wasCanceled)
@@ -149,6 +153,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
       return;
     }
 
+
 //    QProgressDialog *progressDialog2 = new QProgressDialog("Applying change ...",
 //                                                          QString(), 0,
 //                                                          ancestor()->FID_2D->FID.at(0)->al()*ancestor()->FID_2D->FID.at(0)->al());
@@ -161,9 +166,10 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     loop2.exec();
 //    disconnect(cartesianMap3D,SIGNAL(copyCount(int)), progressDialog2, SLOT(setValue(int)));
 //    delete progressDialog2;
-//
+
 
     addOperation(cartesianMap3D);
+
     emit isCartesianMapIdle(true);
 
 }
