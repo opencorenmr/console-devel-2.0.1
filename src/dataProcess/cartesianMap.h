@@ -18,17 +18,8 @@ public:
         z=cos(t);
         x=sin(t)*cos(p);
         y=sin(t)*sin(p);
-        double r=sqrt(x*x+y*y+z*z);
-        if(r>0)
-        {
-            setTheta(acos(z/r));
-            setPhi(atan2(y,x));
-        }
-        else
-        {
-            setTheta(0);
-            setPhi(0);
-        }
+        FTheta=acos(z);
+        FPhi=atan2(y,x);
 
     }
 
@@ -119,14 +110,8 @@ public:
     QString command();
 
     int length1D() {return FLength1D;}
-    void setLength1D(int al);
-    void generateCartesianMapTable();
- //   QList<QList<QList<QPoint> > > cartesianMapTable;
-    QList<QList<QList<double> > > thetaTable;
-    QList<QList<QList<double> > > phiTable;
     QList<QList<QList<double> > > rTable;
     QList<QList<QList<TPolarAngle> > > polarAngleTable;
-    void generateTables();
 
     void checkParallel(TPolarAngle pa);
     bool findPointsABC(TPolarAngle p);
@@ -134,7 +119,6 @@ public:
     QList<TPolarAngle> origPolarAngles;
     QString origPolarAnglesStr();
     bool setOrigPolarAngles(QString qs);
-    // TODO: setOrigPolarAngles and/or readOrigPolarAngles
     int closestPolarAngleIndex(TPolarAngle polarAngle);
 
 
@@ -167,7 +151,6 @@ public slots:
 private:
 
     TFID_2D *FID_2D;
-//    void prepareCalc();
     void run();
     void clearIndices();
 
