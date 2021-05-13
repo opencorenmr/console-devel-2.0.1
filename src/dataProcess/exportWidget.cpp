@@ -351,7 +351,7 @@ void KExportWidget::exportAbs(){
             out << ancestor()->FID_2D->FID.at(i)->abs->sig.at(j);
             if(j!=ancestor()->FID_2D->al()-1){out << " ";}
         }
-        out << Qt::endl;
+        out << '\n'; // Qt::endl;
     }
 
     file.close();
