@@ -400,7 +400,7 @@ void TProcessPanelWidget::createWidgets()
                                     << "Create FID"
                                     << "Math"
                                     << "Peak"
-                                    << "Interpolate(tmp)"
+                                    << "Cartesian Map (experimental)"
                                     );
 
       // Return Values (Array included)
@@ -460,11 +460,14 @@ void TProcessPanelWidget::createWidgets()
     NutationWidget = new KNutationWidget;
       NutationWidget->setAncestor(this);
 
-    interpolateWidget = new KInterpolateWidget;
-      interpolateWidget->setAncestor(this);
+//    interpolateWidget = new KInterpolateWidget;
+//      interpolateWidget->setAncestor(this);
 
     imageGenWidget = new TImageGenWidget;
       imageGenWidget->setAncestor(this);
+
+    cartesianMapWidget = new TCartesianMapWidget;
+      cartesianMapWidget->setAncestor(this);
 }
 
 void TProcessPanelWidget::createPanel()
@@ -489,7 +492,8 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(createFIDWidget);
     stackedWidget->addWidget(FIDMathWidget);
     stackedWidget->addWidget(peakPickWidget);
-    stackedWidget->addWidget(interpolateWidget);
+//    stackedWidget->addWidget(interpolateWidget);
+    stackedWidget->addWidget(cartesianMapWidget);
 
     QHBoxLayout *layout1 = new QHBoxLayout;
     //layout1->addWidget(new QLabel(tr("Operation")));
@@ -502,11 +506,13 @@ void TProcessPanelWidget::createPanel()
    // mainLayout->addWidget(console);
 
     setLayout(mainLayout);
+
 }
 
 void TProcessPanelWidget::createConnections()
 {
 
+    connect(cartesianMapWidget,SIGNAL(isCartesianMapIdle(bool)),stackedWidget,SLOT(setEnabled(bool)));
     connect(operationListWidget,SIGNAL(currentRowChanged(int)),stackedWidget,SLOT(setCurrentIndex(int)));
       operationListWidget->setCurrentRow(0);
 

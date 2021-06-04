@@ -34,6 +34,7 @@
 #include "peakPickWidget.h"
 #include "interpolateWidget.h"
 #include "imageGenWidget.h"
+#include "cartesianMapWidget.h"
 
 class TFIDPlotters;
 class TProcessFileWidget;
@@ -75,6 +76,7 @@ public:
     TImageGenWidget *imageGenWidget;
 
     TCreateFIDWidget *createFIDWidget;
+    TCartesianMapWidget *cartesianMapWidget;
 
     QString settingDirPath() {return FSettingDirPath;}
     void setSettingDirPath(QString qs);

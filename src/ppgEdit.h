@@ -30,7 +30,6 @@ public:
 
     TExpSettings *expSettings;
     TpulseProgram *ppg;
-    QStringList receiverCommands;
     QPushButton *ppgTransferButton;
     QSplitter *ppgCompilerMainSplitter;
     QSplitter *ppgCompilerRightSplitter;
@@ -94,6 +93,8 @@ private:
     TvariableTable *variableTable;
     TArrayWidget *arrayWidget;
     QStringList updatedCommands;
+    QStringList receiverCommands;
+
 
 };
 

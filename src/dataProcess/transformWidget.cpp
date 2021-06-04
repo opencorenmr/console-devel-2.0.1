@@ -17,8 +17,8 @@ TTransformWidget::TTransformWidget() : TProcessBase()
 void TTransformWidget::createWidgets()
 {
 
-    FFTButton=new QPushButton(tr("Transform"));
-    IFFTButton=new QPushButton(tr("Inversion"));
+    FFTButton=new QPushButton(tr("FFT"));
+    IFFTButton=new QPushButton(tr("Inverse FFT"));
 
     LaplaceCheckBox = new QCheckBox(tr("Laplace transformation"));
     LaplaceWidthDoubleSpinBox = new QDoubleSpinBox;
@@ -26,13 +26,19 @@ void TTransformWidget::createWidgets()
     LaplaceWidthDoubleSpinBox->setMaximum(1e100);
     LaplaceWidthDoubleSpinBox->setSuffix(" Hz");
 
-   // slowFTButton = new QPushButton(tr("slow FT"));
-   // slowIFTButton = new QPushButton(tr("slow inverse FT"));
-
     restoreToDefaultButton = new QPushButton(tr("Default"));
-
     restoreToDefault();
 
+    n1SpinBox=new QSpinBox;
+    n2SpinBox=new QSpinBox;
+    n1SpinBox->setMinimum(1);
+    n1SpinBox->setMaximum(65536);
+    n2SpinBox->setMinimum(1);
+    n2SpinBox->setMaximum(65536);
+    n1SpinBox->setValue(1);
+    n2SpinBox->setValue(1);
+
+    FFT3DButton=new QPushButton(tr("3D FFT"));
 }
 
 void TTransformWidget::restoreToDefault()
@@ -47,17 +53,28 @@ void TTransformWidget::createPanel()
     QVBoxLayout *vLayout1 = new QVBoxLayout(this);
 
     QGridLayout *gLayout1= new QGridLayout;
-    gLayout1->addWidget(FFTButton,0,0,2,1);
-    gLayout1->addWidget(IFFTButton,0,1,2,1);
-    gLayout1->addWidget(LaplaceCheckBox,2,0,1,2);
-    gLayout1->addWidget(LaplaceWidthDoubleSpinBox,3,1,1,1);
-    gLayout1->addWidget(restoreToDefaultButton,4,1,1,1);
+    gLayout1->addWidget(FFTButton,0,0,1,1);
+    gLayout1->addWidget(IFFTButton,0,1,1,1);
+    gLayout1->addWidget(LaplaceCheckBox,1,0,1,2);
+    gLayout1->addWidget(LaplaceWidthDoubleSpinBox,1,2,1,1);
+ //   gLayout1->addWidget(restoreToDefaultButton,2,1,1,1);
+    gLayout1->addWidget(applyModeWidget,2,0,1,3);
 
     QGroupBox *groupBox1 = new QGroupBox(tr("Fourier/Laplace Transformation"));
     groupBox1->setLayout(gLayout1);
 
+    QGridLayout *gLayout2 = new QGridLayout;
+    gLayout2->addWidget(new QLabel("Size (1st dimension)"), 0,0,1,1);
+    gLayout2->addWidget(n1SpinBox,0,1,1,1);
+    gLayout2->addWidget(new QLabel("Size (2nd dimension)"), 1,0,1,1);
+    gLayout2->addWidget(n2SpinBox,1,1,1,1);
+    gLayout2->addWidget(FFT3DButton,2,1,1,1);
+    QGroupBox *groupBox2 = new QGroupBox(tr("3D FFT"));
+    groupBox2->setLayout(gLayout2);
+
+
     vLayout1->addWidget(groupBox1);
-    vLayout1->addWidget(applyModeWidget);
+    vLayout1->addWidget(groupBox2);
     vLayout1->addStretch();
 
 }
@@ -70,7 +87,7 @@ void TTransformWidget::createConnections()
     connect(restoreToDefaultButton,SIGNAL(clicked()),this,SLOT(restoreToDefault()));
     connect(LaplaceCheckBox,SIGNAL(toggled(bool)),LaplaceWidthDoubleSpinBox,SLOT(setEnabled(bool)));
 
-
+    connect(FFT3DButton,SIGNAL(clicked()),this,SLOT(perform3DFFT()));
 }
 
 
@@ -201,3 +218,28 @@ void TTransformWidget::performIFFT()
 }
 
 
+void TTransformWidget::perform3DFFT()
+{
+   if(!isAncestorDefined()) return;
+   if(ancestor()->FID_2D->FID.isEmpty()) return;
+
+   bool ok=true;
+   TFFT3D *fft3d=new TFFT3D;
+   fft3d->FFT3D_setLengths(n1SpinBox->value(),n2SpinBox->value());
+
+   ok=fft3d->process(ancestor()->FID_2D);
+
+   if(!ok)
+   {
+       QMessageBox::warning(this,"3D FFT",fft3d->errorMessage());
+       delete fft3d;
+       return;
+   }
+
+   ancestor()->processOperations->processElements.append(fft3d);
+   ancestor()->updateProcessSettings();
+
+   ancestor()->plotters->update();
+
+
+}

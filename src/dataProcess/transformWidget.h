@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QSpinBox>
 
 
 #include "processBase.h"
@@ -22,7 +23,9 @@ public:
     QCheckBox *LaplaceCheckBox;
     QDoubleSpinBox *LaplaceWidthDoubleSpinBox;
 
-//    QPushButton *slowFTButton, *slowIFTButton;
+    QSpinBox *n1SpinBox, *n2SpinBox;
+    QPushButton *FFT3DButton;
+
 
 signals:
     void vOffsetRequest(double);
@@ -31,6 +34,7 @@ public slots:
     void performFFT();
     void performIFFT();
     void restoreToDefault();
+    void perform3DFFT();
 private:
 
     void createWidgets();
