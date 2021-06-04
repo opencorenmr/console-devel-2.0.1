@@ -735,7 +735,6 @@ void MainWindow::onRunStopButtonClicked()
     }
 
     if(!fpgaTerminal->ppgTransferred) return;
-    //fpgaTerminal->transferPPG(fpgaTerminal->ppg->receiverInfo.receiverCommands());
 
     //TODO:  RS or G
     if(scanModeComboBox->currentIndex()==0) fpgaTerminal->transferPPG("g");

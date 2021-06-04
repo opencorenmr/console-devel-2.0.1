@@ -14,9 +14,6 @@ TCartesianMap3D::TCartesianMap3D()
 TCartesianMap3D::~TCartesianMap3D()
 {
   origPolarAngles.clear();
-//  while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
-  while(!thetaTable.isEmpty()) thetaTable.removeLast();
-  while(!phiTable.isEmpty()) phiTable.removeLast();
   while(!rTable.isEmpty()) rTable.removeLast();
   while(!polarAngleTable.isEmpty()) polarAngleTable.removeLast();
 
@@ -34,11 +31,6 @@ void TCartesianMap3D::clearIndices()
     FParallelIndex=-1;
 }
 
-void TCartesianMap3D::setLength1D(int al)
-{
-    FLength1D=al;
-    generateTables();
-}
 
 QString TCartesianMap3D::origPolarAnglesStr()
 {
@@ -90,49 +82,6 @@ bool TCartesianMap3D::setOrigPolarAngles(QString qs)
     return ok;
 }
 
-
-void TCartesianMap3D::generateTables()
-{
-   // while(!cartesianMapTable.isEmpty()) cartesianMapTable.removeLast();
-    while(!thetaTable.isEmpty()) thetaTable.removeLast();
-    while(!phiTable.isEmpty()) phiTable.removeLast();
-    while(!rTable.isEmpty()) rTable.removeLast();
-    while(!polarAngleTable.isEmpty()) polarAngleTable.removeLast();
-
-    for(int x=0; x<length1D(); x++)
-    {
-      //  cartesianMapTable.append(QList<QList<QPoint> >());
-        rTable.append(QList<QList<double> >());
-        thetaTable.append(QList<QList<double> >());
-        phiTable.append(QList<QList<double> >());
-        polarAngleTable.append(QList<QList<TPolarAngle> >());
-        for(int y=0; y<length1D(); y++)
-        {
-        //    cartesianMapTable[x].append(QList<QPoint>());
-            rTable[x].append(QList<double>());
-            thetaTable[x].append(QList<double>());
-            phiTable[x].append(QList<double>());
-            polarAngleTable[x].append(QList<TPolarAngle>());
-            for(int z=0; z<length1D(); z++)
-            {
-          //      cartesianMapTable[x][y].append(QPoint(x+z*length1D(),y));
-                int h=length1D() / 2;
-                int z2=z-h;
-                int x2=x-h;
-                int y2=y-h;
-                polarAngleTable[x][y].append(TPolarAngle(x2,y2,z2));
-                rTable[x][y].append(sqrt(x2*x2+y2*y2+z2*z2));
-                thetaTable[x][y].append(polarAngleTable[x][y][z].theta());
-                phiTable[x][y].append(polarAngleTable[x][y][z].phi());
-
-            } //
-        } //
-    } //
-
-}
-
-
-
 bool TCartesianMap3D::findPointsABC(TPolarAngle p)
 {
   int aIndex,bIndex,cIndex;
@@ -154,7 +103,6 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
       return false;
   }
   oa=TPolarAngle::vector3D(origPolarAngles.at(aIndex));
-
   pa=oa-op;
 
   double b,bMax;
@@ -162,18 +110,17 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
   ob=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
   pb=ob-op;
   v1=QVector3D::crossProduct(pa,pb);
-  b=fabs(v1.length())/pb.lengthSquared();
+  b=QVector3D::dotProduct(op,ob)*fabs(v1.length()/pb.length());
   bMax=b;
 
-  int bi=bIndex+1;
-  for(int k=bi; k<origPolarAngles.size(); k++)
+  for(int k=0; k<origPolarAngles.size(); k++)
   {
     if(k!=aIndex)
     {
         ob=TPolarAngle::vector3D(origPolarAngles.at(k));
         pb=ob-op;
         v1=QVector3D::crossProduct(pa,pb);
-        b=fabs(v1.length())/pb.lengthSquared();
+        b=QVector3D::dotProduct(op,ob)*fabs(v1.length()/pb.length());
         if(b>bMax)
         {
             bIndex=k;
@@ -181,6 +128,7 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
         }
     } // if
   } //k
+  pb=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
 
   double c,cMax;
   cIndex=0;
@@ -197,14 +145,13 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
   c=QVector3D::dotProduct(v1,pc)/pc.lengthSquared();
   cMax=c;
 
-  int ci=cIndex+1;
-  for(int k=ci; k<origPolarAngles.size(); k++)
+  for(int k=0; k<origPolarAngles.size(); k++)
   {
     if((k!=aIndex) && (k!=bIndex))
     {
         oc=TPolarAngle::vector3D(origPolarAngles.at(k));
         pc=oc-op;
-        v1=-1*(pa+pb);
+//        v1=-1*(pa+pb);
         c=QVector3D::dotProduct(v1,pc)/pc.lengthSquared();
         if(c>cMax)
         {
@@ -213,14 +160,15 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
         }
     } // if
   } // k
+  pc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
 
   FPointAIndex=aIndex;
   FPointBIndex=bIndex;
   FPointCIndex=cIndex;
 
-  double rpa=TPolarAngle::vector3D(origPolarAngles.at(aIndex)).length();
-  double rpb=TPolarAngle::vector3D(origPolarAngles.at(bIndex)).length();
-  double rpc=TPolarAngle::vector3D(origPolarAngles.at(cIndex)).length();
+  double rpa=pa.length();
+  double rpb=pb.length();
+  double rpc=pc.length();
 
   double rps= rpa*rpb + rpb*rpc + rpc*rpa;
   if(rps>0)
@@ -266,7 +214,7 @@ int TCartesianMap3D::closestPolarAngleIndex(TPolarAngle polarAngle)
     maxDotP=dotP;
     index=0;
 
-    for(int k=0; k<origPolarAngles.size(); k++)
+    for(int k=1; k<origPolarAngles.size(); k++)
     {
         v2=TPolarAngle::vector3D(origPolarAngles.at(k));
         dotP=QVector3D::dotProduct(v1,v2);
@@ -281,135 +229,275 @@ int TCartesianMap3D::closestPolarAngleIndex(TPolarAngle polarAngle)
 }
 
 
-bool TCartesianMap3D::process(TFID_2D *fid_2d)
+
+void TCartesianMap3D::run()
 {
-    int nRow=fid_2d->FID.size();  //qDebug() << QString(Q_FUNC_INFO) << "nRow: " <<nRow;
-    int nCol=fid_2d->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
+  forever
+  {
+    if(stopped) return;
+
+    emit calcCount(0);
+
+    int nRow=FID_2D->FID.size();  //qDebug() << QString(Q_FUNC_INFO) << "nRow: " <<nRow;
+    int nCol=FID_2D->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
 
     if(nRow!=origPolarAngles.size())
     {
+        errorQ=true;
         setErrorMessage("Size of data does not match that of the polar angle list.");
-        return false;
+        return;
     }
     // We introduce a new TFID_2D class, named "helpFID2D", and copy data
-    // In addition, we calculate the average value (rOrigin, iOrigin) at the origin, which will be used below.
     TFID_2D *helpFID2D = new TFID_2D;
     helpFID2D->FID.clear();
+    //
+    // We make a (nCol x nCol) x nCol matrix
+    //
+    int arrayLength=nCol*nCol;
+    for(int k=0; k<arrayLength; k++)
+    {
+        helpFID2D->FID.append(new TFID(nCol));
+        helpFID2D->FID.last()->setEmpty(false);
+    }
+
+    // We calculate the average value (rOrigin, iOrigin) at the origin, which will be used below.
     double rOrigin=0, iOrigin=0;
     for(int k=0; k<nRow; k++)
     {
-        helpFID2D->FID.append(new TFID(nCol));
-        for(int i=0; i<nRow; i++)
-        {
-            helpFID2D->FID[k]->real->sig[i] = fid_2d->FID.at(k)->real->sig.at(i);
-            helpFID2D->FID[k]->imag->sig[i] = fid_2d->FID.at(k)->imag->sig.at(i);
-        }
-        helpFID2D->FID.last()->updateAbs();
-        rOrigin += fid_2d->FID.at(k)->real->sig.at(0);
-        iOrigin += fid_2d->FID.at(k)->imag->sig.at(0);
+        rOrigin += FID_2D->FID.at(k)->real->sig.at(0);
+        iOrigin += FID_2D->FID.at(k)->imag->sig.at(0);
     }
     rOrigin /= nRow;
     iOrigin /= nRow;
 
-
-    //
-    // We clear the content of fid_2d, and then make a (nCol x nCol) x nCol matrix
-    //
-    fid_2d->FID.clear();
-    int arrayLength=nCol*nCol;
-    for(int k=0; k<arrayLength; k++)
-    {
-        fid_2d->FID.append(new TFID(nCol));
-        fid_2d->FID.last()->setEmpty(false);
-    }
-
     // We make tables
-    setLength1D(nCol); // It calls generateTables();
+    FLength1D=nCol;
+//    while(!thetaTable.isEmpty()) thetaTable.removeLast();
+//    while(!phiTable.isEmpty()) phiTable.removeLast();
+    while(!rTable.isEmpty()) rTable.removeLast();
+    while(!polarAngleTable.isEmpty()) polarAngleTable.removeLast();
+
+    for(int x=0; x<length1D(); x++)
+    {
+        emit tableCount(x);
+
+        rTable.append(QList<QList<double> >());
+//        thetaTable.append(QList<QList<double> >());
+//        phiTable.append(QList<QList<double> >());
+        polarAngleTable.append(QList<QList<TPolarAngle> >());
+        for(int y=0; y<length1D(); y++)
+        {
+        //    cartesianMapTable[x].append(QList<QPoint>());
+            rTable[x].append(QList<double>());
+//            thetaTable[x].append(QList<double>());
+//            phiTable[x].append(QList<double>());
+            polarAngleTable[x].append(QList<TPolarAngle>());
+            for(int z=0; z<length1D(); z++)
+            {
+          //      cartesianMapTable[x][y].append(QPoint(x+z*length1D(),y));
+                int h=length1D() / 2;
+                int z2=z-h;
+                int x2=x-h;
+                int y2=y-h;
+                polarAngleTable[x][y].append(TPolarAngle(x2,y2,z2));
+                rTable[x][y].append(sqrt(x2*x2+y2*y2+z2*z2));
+//                thetaTable[x][y].append(polarAngleTable[x][y][z].theta());
+//                phiTable[x][y].append(polarAngleTable[x][y][z].phi());
+
+            } //
+        } //
+    } //
+
+    emit genTableComplete();
 
     //
     // Interpolation!
     //
-    for(int x=0; x<nCol; x++)
-    {
-    for(int y=0; y<nCol; y++)
-    {
     for(int z=0; z<nCol; z++)
     {
-      if((int) ceil(rTable.at(x).at(y).at(z)) > fid_2d->al()-1) // Outside the sphere -> zero
+      emit calcCount(z);
+      emit info("Processing ... ("
+              + QString::number(z) + "/"
+              + QString::number(nCol) + ")"
+              );
+      if(stopped) return;
+
+    for(int y=0; y<nCol; y++)
+    {
+    for(int x=0; x<nCol; x++)
+    {
+      if((int) ceil(rTable.at(x).at(y).at(z)) > nCol) // Outside the sphere -> zero
       {
-          fid_2d->FID[x+z*nCol]->real->sig[y]=0.0;
-          fid_2d->FID[x+z*nCol]->imag->sig[y]=0.0;
-          qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
+          helpFID2D->FID[x+z*nCol]->real->sig[y]=0.0;
+          helpFID2D->FID[x+z*nCol]->imag->sig[y]=0.0;
+          emit info("Data zero was set at ("
+                + QString::number(x) + ","
+                + QString::number(y) + ","
+                + QString::number(z) + ")"
+                );
+
+   //       qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
       }
       else if(rTable.at(x).at(y).at(z)==0) // Origin
       {
-          fid_2d->FID[x+z*nCol]->real->sig[y]=rOrigin;
-          fid_2d->FID[x+z*nCol]->imag->sig[y]=iOrigin;
-          qDebug() << "TCartesianMap3D::process: Origin found at (" << x <<"," << y << "," << z << ").";
+          helpFID2D->FID[x+z*nCol]->real->sig[y]=rOrigin;
+          helpFID2D->FID[x+z*nCol]->imag->sig[y]=iOrigin;
+          emit info("Origin found at ("
+                + QString::number(x) + ","
+                + QString::number(y) + ","
+                + QString::number(z) + ")"
+                );
+          // qDebug() << "TCartesianMap3D::process: Origin found at (" << x <<"," << y << "," << z << ").";
       }
       else
       {
           double d1,d2,e1,e2;
           double r=rTable.at(x).at(y).at(z);
+          int rr=round(r);
+          int fr=floor(r);
+          int cr=ceil(r);
           checkParallel(polarAngleTable.at(x).at(y).at(z));
           if(parallelIndex()>-1) // Parallel data found -> no need to "laterally" interpolate
           {
-            d1=helpFID2D->FID.at(parallelIndex())->real->sig.at((int) floor(r));
-            d2=helpFID2D->FID.at(parallelIndex())->real->sig.at((int) ceil(r));
-            e1=helpFID2D->FID.at(parallelIndex())->imag->sig.at((int) floor(r));
-            e2=helpFID2D->FID.at(parallelIndex())->imag->sig.at((int) ceil(r));
-
-
+              emit info("Parallel axis found at ("
+                    + QString::number(x) + ","
+                    + QString::number(y) + ","
+                    + QString::number(z) + ")"
+                    );
+            // qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
+            if(fabs(rr-r)<DBL_EPSILON)
+            {
+              helpFID2D->FID[x+z*nCol]->real->sig[y] = FID_2D->FID.at(parallelIndex())->real->sig.at(rr);
+              helpFID2D->FID[x+z*nCol]->imag->sig[y] = FID_2D->FID.at(parallelIndex())->imag->sig.at(rr);
+            }
+            else
+            {
+              d1=FID_2D->FID.at(parallelIndex())->real->sig.at(fr);
+              d2=FID_2D->FID.at(parallelIndex())->real->sig.at(cr);
+              e1=FID_2D->FID.at(parallelIndex())->imag->sig.at(fr);
+              e2=FID_2D->FID.at(parallelIndex())->imag->sig.at(cr);
+              helpFID2D->FID[x+z*nCol]->real->sig[y] = (cr-r)*d1 + (r-fr)*d2;
+              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (cr-r)*e1 + (r-fr)*e2;
+            }
           }
-          else // Both lateral and radial interpolation
+          else // lateral interpolation
           {
-               // We try to find 3 directions from origPolarAngles
+            // We try to find 3 directions from origPolarAngles
             if(!findPointsABC(polarAngleTable.at(x).at(y).at(z)))
             {
-                return false;
+                errorQ=true;
+                return;
             }
+
+            // qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
+
+            // qDebug() << FWeightA << FWeightB << FWeightC;
+
             double da,db,dc,ea,eb,ec;
-            da=helpFID2D->FID.at(FPointAIndex)->real->sig.at((int) floor(r));
-            db=helpFID2D->FID.at(FPointBIndex)->real->sig.at((int) floor(r));
-            dc=helpFID2D->FID.at(FPointCIndex)->real->sig.at((int) floor(r));
-            d1=FWeightA*da + FWeightB*db + FWeightC*dc;
-            da=helpFID2D->FID.at(FPointAIndex)->real->sig.at((int) ceil(r));
-            db=helpFID2D->FID.at(FPointBIndex)->real->sig.at((int) ceil(r));
-            dc=helpFID2D->FID.at(FPointCIndex)->real->sig.at((int) ceil(r));
-            d2=FWeightA*da + FWeightB*db + FWeightC*dc;
+            if(fabs(rr-r)<DBL_EPSILON)
+            {
+                da=FID_2D->FID.at(FPointAIndex)->real->sig.at(rr);
+                db=FID_2D->FID.at(FPointBIndex)->real->sig.at(rr);
+                dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(rr);
+                helpFID2D->FID[x+z*nCol]->real->sig[y] = FWeightA*da + FWeightB*db + FWeightC*dc;
+                ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(rr);
+                eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(rr);
+                ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(rr);
+                helpFID2D->FID[x+z*nCol]->imag->sig[y] = FWeightA*ea + FWeightB*eb + FWeightC*ec;
+            }
+            else // We need to "radially" interpolate!
+            {
+              da=FID_2D->FID.at(FPointAIndex)->real->sig.at(fr);
+              db=FID_2D->FID.at(FPointBIndex)->real->sig.at(fr);
+              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(fr);
+              d1=FWeightA*da + FWeightB*db + FWeightC*dc;
+              da=FID_2D->FID.at(FPointAIndex)->real->sig.at(cr);
+              db=FID_2D->FID.at(FPointBIndex)->real->sig.at(cr);
+              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(cr);
+              d2=FWeightA*da + FWeightB*db + FWeightC*dc;
 
-            ea=helpFID2D->FID.at(FPointAIndex)->imag->sig.at((int) floor(r));
-            eb=helpFID2D->FID.at(FPointBIndex)->imag->sig.at((int) floor(r));
-            ec=helpFID2D->FID.at(FPointCIndex)->imag->sig.at((int) floor(r));
-            e1=FWeightA*ea + FWeightB*eb + FWeightC*ec;
-            ea=helpFID2D->FID.at(FPointAIndex)->imag->sig.at((int) ceil(r));
-            eb=helpFID2D->FID.at(FPointBIndex)->imag->sig.at((int) ceil(r));
-            ec=helpFID2D->FID.at(FPointCIndex)->imag->sig.at((int) ceil(r));
-            e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
-
+              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(fr);
+              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(fr);
+              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(fr);
+              e1=FWeightA*ea + FWeightB*eb + FWeightC*ec;
+              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(cr);
+              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(cr);
+              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(cr);
+              e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
+              helpFID2D->FID[x+z*nCol]->real->sig[y] = (cr-r)*d1 + (r-fr)*d2;
+              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (cr-r)*e1 + (r-fr)*e2;
+            } // else
           }
-          // We need to "radially" interpolate!
-          fid_2d->FID[x+z*nCol]->real->sig[y] = (ceil(r)-r)*d1 + (r-floor(r))*d2;
-          fid_2d->FID[x+z*nCol]->imag->sig[y] = (ceil(r)-r)*e1 + (r-floor(r))*e2;
+
 
 
       }
 
-
-
-
-
     }
     }
     }
 
-    // We update the absolute values
-    for(int k=0; k<fid_2d->FID.size(); k++) fid_2d->FID[k]->updateAbs();
 
-    fid_2d->setCurrentFID(0);
+    emit calcComplete();
+
+
+    //
+    // We clear the content of FID_2D,
+    // make a (nCol x nCol) x nCol matrix,
+    // and copy data from helpFID2D
+    //
+    FID_2D->FID.clear();
+    for(int k=0; k<arrayLength; k++)
+    {
+        emit copyCount(k);
+        FID_2D->FID.append(new TFID(nCol));
+        for(int j=0; j<nCol; j++)
+        {
+           FID_2D->FID[k]->real->sig[j]=helpFID2D->FID.at(k)->real->sig.at(j);
+           FID_2D->FID[k]->imag->sig[j]=helpFID2D->FID.at(k)->imag->sig.at(j);
+        } // j
+        // We update the absolute values
+        FID_2D->FID[k]->updateAbs();
+        FID_2D->FID[k]->setEmpty(false);
+    }
+
+    FID_2D->setCurrentFID(0);
 
     delete helpFID2D;
-    return true;
+
+    emit copyComplete();
+
+    mutex.lock();
+    condition.wait(&mutex); // We let the thread sleep.
+    mutex.unlock();
+
+  } // foever
+}
+
+
+bool TCartesianMap3D::process(TFID_2D *fid_2d)
+{
+
+    FID_2D=fid_2d;
+    errorQ=false;
+
+    QMutexLocker locker(&mutex);
+    stopped=false;
+    wasCanceled=false;
+    if(!isRunning())
+    {
+      start(HighPriority);
+    }
+    else
+    {
+      condition.wakeOne();
+    }
+
+
+
+
+
+    return !errorQ;
 }
 
 
@@ -474,8 +562,8 @@ int TPolarAngle::orientation(TPolarAngle pa1, TPolarAngle pa2)
     TEastWest eastWest=East;
 
 
-    if(fabs(regionalTheta(pa1.theta())-regionalTheta(pa2.theta()))
-            && fabs(regionalPhi(pa1.phi())-regionalPhi(pa2.phi())))
+    if(fabs(regionalTheta(pa1.theta())-regionalTheta(pa2.theta())) < DBL_EPSILON
+            && fabs(regionalPhi(pa1.phi())-regionalPhi(pa2.phi())) < DBL_EPSILON)
     {
         return Parallel;
     }

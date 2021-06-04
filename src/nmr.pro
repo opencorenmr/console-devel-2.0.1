@@ -76,7 +76,9 @@ SOURCES += main.cpp\
     dataProcess/peakPick.cpp \
     dataProcess/interpolate.cpp \
     dataProcess/interpolateWidget.cpp \
-    dataProcess/imageGenWidget.cpp
+    dataProcess/imageGenWidget.cpp \
+    dataProcess/cartesianMap.cpp \
+    dataProcess/cartesianMapWidget.cpp
 
 
 
@@ -146,7 +148,9 @@ HEADERS  += mainwindow.h \
     dataProcess/peakPick.h \
     dataProcess/interpolate.h \
     dataProcess/interpolateWidget.h \
-    dataProcess/imageGenWidget.h
+    dataProcess/imageGenWidget.h \
+    dataProcess/cartesianMap.h \
+    dataProcess/cartesianMapWidget.h
 
 
 

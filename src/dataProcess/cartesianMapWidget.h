@@ -27,6 +27,9 @@ public:
     QString dataFilePath() {return FDataFilePath;}
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
 
+signals:
+    void isCartesianMapIdle(bool);
+
 public slots:
     void onLoadAngleTablePushButtonClicked();
     void onSaveAngleTablePushButtonClicked();
