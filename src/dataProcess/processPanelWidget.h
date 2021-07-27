@@ -137,6 +137,7 @@ public:
 signals:
     void updateRequest();
     void processRequest();
+    void clearProcessRequest();
 
 public slots:
 

@@ -196,7 +196,7 @@ void TProcessFileWidget::saveFile()
 
 
 void TProcessFileWidget::openFileAndProcess()
-{
+{    
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
@@ -238,7 +238,7 @@ void TProcessFileWidget::openFileAndProcess()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-    // emit updateRequest();
+     emit updateRequest();
 
      fidSetted=true;
 
@@ -301,6 +301,7 @@ void TProcessFileWidget::openFile()
                                          FID_2D->comments.join("\n"));
 
     emit updateRequest();
+    emit clearProcessRequest();
 
     fidSetted=true;
 
@@ -516,6 +517,7 @@ void TProcessPanelWidget::createConnections()
     connect(operationListWidget,SIGNAL(currentRowChanged(int)),stackedWidget,SLOT(setCurrentIndex(int)));
       operationListWidget->setCurrentRow(0);
 
+    connect(processFileWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcessOperations()));
     connect(processFileWidget,SIGNAL(updateRequest()),this,SLOT(initialize()));
     connect(processFileWidget->exportProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
     connect(processFileWidget,SIGNAL(processRequest()),this,SLOT(applyProcess()));
@@ -529,15 +531,65 @@ void TProcessPanelWidget::createConnections()
 }
 void TProcessPanelWidget::applyProcess()
 {
-    if(FID_2D->FID.isEmpty()) return;
-    if(processOperations->applyTo(FID_2D))
+    if(FID_2D->FID.isEmpty())
     {
-       refresh();
+        QMessageBox::warning(this,tr("process error"), "Data is empty.");
+        return;
     }
-    else
+    if(processOperations->processElements.isEmpty())
     {
-       QMessageBox::warning(this,tr("process error"), processOperations->errorMessage());
+        QMessageBox::warning(this,tr("process error"), "Process is empty.");
+        return;
     }
+
+    for(int k=0; k<processOperations->processElements.size(); k++)
+    {
+        bool ok=processOperations->processElements[k]->process(FID_2D);
+        if(!ok)
+        {
+            QMessageBox::warning(this,tr("process error"), processOperations->processElements[k]->errorMessage());
+            return;
+        }
+
+
+        //TODO: widget update
+
+        switch(processOperations->processElements.at(k)->processType())
+        {
+        case TProcessElement::CutAdd:
+          break;
+        case TProcessElement::Apodization:
+          break;
+        case TProcessElement::Phase:
+          phaseWidget->phase0ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase0());
+          phaseWidget->phase1ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase1());
+          phaseWidget->phasePivotSpinBox->setValue(processOperations->processElements.at(k)->pivot());
+          break;
+        case TProcessElement::FFT:
+        case TProcessElement::IFFT:
+          break;
+        case TProcessElement::AxisStyle:
+          break;
+        case TProcessElement::Transpose: break;
+        case TProcessElement::ArraySum: break;
+        case TProcessElement::Flatten: break;
+
+        case TProcessElement::CartesianMap3D:
+
+          break;
+
+        case TProcessElement::FFT3D:
+
+          break;
+
+        default:
+          break;
+        }
+
+    }
+
+    refresh();
+
 }
 
 void TProcessPanelWidget::onVOffsetRequestReceived(double vo)
@@ -635,9 +687,13 @@ void TProcessPanelWidget::initialize()
       phaseWidget->phasePivotCheckBox->setEnabled(true);
       phaseWidget->phasePivotCheckBox->setChecked(false);
     phaseWidget->createConnections(); // We resume the connection
-    clearProcessOperations();
+
+    phaseWidget->phaseRotation->resetInitialPhase();
 
 }
+
+
+
 
 void TProcessPanelWidget::refresh()
 {
