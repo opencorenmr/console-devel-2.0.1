@@ -238,11 +238,10 @@ void TProcessFileWidget::openFileAndProcess()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-     emit updateRequest();
+    fidSetted=true;
 
-     fidSetted=true;
-
-     emit processRequest();
+    emit initializeRequest();
+    emit applyProcessRequest();
 }
 
 void TProcessFileWidget::openFile()
@@ -300,7 +299,7 @@ void TProcessFileWidget::openFile()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-    emit updateRequest();
+    emit initializeRequest();
     emit clearProcessRequest();
 
     fidSetted=true;
@@ -517,10 +516,10 @@ void TProcessPanelWidget::createConnections()
     connect(operationListWidget,SIGNAL(currentRowChanged(int)),stackedWidget,SLOT(setCurrentIndex(int)));
       operationListWidget->setCurrentRow(0);
 
-    connect(processFileWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcessOperations()));
-    connect(processFileWidget,SIGNAL(updateRequest()),this,SLOT(initialize()));
+    connect(processFileWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcess()));
+    connect(processFileWidget,SIGNAL(initializeRequest()),this,SLOT(initialize()));
     connect(processFileWidget->exportProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
-    connect(processFileWidget,SIGNAL(processRequest()),this,SLOT(applyProcess()));
+    connect(processFileWidget,SIGNAL(applyProcessRequest()),this,SLOT(applyProcess()));
     connect(processFileWidget->importProcessButton,SIGNAL(clicked(bool)),this,SLOT(importProcess()));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),processFileWidget,SLOT(setNOfPlotters(int)));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),this,SLOT(updateNumberOfPlotters(int)));
@@ -561,14 +560,42 @@ void TProcessPanelWidget::applyProcess()
         case TProcessElement::Apodization:
           break;
         case TProcessElement::Phase:
+          phaseWidget->breakConnections();
           phaseWidget->phase0ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase0());
           phaseWidget->phase1ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase1());
           phaseWidget->phasePivotSpinBox->setValue(processOperations->processElements.at(k)->pivot());
+          phaseWidget->createConnections();
           break;
         case TProcessElement::FFT:
+          transformWidget->emit vOffsetRequest(0.1);
+          break;
         case TProcessElement::IFFT:
+          transformWidget->emit vOffsetRequest(0.5);
           break;
         case TProcessElement::AxisStyle:
+          if(processOperations->processElements.at(k)->domain()==TAxisStyle::TimeDomain)
+            axisFormatWidget->domainComboBox->setCurrentIndex(0);
+          else if (processOperations->processElements.at(k)->domain()==TAxisStyle::FrequencyDomain)
+            axisFormatWidget->domainComboBox->setCurrentIndex(1);
+          else axisFormatWidget->domainComboBox->setCurrentIndex(2);
+          axisFormatWidget->setDomain();
+
+          axisFormatWidget->setUnitComboBox(processOperations->processElements.at(k)->unit());
+
+          axisFormatWidget->axisLabelLineEdit->setText(
+                      processOperations->processElements.at(k)->label()
+                      );
+
+          axisFormatWidget->setReferenceSpinBox->setValue(
+                      processOperations->processElements.at(k)->referencePoint()
+                      );
+
+          axisFormatWidget->referenceValueLineEdit->setText(
+                      QString::number(processOperations->processElements.at(k)->referenceValue())
+                      );
+          axisFormatWidget->setUnit();
+
+
           break;
         case TProcessElement::Transpose: break;
         case TProcessElement::ArraySum: break;
@@ -610,7 +637,7 @@ void TProcessPanelWidget::updateNumberOfPlotters(int i)
     imageGenWidget->plotterIDSpinBox->setMaximum(i-1);
 }
 
-void TProcessPanelWidget::clearProcessOperations()
+void TProcessPanelWidget::clearProcess()
 {
     //processOperations->clear();
     commandHistoryListWidget->clear();
@@ -675,6 +702,7 @@ void TProcessPanelWidget::initialize()
     axisFormatWidget->domainComboBox->setCurrentIndex(0);
     axisFormatWidget->axisStyle->setDomain("time");
     axisFormatWidget->init();
+    axisFormatWidget->axisLabelLineEdit->clear();
     axisFormatWidget->refresh();
     // Before resetting the phase widget we break connections tentatively.
     // Otherwise, the unintended phasing is performed to the data.
