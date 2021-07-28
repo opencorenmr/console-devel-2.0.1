@@ -196,7 +196,7 @@ void TProcessFileWidget::saveFile()
 
 
 void TProcessFileWidget::openFileAndProcess()
-{
+{    
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
@@ -238,11 +238,10 @@ void TProcessFileWidget::openFileAndProcess()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-    // emit updateRequest();
+    fidSetted=true;
 
-     fidSetted=true;
-
-     emit processRequest();
+    emit initializeRequest();
+    emit applyProcessRequest();
 }
 
 void TProcessFileWidget::openFile()
@@ -300,7 +299,8 @@ void TProcessFileWidget::openFile()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-    emit updateRequest();
+    emit initializeRequest();
+    emit clearProcessRequest();
 
     fidSetted=true;
 
@@ -516,9 +516,10 @@ void TProcessPanelWidget::createConnections()
     connect(operationListWidget,SIGNAL(currentRowChanged(int)),stackedWidget,SLOT(setCurrentIndex(int)));
       operationListWidget->setCurrentRow(0);
 
-    connect(processFileWidget,SIGNAL(updateRequest()),this,SLOT(initialize()));
+    connect(processFileWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcess()));
+    connect(processFileWidget,SIGNAL(initializeRequest()),this,SLOT(initialize()));
     connect(processFileWidget->exportProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
-    connect(processFileWidget,SIGNAL(processRequest()),this,SLOT(applyProcess()));
+    connect(processFileWidget,SIGNAL(applyProcessRequest()),this,SLOT(applyProcess()));
     connect(processFileWidget->importProcessButton,SIGNAL(clicked(bool)),this,SLOT(importProcess()));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),processFileWidget,SLOT(setNOfPlotters(int)));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),this,SLOT(updateNumberOfPlotters(int)));
@@ -529,15 +530,93 @@ void TProcessPanelWidget::createConnections()
 }
 void TProcessPanelWidget::applyProcess()
 {
-    if(FID_2D->FID.isEmpty()) return;
-    if(processOperations->applyTo(FID_2D))
+    if(FID_2D->FID.isEmpty())
     {
-       refresh();
+        QMessageBox::warning(this,tr("process error"), "Data is empty.");
+        return;
     }
-    else
+    if(processOperations->processElements.isEmpty())
     {
-       QMessageBox::warning(this,tr("process error"), processOperations->errorMessage());
+        QMessageBox::warning(this,tr("process error"), "Process is empty.");
+        return;
     }
+
+    for(int k=0; k<processOperations->processElements.size(); k++)
+    {
+        bool ok=processOperations->processElements[k]->process(FID_2D);
+        if(!ok)
+        {
+            QMessageBox::warning(this,tr("process error"), processOperations->processElements[k]->errorMessage());
+            return;
+        }
+
+
+        //TODO: widget update
+
+        switch(processOperations->processElements.at(k)->processType())
+        {
+        case TProcessElement::CutAdd:
+          break;
+        case TProcessElement::Apodization:
+          break;
+        case TProcessElement::Phase:
+          phaseWidget->breakConnections();
+          phaseWidget->phase0ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase0());
+          phaseWidget->phase1ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase1());
+          phaseWidget->phasePivotSpinBox->setValue(processOperations->processElements.at(k)->pivot());
+          phaseWidget->createConnections();
+          break;
+        case TProcessElement::FFT:
+          transformWidget->emit vOffsetRequest(0.1);
+          break;
+        case TProcessElement::IFFT:
+          transformWidget->emit vOffsetRequest(0.5);
+          break;
+        case TProcessElement::AxisStyle:
+          if(processOperations->processElements.at(k)->domain()==TAxisStyle::TimeDomain)
+            axisFormatWidget->domainComboBox->setCurrentIndex(0);
+          else if (processOperations->processElements.at(k)->domain()==TAxisStyle::FrequencyDomain)
+            axisFormatWidget->domainComboBox->setCurrentIndex(1);
+          else axisFormatWidget->domainComboBox->setCurrentIndex(2);
+          axisFormatWidget->setDomain();
+
+          axisFormatWidget->setUnitComboBox(processOperations->processElements.at(k)->unit());
+
+          axisFormatWidget->axisLabelLineEdit->setText(
+                      processOperations->processElements.at(k)->label()
+                      );
+
+          axisFormatWidget->setReferenceSpinBox->setValue(
+                      processOperations->processElements.at(k)->referencePoint()
+                      );
+
+          axisFormatWidget->referenceValueLineEdit->setText(
+                      QString::number(processOperations->processElements.at(k)->referenceValue())
+                      );
+          axisFormatWidget->setUnit();
+
+
+          break;
+        case TProcessElement::Transpose: break;
+        case TProcessElement::ArraySum: break;
+        case TProcessElement::Flatten: break;
+
+        case TProcessElement::CartesianMap3D:
+
+          break;
+
+        case TProcessElement::FFT3D:
+
+          break;
+
+        default:
+          break;
+        }
+
+    }
+
+    refresh();
+
 }
 
 void TProcessPanelWidget::onVOffsetRequestReceived(double vo)
@@ -558,7 +637,7 @@ void TProcessPanelWidget::updateNumberOfPlotters(int i)
     imageGenWidget->plotterIDSpinBox->setMaximum(i-1);
 }
 
-void TProcessPanelWidget::clearProcessOperations()
+void TProcessPanelWidget::clearProcess()
 {
     //processOperations->clear();
     commandHistoryListWidget->clear();
@@ -623,6 +702,7 @@ void TProcessPanelWidget::initialize()
     axisFormatWidget->domainComboBox->setCurrentIndex(0);
     axisFormatWidget->axisStyle->setDomain("time");
     axisFormatWidget->init();
+    axisFormatWidget->axisLabelLineEdit->clear();
     axisFormatWidget->refresh();
     // Before resetting the phase widget we break connections tentatively.
     // Otherwise, the unintended phasing is performed to the data.
@@ -635,9 +715,13 @@ void TProcessPanelWidget::initialize()
       phaseWidget->phasePivotCheckBox->setEnabled(true);
       phaseWidget->phasePivotCheckBox->setChecked(false);
     phaseWidget->createConnections(); // We resume the connection
-    clearProcessOperations();
+
+    phaseWidget->phaseRotation->resetInitialPhase();
 
 }
+
+
+
 
 void TProcessPanelWidget::refresh()
 {

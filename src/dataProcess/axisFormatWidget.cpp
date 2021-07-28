@@ -312,6 +312,41 @@ void TAxisFormatWidget::setOtherUnit(int k)
     return;
 }
 
+void TAxisFormatWidget::setUnitComboBox(int i)
+{
+    if(domainComboBox->currentIndex()==0)  // time
+    {
+        switch(i)
+        {
+        case TAxisStyle::usec: unitComboBox->setCurrentIndex(0); break;
+        case TAxisStyle::msec: unitComboBox->setCurrentIndex(1); break;
+        case TAxisStyle::sec: unitComboBox->setCurrentIndex(2); break;
+
+        default: unitComboBox->setCurrentIndex(1);
+        break;
+
+        }
+    }
+    else if(domainComboBox->currentIndex()==1) // frequency
+    {
+        switch(i)
+        {
+        case TAxisStyle::kHz: unitComboBox->setCurrentIndex(0); break;
+        case TAxisStyle::Hz: unitComboBox->setCurrentIndex(1); break;
+        case TAxisStyle::ppm: unitComboBox->setCurrentIndex(2); break;
+
+        default: unitComboBox->setCurrentIndex(1);
+        break;
+
+        }
+    }
+    else
+    {
+    }
+
+}
+
+
 void TAxisFormatWidget::init()
 {
 
@@ -328,6 +363,8 @@ void TAxisFormatWidget::init()
     {
         unitComboBox->addItems(QStringList()<<"kHz"<<"Hz"<<"ppm");
     }
+
+    axisLabelLineEdit->clear();
 
     if(isAncestorDefined())
     {
