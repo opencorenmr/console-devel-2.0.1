@@ -397,6 +397,7 @@ void TProcessPanelWidget::createWidgets()
                                     << "Array"
                                     << "Covariance"
                                     << "exportData"
+                                    << "exportAbsData"
                                     << "Create FID"
                                     << "Math"
                                     << "Peak"
@@ -445,6 +446,10 @@ void TProcessPanelWidget::createWidgets()
       //CovarianceWidget->setApplyToSelectable(false);
     exportWidget = new KExportWidget;
       exportWidget->setAncestor(this);
+
+    exportAbsWidget = new SExportAbsWidget;
+      exportAbsWidget->setAncestor(this);
+
     NutationWidget = new KNutationWidget;
       NutationWidget->setAncestor(this);
 
@@ -489,6 +494,7 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(twoDProcessWidget);
     stackedWidget->addWidget(CovarianceWidget);
     stackedWidget->addWidget(exportWidget);
+    stackedWidget->addWidget(exportAbsWidget);
     stackedWidget->addWidget(createFIDWidget);
     stackedWidget->addWidget(FIDMathWidget);
     stackedWidget->addWidget(peakPickWidget);

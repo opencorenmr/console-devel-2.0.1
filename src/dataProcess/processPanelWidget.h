@@ -28,6 +28,7 @@
 #include "covarianceWidget.h"
 #include "nutationWidget.h"
 #include "exportWidget.h"
+#include "exportAbsWidget.h"
 #include "apodizationWidget.h"
 #include "createFIDWidget.h"
 #include "fidMathWidget.h"
@@ -65,6 +66,7 @@ public:
     KCovarianceWidget *CovarianceWidget;
     KNutationWidget *NutationWidget;
     KExportWidget *exportWidget;
+    SExportAbsWidget *exportAbsWidget;
     KPeakPickWidget *peakPickWidget;
     KInterpolateWidget *interpolateWidget;
     //
