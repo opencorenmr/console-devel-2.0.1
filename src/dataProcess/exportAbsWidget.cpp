@@ -16,6 +16,7 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDebug>
+#include <math.h>
 
 SExportAbsWidget::SExportAbsWidget()
 {
@@ -74,9 +75,25 @@ void SExportAbsWidget::exportAbs(){
     if(dirName.isEmpty()) return;
     //qDebug() << dirName << endl;
 
+    int digit = 1;
+    while (layernum>=pow(10,digit)){
+        digit += 1;
+    }
+
+    int digitl = 1;
+
     for(int l=0; l<layernum; l++)
     {
-        QString fileName = dirName + '/' + QString::number(l);
+        while (l>=pow(10,digitl)){
+            digitl += 1;
+        }
+        QString fileName = dirName + '/';
+        int zerofill = digit - digitl;
+        while (zerofill){
+            fileName += QString::number(0);
+            zerofill -= 1;
+        }
+        fileName += QString::number(l)+ ".txt";
         QFile file(fileName);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))break;
 
