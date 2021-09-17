@@ -34,6 +34,15 @@ void SExportAbsWidget::createWidgets()
         layersSpinBox->setMaximum(65536);
         layersSpinBox->setValue(1);
     exportAbsButton = new QPushButton(tr("Export all abs for ImageJ"));
+
+    SumlayersCheckBox = new QCheckBox(tr("Sum layers"));
+    SumlayersthicknessSpinBox = new QSpinBox;
+        SumlayersthicknessSpinBox->setMinimum(1);
+        SumlayersthicknessSpinBox->setMaximum(65536);
+        SumlayersthicknessSpinBox->setValue(1);
+    SumlayersmodeComboBox = new QComboBox();
+    SumlayersmodeComboBox->addItems(QStringList() << "even" << "odd");
+    Sumlayers3DCheckBox = new QCheckBox(tr("3D process"));
 }
 
 void SExportAbsWidget::createPanel()
@@ -44,7 +53,13 @@ void SExportAbsWidget::createPanel()
         QGridLayout *gridLayout0 = new QGridLayout;
         gridLayout0->addWidget(new QLabel(tr("Layers")),0,0,1,1);
         gridLayout0->addWidget(layersSpinBox,0,1,1,1);
-        gridLayout0->addWidget(exportAbsButton,1,0,1,2);
+        gridLayout0->addWidget(SumlayersCheckBox,1,0,1,2);
+        gridLayout0->addWidget(new QLabel(tr(" thickness")),2,0,1,1);
+        gridLayout0->addWidget(SumlayersthicknessSpinBox,2,1,1,1);
+        gridLayout0->addWidget(new QLabel(tr(" mode")),3,0,1,1);
+        gridLayout0->addWidget(SumlayersmodeComboBox,3,1,1,1);
+        gridLayout0->addWidget(Sumlayers3DCheckBox,4,0,1,2);
+        gridLayout0->addWidget(exportAbsButton,5,0,1,2);
     groupBox0->setLayout(gridLayout0);
 
     mainLayout->addWidget(groupBox0);
@@ -56,6 +71,9 @@ void SExportAbsWidget::createPanel()
 void SExportAbsWidget::createConnections()
 {
     connect(exportAbsButton,SIGNAL(clicked()),this,SLOT(exportAbs()));
+    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),SumlayersthicknessSpinBox,SLOT(setEnabled(bool)));
+    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),SumlayersmodeComboBox,SLOT(setEnabled(bool)));
+    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),Sumlayers3DCheckBox,SLOT(setEnabled(bool)));
 }
 
 
@@ -69,6 +87,24 @@ void SExportAbsWidget::exportAbs(){
 
     if(fidsize%layernum) return;
 
+    int thickness,edge,bundlenum;
+    if(SumlayersCheckBox->isChecked()){
+        thickness = SumlayersthicknessSpinBox->value();
+        if(thickness>layernum) return;
+        if(SumlayersmodeComboBox->currentIndex()) {
+            if((layernum+thickness)%2) return;
+            bundlenum=(((layernum+thickness)/2-1)/thickness)*2+1;
+        }else{
+            if(layernum%2) return;
+            bundlenum=((layernum/2-1)/thickness+1)*2;
+        }
+        edge = (layernum-(bundlenum-2)*thickness)/2;
+    }else{
+        thickness = 1;
+        edge = 1;
+        bundlenum = layernum;
+    }
+
     QString dirPath = ancestor()->processFileWidget->dataFilePath()+'/';
     QString dirName = QFileDialog::getExistingDirectory(this, "Export Ascii Data", dirPath);
 
@@ -76,13 +112,14 @@ void SExportAbsWidget::exportAbs(){
     //qDebug() << dirName << endl;
 
     int digit = 1;
-    while (layernum>=pow(10,digit)){
+    while (bundlenum>=pow(10,digit)){
         digit += 1;
     }
 
     int digitl = 1;
+    int startlayer = 0,layernuminbundle = 0;
 
-    for(int l=0; l<layernum; l++)
+    for(int l=0; l<bundlenum; l++)
     {
         while (l>=pow(10,digitl)){
             digitl += 1;
@@ -100,16 +137,27 @@ void SExportAbsWidget::exportAbs(){
         QTextStream out(&file);
 
     //------------export absolute value------------
+
+        startlayer += layernuminbundle;
+        if((0<l)and(l<bundlenum-1)){
+            layernuminbundle = thickness;
+        }else{
+            layernuminbundle = edge;
+        }
+
+        double Sum = 0;
         for(int i=0;i<fidsize/layernum;i++){
             for(int j=0;j<ancestor()->FID_2D->al();j++){
-                out << ancestor()->FID_2D->FID.at(fidsize*l/layernum+i)->abs->sig.at(j);
+                Sum = 0;
+                for(int iSum=0;iSum<layernuminbundle;iSum++){
+                    Sum += ancestor()->FID_2D->FID.at((startlayer+iSum)*fidsize/layernum+i)->abs->sig.at(j);
+                }
+                out << Sum;
                 if(j!=ancestor()->FID_2D->al()-1){out << " ";}
             }
             out << '\n'; // Qt::endl;
         }
-
         file.close();
-
     }
 
     for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
