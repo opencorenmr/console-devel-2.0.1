@@ -15,6 +15,7 @@ TEMPLATE = app
 SOURCES += main.cpp\
     ../dataProcess/cartesianMap.cpp \
     ../dataProcess/cartesianMapWidget.cpp \
+    ../dataProcess/exportAbsWidget.cpp \
     ../dataProcess/interpolate.cpp \
     ../dataProcess/interpolateWidget.cpp \
         mainwindow.cpp \
@@ -62,6 +63,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     ../dataProcess/cartesianMap.h \
     ../dataProcess/cartesianMapWidget.h \
+    ../dataProcess/exportAbsWidget.h \
     ../dataProcess/interpolate.h \
     ../dataProcess/interpolateWidget.h \
     ../fid.h \
