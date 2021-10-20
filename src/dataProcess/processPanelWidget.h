@@ -94,7 +94,7 @@ public slots:
     void onFIDCreated();
     void applyProcess();
 
-    void clearProcessOperations();
+    void clearProcess();
     void updatePlotter();
     void initializePlotter();
     void resetProcessSettings();
@@ -135,8 +135,9 @@ public:
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
 
 signals:
-    void updateRequest();
-    void processRequest();
+    void initializeRequest();
+    void applyProcessRequest();
+    void clearProcessRequest();
 
 public slots:
 
