@@ -29,7 +29,7 @@ public:
 
     QPushButton *export2DButton;
 
-    QPushButton *exportAbsButton;
+//    QPushButton *exportAbsButton;
 
     QLineEdit *startf1LineEdit;
     QLineEdit *endf1LineEdit;
@@ -54,7 +54,7 @@ public slots:
     void performExportCSVFile();
     void performExport2DFile();
 
-    void exportAbs();
+//    void exportAbs();
     //void performExportFirstFile();
     //void performExportDiagFile();
 
