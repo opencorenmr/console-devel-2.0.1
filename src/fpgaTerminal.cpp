@@ -241,7 +241,7 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
     fidPlotters.append(new FIDPlotter);
     fidPlotters[0]->setFID2D(nmrData);
     fidPlotters[0]->plotter->xini=0;
-    fidPlotters[0]->plotter->xfin=32768;
+    fidPlotters[0]->plotter->xfin=65536;
 
     plotSplitters[0]->addWidget(fidPlotters[0]);
     connect(fidPlotters[0],SIGNAL(splitRequest(FIDPlotter*,TFIDPlotters::PlotSplitMode)),
