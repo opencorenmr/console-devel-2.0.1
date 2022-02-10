@@ -44,6 +44,10 @@ TwelcomeWidget::TwelcomeWidget(QWidget *parent) :
                                      + tr(", Build #")+QString::number(BUILD_NUMBER)
                                      + ", "
                                      + "written by Kazuyuki Takeda ("
+                                     + QString::number(RELEASE_DATE)
+                                     + " "
+                                     + RELEASE_MONTH
+                                     + " "
                                      + QString::number(RELEASE_YEAR)
                                      + ")"
                                      )
@@ -735,7 +739,6 @@ void MainWindow::onRunStopButtonClicked()
     }
 
     if(!fpgaTerminal->ppgTransferred) return;
-    //fpgaTerminal->transferPPG(fpgaTerminal->ppg->receiverInfo.receiverCommands());
 
     //TODO:  RS or G
     if(scanModeComboBox->currentIndex()==0) fpgaTerminal->transferPPG("g");

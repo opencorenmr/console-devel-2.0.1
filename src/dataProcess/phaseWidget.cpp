@@ -53,7 +53,7 @@ void TPhaseWidget::createWidgets()
     phase1ValueDoubleSpinBox->setRange(-36000,36000);
     phase1ResolutionComboBox=new QComboBox;
     phase1ResolutionComboBox->addItems(QStringList()<<"0.0005"<<"0.001"<<"0.005"<<"0.01"<<"0.05"<<"0.1"<<"1"<<"5");
-    phase1ResolutionComboBox->setCurrentIndex(1);
+    phase1ResolutionComboBox->setCurrentIndex(3);
 
     applyPushButton=new QPushButton(tr("Save change"));
     applyPushButton->setEnabled(false);
@@ -140,7 +140,7 @@ void TPhaseWidget::initialize()
     phase0ValueDoubleSpinBox->setValue(0);
     phase0ResolutionComboBox->setCurrentIndex(5);
     phase1ValueDoubleSpinBox->setValue(0);
-    phase1ResolutionComboBox->setCurrentIndex(1);
+    phase1ResolutionComboBox->setCurrentIndex(3);
     setResolution0();
     setResolution1();
 //    previousPhase0Value=0;

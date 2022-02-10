@@ -779,7 +779,7 @@ void FIDPlotter::update()
     {  //qDebug() << QString(Q_FUNC_INFO) <<"size<1 ";
         return;
     }
-  //  qDebug() << QString(Q_FUNC_INFO) << "1";
+//    qDebug() << QString(Q_FUNC_INFO) << "1";
 
     FIDSelectSpinBox->setMaximum(fid2d->FID.size());
    // if(fid2d->FID.size() < FIDSelectSpinBox->value()) FIDSelectSpinBox->setMaximum(fid2d->FID.size());
@@ -1427,9 +1427,12 @@ void Plotter::updateRubberBandRegion()
 //------------------------------------------------------------------------------
 void Plotter::refreshPixmap()
 {
+//    qDebug() << QString(Q_FUNC_INFO) << "0";
     if(!fidSetted) {return;}
+//    qDebug() << QString(Q_FUNC_INFO) << "1";
 
     if(fid->isEmpty()) { return;}
+//    qDebug() << QString(Q_FUNC_INFO) << "2";
 
     pixmap=QPixmap(size());
 //    pixmap.fill(this,0,0); // obsolete and does not work for Qt5 2014 Jul Takeda

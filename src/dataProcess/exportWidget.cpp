@@ -39,7 +39,7 @@ void KExportWidget::createWidgets()
 
     export2DButton = new QPushButton(tr("Export .2dp and .2dd for takeNMR"));
 
-    exportAbsButton = new QPushButton(tr("Export all abs for ImageJ"));
+//    exportAbsButton = new QPushButton(tr("Export all abs for ImageJ"));
 
     startf1LineEdit = new QLineEdit();
     endf1LineEdit = new QLineEdit();
@@ -63,13 +63,13 @@ void KExportWidget::createPanel()
         gridLayout00->addWidget(exportAsciiButton,1,0,1,2);
     groupBox00->setLayout(gridLayout00);
 
-    QGroupBox *groupBox0 = new QGroupBox(tr("export for ImageJ"));
-        QGridLayout *gridLayout0 = new QGridLayout;
-        gridLayout0->addWidget(exportAbsButton,0,0,1,1);
-        //gridLayout0->addWidget(exportOpFileButton,0,0,1,1);
-        //gridLayout0->addWidget(exportSm2FileButton,1,0,1,1);
-        //gridLayout0->addWidget(exportCSVButton,2,0,1,1);
-    groupBox0->setLayout(gridLayout0);
+//    QGroupBox *groupBox0 = new QGroupBox(tr("export for ImageJ"));
+//        QGridLayout *gridLayout0 = new QGridLayout;
+//        gridLayout0->addWidget(exportAbsButton,0,0,1,1);
+//        //gridLayout0->addWidget(exportOpFileButton,0,0,1,1);
+//        //gridLayout0->addWidget(exportSm2FileButton,1,0,1,1);
+//        //gridLayout0->addWidget(exportCSVButton,2,0,1,1);
+//    groupBox0->setLayout(gridLayout0);
 
     QGroupBox *groupBox1 = new QGroupBox(tr("export 2D data"));
         QGridLayout *gridLayout1 = new QGridLayout;
@@ -87,7 +87,7 @@ void KExportWidget::createPanel()
     groupBox1->setLayout(gridLayout1);
 
     mainLayout->addWidget(groupBox00);
-    mainLayout->addWidget(groupBox0);
+//    mainLayout->addWidget(groupBox0);
     mainLayout->addWidget(groupBox1);
 
     mainLayout->addStretch();
@@ -97,7 +97,7 @@ void KExportWidget::createPanel()
 void KExportWidget::createConnections()
 {
     connect(exportAsciiButton,SIGNAL(clicked()),this,SLOT(performExportAscii()));
-    connect(exportAbsButton,SIGNAL(clicked()),this,SLOT(exportAbs()));
+//    connect(exportAbsButton,SIGNAL(clicked()),this,SLOT(exportAbs()));
      //connect(exportOpFileButton,SIGNAL(clicked()),this,SLOT(performExportOpFile()));
      //connect(exportSm2FileButton,SIGNAL(clicked()),this,SLOT(performExportSm2File()));
      //connect(exportCSVButton,SIGNAL(clicked()),this,SLOT(performExportCSVFile()));
@@ -117,7 +117,7 @@ void KExportWidget::performExportAscii()
 
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
-    QString fileName=QFileDialog::getSaveFileName(this,tr("Save"),path,tr("*.opp or *.opd"));
+    QString fileName=QFileDialog::getSaveFileName(this,tr("Save"),path);
     if(fileName.isEmpty()) {return;}
 
     QString sep;
@@ -325,45 +325,45 @@ void KExportWidget::performExport2DFile()
 
 }
 
-void KExportWidget::exportAbs(){
+//void KExportWidget::exportAbs(){
 
-    //-----------Check FID opened?-----------
-    if(!isAncestorDefined()) return;
-    if(ancestor()->FID_2D->FID.isEmpty()) return;
+//    //-----------Check FID opened?-----------
+//    if(!isAncestorDefined()) return;
+//    if(ancestor()->FID_2D->FID.isEmpty()) return;
 
-    int fidsize = ancestor()->FID_2D->FID.size();
+//    int fidsize = ancestor()->FID_2D->FID.size();
 
-    //-----acquire path and set output file---------
-    QString path = ancestor()->processFileWidget->dataFilePath()+'/';
-    QString fileName = QFileDialog::getSaveFileName(this, "Export Ascii Data", path, "txt(*.txt)");
+//    //-----acquire path and set output file---------
+//    QString path = ancestor()->processFileWidget->dataFilePath()+'/';
+//    QString fileName = QFileDialog::getSaveFileName(this, "Export Ascii Data", path, "txt(*.txt)");
 
-    if(fileName.isEmpty()) return;
-    //qDebug() << fileName << endl;
+//    if(fileName.isEmpty()) return;
+//    //qDebug() << fileName << endl;
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+//    QFile file(fileName);
+//    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
 
-    QTextStream out(&file);
+//    QTextStream out(&file);
 
-    //------------export absolute value------------
-    for(int i=0;i<fidsize;i++){
-        for(int j=0;j<ancestor()->FID_2D->al();j++){
-            out << ancestor()->FID_2D->FID.at(i)->abs->sig.at(j);
-            if(j!=ancestor()->FID_2D->al()-1){out << " ";}
-        }
-        out << endl;
-    }
+//    //------------export absolute value------------
+//    for(int i=0;i<fidsize;i++){
+//        for(int j=0;j<ancestor()->FID_2D->al();j++){
+//            out << ancestor()->FID_2D->FID.at(i)->abs->sig.at(j);
+//            if(j!=ancestor()->FID_2D->al()-1){out << " ";}
+//        }
+//        out << '\n'; // Qt::endl;
+//    }
 
-    file.close();
+//    file.close();
 
-    for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
-    {
-      ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
-      ancestor()->plotters->FIDPlotters[k]->plotter->xfin=ancestor()->FID_2D->FID.at(0)->al()-1;
-    }
+//    for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
+//    {
+//      ancestor()->plotters->FIDPlotters[k]->plotter->xini=0;
+//      ancestor()->plotters->FIDPlotters[k]->plotter->xfin=ancestor()->FID_2D->FID.at(0)->al()-1;
+//    }
 
-    ancestor()->plotters->update();
+//    ancestor()->plotters->update();
 
-    //qDebug() << "end";
-    return;
-}
+//    //qDebug() << "end";
+//    return;
+//}

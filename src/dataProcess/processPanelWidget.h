@@ -28,12 +28,14 @@
 #include "covarianceWidget.h"
 #include "nutationWidget.h"
 #include "exportWidget.h"
+#include "exportAbsWidget.h"
 #include "apodizationWidget.h"
 #include "createFIDWidget.h"
 #include "fidMathWidget.h"
 #include "peakPickWidget.h"
 #include "interpolateWidget.h"
 #include "imageGenWidget.h"
+#include "cartesianMapWidget.h"
 
 class TFIDPlotters;
 class TProcessFileWidget;
@@ -64,6 +66,7 @@ public:
     KCovarianceWidget *CovarianceWidget;
     KNutationWidget *NutationWidget;
     KExportWidget *exportWidget;
+    SExportAbsWidget *exportAbsWidget;
     KPeakPickWidget *peakPickWidget;
     KInterpolateWidget *interpolateWidget;
     //
@@ -75,6 +78,7 @@ public:
     TImageGenWidget *imageGenWidget;
 
     TCreateFIDWidget *createFIDWidget;
+    TCartesianMapWidget *cartesianMapWidget;
 
     QString settingDirPath() {return FSettingDirPath;}
     void setSettingDirPath(QString qs);
@@ -92,7 +96,7 @@ public slots:
     void onFIDCreated();
     void applyProcess();
 
-    void clearProcessOperations();
+    void clearProcess();
     void updatePlotter();
     void initializePlotter();
     void resetProcessSettings();
@@ -133,8 +137,9 @@ public:
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
 
 signals:
-    void updateRequest();
-    void processRequest();
+    void initializeRequest();
+    void applyProcessRequest();
+    void clearProcessRequest();
 
 public slots:
 

@@ -18,6 +18,7 @@ TFFT::~TFFT()
     ;
 }
 
+
 QStringList TFFT::processInformation()
 {
     if(!Laplace())
@@ -310,4 +311,99 @@ bool TFFT::FFTProcess(TFID *fid)
     fid->updateAbs();
 
     return true;
+}
+
+
+TFFT3D::TFFT3D()
+{
+  TFFT3D(4,4);
+}
+
+TFFT3D::TFFT3D(int n1, int n2)
+{
+    setProcessType(TProcessType::FFT3D);
+    setApplyMode(0);
+    FN1=n1;
+    FN2=n2;
+}
+
+TFFT3D::~TFFT3D()
+{
+    ;
+}
+
+QStringList TFFT3D::processInformation()
+{
+    return QStringList() << "process=3D FFT";
+}
+
+QString TFFT3D::command() { return "fft3d";}
+
+bool TFFT3D::process(TFID_2D *fid_2d)
+{
+    bool ok=false;
+    int al=fid_2d->FID[0]->al();
+    int n1n2=fid_2d->FID.size();
+    if(n1n2!=n1()*n2())
+    {
+        setErrorMessage("length does not match.");
+        return false;
+    }
+
+    TFFT *FFT = new TFFT;
+    TFID *helpFID = new TFID(4);
+
+    ok=FFT->process(fid_2d);
+    if(!ok)
+    {
+        setErrorMessage(FFT->errorMessage());
+    }
+    else
+    {
+      helpFID->setAL(n1());
+      for(int c3=0; c3<al; c3++)
+      {
+         for(int c2=0; c2<n2(); c2++)
+         {
+            for(int c1=0; c1<n1(); c1++)
+            {
+                helpFID->real->sig[c1]=fid_2d->FID.at(c1*n1()+c2)->real->sig.at(c3);
+                helpFID->imag->sig[c1]=fid_2d->FID.at(c1*n1()+c2)->imag->sig.at(c3);
+            }
+            ok=FFT->process(helpFID);
+            if(!ok) {setErrorMessage(FFT->errorMessage()); delete helpFID; delete FFT; return false;}
+            for(int c1=0; c1<n1(); c1++)
+            {
+                fid_2d->FID[c1*n1()+c2]->real->sig[c3]=helpFID->real->sig.at(c1);
+                fid_2d->FID[c1*n1()+c2]->imag->sig[c3]=helpFID->imag->sig.at(c1);
+            }
+         } // c2
+      } // c3
+
+      helpFID->setAL(n2());
+      for(int c3=0; c3<al; c3++)
+      {
+         for(int c1=0; c1<n1(); c1++)
+         {
+            for(int c2=0; c2<n2(); c2++)
+            {
+                helpFID->real->sig[c2]=fid_2d->FID.at(c1*n1()+c2)->real->sig.at(c3);
+                helpFID->imag->sig[c2]=fid_2d->FID.at(c1*n1()+c2)->imag->sig.at(c3);
+            }
+            ok=FFT->process(helpFID);
+            if(!ok) {setErrorMessage(FFT->errorMessage()); delete helpFID; delete FFT; return false;}
+            for(int c2=0; c2<n2(); c2++)
+            {
+                fid_2d->FID[c1*n1()+c2]->real->sig[c3]=helpFID->real->sig.at(c2);
+                fid_2d->FID[c1*n1()+c2]->imag->sig[c3]=helpFID->imag->sig.at(c2);
+            }
+         } // c2
+      } // c3
+
+    }
+
+    delete helpFID;
+    delete FFT;
+
+    return ok;
 }
