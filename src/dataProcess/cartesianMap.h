@@ -115,6 +115,7 @@ public:
 
     void checkParallel(TPolarAngle pa);
     bool findPointsABC(TPolarAngle p);
+    void calcWeight(TPolarAngle p,double rop);
 
     QList<TPolarAngle> origPolarAngles;
     QString origPolarAnglesStr();
@@ -160,9 +161,11 @@ private:
     int FPointBIndex;
     int FPointCIndex;
 
+    double ceiledr;
     double FWeightA;
     double FWeightB;
     double FWeightC;
+    double FWeightQ;
 
     int FNorthWestIndex;
     double FNorthWestDotProduct;

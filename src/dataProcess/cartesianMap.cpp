@@ -128,7 +128,8 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
         }
     } // if
   } //k
-  pb=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
+  ob=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
+  pb=ob-op;
 
   double c,cMax;
   cIndex=0;
@@ -160,28 +161,101 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
         }
     } // if
   } // k
-  pc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
+  oc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
+  pc=oc-op;
 
   FPointAIndex=aIndex;
   FPointBIndex=bIndex;
   FPointCIndex=cIndex;
 
-  double rpa=pa.length();
-  double rpb=pb.length();
-  double rpc=pc.length();
+//  double rpa=pa.length();
+//  double rpb=pb.length();
+//  double rpc=pc.length();
 
-  double rps= rpa*rpb + rpb*rpc + rpc*rpa;
-  if(rps>0)
-  {
-    FWeightA = rpb*rpc/rps;
-    FWeightB = rpc*rpa/rps;
-    FWeightC = rpa*rpb/rps;
-  }
-  else
-  {
-    FWeightA=0; FWeightB=0; FWeightC=0;
-  }
+//  double rps= rpa*rpb + rpb*rpc + rpc*rpa;
+//  if(rps>0)
+//  {
+//    FWeightA = rpb*rpc/rps;
+//    FWeightB = rpc*rpa/rps;
+//    FWeightC = rpa*rpb/rps;
+//  }
+//  else
+//  {
+//    FWeightA=0; FWeightB=0; FWeightC=0;
+//  }
+
   return true;
+}
+
+void TCartesianMap3D::calcWeight(TPolarAngle p,double rop){
+    if(rop == 0){
+        ceiledr = 0;
+        FWeightA = 0;
+        FWeightB = 0;
+        FWeightC = 0;
+        FWeightQ = 0;
+        return;
+    }
+
+    QVector3D op,OA,OB,OC;
+    op = TPolarAngle::vector3D(p);
+    OA = TPolarAngle::vector3D(origPolarAngles.at(FPointAIndex));
+    OB = TPolarAngle::vector3D(origPolarAngles.at(FPointBIndex));
+    OC = TPolarAngle::vector3D(origPolarAngles.at(FPointCIndex));
+
+    double dota,dotb,dotc,dotpa,dotpb,dotpc;
+    dota = QVector3D::dotProduct(OB,OC);
+    dotb = QVector3D::dotProduct(OC,OA);
+    dotc = QVector3D::dotProduct(OA,OB);
+    dotpa = QVector3D::dotProduct(op,OA);
+    dotpb = QVector3D::dotProduct(op,OB);
+    dotpc = QVector3D::dotProduct(op,OC);
+
+    double un0,vn0,wn0,kd0;
+    un0 = (1-dota*dota)*dotpa + (dota*dotb-dotc)*dotpb + (dotc*dota-dotb)*dotpc;
+    vn0 = (dota*dotb-dotc)*dotpa + (1-dotb*dotb)*dotpb + (dotb*dotc-dota)*dotpc;
+    wn0 = (dotc*dota-dotb)*dotpa + (dotb*dotc-dota)*dotpb + (1-dotc*dotc)*dotpc;
+    kd0 = un0+vn0+wn0;
+
+    QVector3D oq;
+    oq = (un0*OA + vn0*OB + wn0*OC)/kd0;
+    ceiledr = ceil(rop/oq.length());
+
+//    QVector3D sub = OP-(un*OA + vn*OB + wn*OC)/kn;
+//    if(sub.length()>1e-4){
+//        qDebug() << "Mismatch of coefficients";
+//        qDebug() << sub.length() << OP << (un*OA + vn*OB + wn*OC)/kn;
+//    }
+
+    if(kd0!=0)
+    {
+//        qDebug() << (un+vn+wn)/kd;
+//        if(un<0||vn<0||wn<0){
+//            qDebug() << "could not get surrounding 3 points";
+//            qDebug() << un/kd << vn/kd << wn/kd;
+//        }
+
+        double QQ2Length,PQLength;
+        FWeightA = un0/kd0;
+        FWeightB = vn0/kd0;
+        FWeightC = wn0/kd0;
+        QQ2Length = oq.length();
+        PQLength = ceiledr*oq.length()-rop;
+        FWeightQ = 1 - PQLength/QQ2Length;
+
+//        if (abs(FWeightQ-0.5) > 0.5){
+//            qDebug() << rop << ceil(rop) << cr;
+//            qDebug() << OA << OB << OC;
+//            qDebug() << un0 << vn0 << wn0 << kd0;
+//            qDebug() << QQ2Length << PQLength << FWeightQ;
+//            qDebug() << (un0*OA + vn0*OB + wn0*OC)/kd0;
+//            qDebug() << "";
+//        }
+    }
+    else
+    {
+        FWeightA=0; FWeightB=0; FWeightC=0; FWeightQ=0;
+    }
 }
 
 void TCartesianMap3D::checkParallel(TPolarAngle pa)
@@ -196,8 +270,6 @@ void TCartesianMap3D::checkParallel(TPolarAngle pa)
       if(ori==Parallel) { FParallelIndex=k; return;}
     }
 }
-
-
 
 int TCartesianMap3D::closestPolarAngleIndex(TPolarAngle polarAngle)
 {
@@ -326,7 +398,7 @@ void TCartesianMap3D::run()
     {
     for(int x=0; x<nCol; x++)
     {
-      if((int) ceil(rTable.at(x).at(y).at(z)) > nCol) // Outside the sphere -> zero
+      if((int) ceil(rTable.at(x).at(y).at(z)) > nCol-1) // Outside the sphere -> zero
       {
           helpFID2D->FID[x+z*nCol]->real->sig[y]=0.0;
           helpFID2D->FID[x+z*nCol]->imag->sig[y]=0.0;
@@ -391,42 +463,50 @@ void TCartesianMap3D::run()
 
             // qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
 
+            calcWeight(polarAngleTable.at(x).at(y).at(z),rTable.at(x).at(y).at(z));
+
             // qDebug() << FWeightA << FWeightB << FWeightC;
 
             double da,db,dc,ea,eb,ec;
-            if(fabs(rr-r)<DBL_EPSILON)
-            {
-                da=FID_2D->FID.at(FPointAIndex)->real->sig.at(rr);
-                db=FID_2D->FID.at(FPointBIndex)->real->sig.at(rr);
-                dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(rr);
-                helpFID2D->FID[x+z*nCol]->real->sig[y] = FWeightA*da + FWeightB*db + FWeightC*dc;
-                ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(rr);
-                eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(rr);
-                ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(rr);
-                helpFID2D->FID[x+z*nCol]->imag->sig[y] = FWeightA*ea + FWeightB*eb + FWeightC*ec;
-            }
-            else // We need to "radially" interpolate!
-            {
-              da=FID_2D->FID.at(FPointAIndex)->real->sig.at(fr);
-              db=FID_2D->FID.at(FPointBIndex)->real->sig.at(fr);
-              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(fr);
+//            if(fabs(rr-r)<DBL_EPSILON)
+//            {
+//                da=FID_2D->FID.at(FPointAIndex)->real->sig.at(rr);
+//                db=FID_2D->FID.at(FPointBIndex)->real->sig.at(rr);
+//                dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(rr);
+//                helpFID2D->FID[x+z*nCol]->real->sig[y] = FWeightA*da + FWeightB*db + FWeightC*dc;
+//                ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(rr);
+//                eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(rr);
+//                ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(rr);
+//                helpFID2D->FID[x+z*nCol]->imag->sig[y] = FWeightA*ea + FWeightB*eb + FWeightC*ec;
+//            }
+//            else // We need to "radially" interpolate!
+//            {
+              if(ceiledr>nCol-1){
+                  helpFID2D->FID[x+z*nCol]->real->sig[y] = 0.0;
+                  helpFID2D->FID[x+z*nCol]->imag->sig[y] = 0.0;
+//                  qDebug() << rTable.at(x).at(y).at(z) << ceiledr;
+              }else{
+              da=FID_2D->FID.at(FPointAIndex)->real->sig.at(ceiledr-1);
+              db=FID_2D->FID.at(FPointBIndex)->real->sig.at(ceiledr-1);
+              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(ceiledr-1);
               d1=FWeightA*da + FWeightB*db + FWeightC*dc;
-              da=FID_2D->FID.at(FPointAIndex)->real->sig.at(cr);
-              db=FID_2D->FID.at(FPointBIndex)->real->sig.at(cr);
-              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(cr);
+              da=FID_2D->FID.at(FPointAIndex)->real->sig.at(ceiledr);
+              db=FID_2D->FID.at(FPointBIndex)->real->sig.at(ceiledr);
+              dc=FID_2D->FID.at(FPointCIndex)->real->sig.at(ceiledr);
               d2=FWeightA*da + FWeightB*db + FWeightC*dc;
 
-              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(fr);
-              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(fr);
-              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(fr);
+              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(ceiledr-1);
+              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(ceiledr-1);
+              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(ceiledr-1);
               e1=FWeightA*ea + FWeightB*eb + FWeightC*ec;
-              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(cr);
-              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(cr);
-              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(cr);
+              ea=FID_2D->FID.at(FPointAIndex)->imag->sig.at(ceiledr);
+              eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(ceiledr);
+              ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(ceiledr);
               e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
-              helpFID2D->FID[x+z*nCol]->real->sig[y] = (cr-r)*d1 + (r-fr)*d2;
-              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (cr-r)*e1 + (r-fr)*e2;
-            } // else
+              helpFID2D->FID[x+z*nCol]->real->sig[y] = (1-FWeightQ)*d1 + FWeightQ*d2;
+              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (1-FWeightQ)*e1 + FWeightQ*e2;
+              }
+//            } // else
           }
 
 
