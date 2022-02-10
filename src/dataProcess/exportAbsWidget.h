@@ -25,7 +25,7 @@ public:
     QSpinBox *layersSpinBox;
     QPushButton *exportAbsButton;
 
-    QCheckBox *SumlayersCheckBox,*Sumlayers3DCheckBox;
+    QCheckBox *onlyRealCheckBox,*SumlayersCheckBox,*Sumlayers3DCheckBox;
     QSpinBox *SumlayersthicknessSpinBox;
     QComboBox *SumlayersmodeComboBox;
 

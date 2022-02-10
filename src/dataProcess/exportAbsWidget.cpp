@@ -35,14 +35,19 @@ void SExportAbsWidget::createWidgets()
         layersSpinBox->setValue(1);
     exportAbsButton = new QPushButton(tr("Export all abs for ImageJ"));
 
+    onlyRealCheckBox = new QCheckBox(tr("Abs of real only"));
     SumlayersCheckBox = new QCheckBox(tr("Sum layers"));
     SumlayersthicknessSpinBox = new QSpinBox;
         SumlayersthicknessSpinBox->setMinimum(1);
         SumlayersthicknessSpinBox->setMaximum(65536);
         SumlayersthicknessSpinBox->setValue(1);
+        SumlayersthicknessSpinBox->setEnabled(false);
     SumlayersmodeComboBox = new QComboBox();
+        SumlayersmodeComboBox->setEnabled(false);
     SumlayersmodeComboBox->addItems(QStringList() << "even" << "odd");
-    Sumlayers3DCheckBox = new QCheckBox(tr("3D process"));
+        SumlayersmodeComboBox->setEnabled(false);
+    Sumlayers3DCheckBox = new QCheckBox(tr("3D process (unworkable)"));
+        Sumlayers3DCheckBox->setEnabled(false);
 }
 
 void SExportAbsWidget::createPanel()
@@ -53,13 +58,14 @@ void SExportAbsWidget::createPanel()
         QGridLayout *gridLayout0 = new QGridLayout;
         gridLayout0->addWidget(new QLabel(tr("Layers")),0,0,1,1);
         gridLayout0->addWidget(layersSpinBox,0,1,1,1);
-        gridLayout0->addWidget(SumlayersCheckBox,1,0,1,2);
-        gridLayout0->addWidget(new QLabel(tr(" thickness")),2,0,1,1);
-        gridLayout0->addWidget(SumlayersthicknessSpinBox,2,1,1,1);
-        gridLayout0->addWidget(new QLabel(tr(" mode")),3,0,1,1);
-        gridLayout0->addWidget(SumlayersmodeComboBox,3,1,1,1);
-        gridLayout0->addWidget(Sumlayers3DCheckBox,4,0,1,2);
-        gridLayout0->addWidget(exportAbsButton,5,0,1,2);
+        gridLayout0->addWidget(onlyRealCheckBox,1,0,1,2);
+        gridLayout0->addWidget(SumlayersCheckBox,2,0,1,2);
+        gridLayout0->addWidget(new QLabel(tr(" thickness")),3,0,1,1);
+        gridLayout0->addWidget(SumlayersthicknessSpinBox,3,1,1,1);
+        gridLayout0->addWidget(new QLabel(tr(" mode")),4,0,1,1);
+        gridLayout0->addWidget(SumlayersmodeComboBox,4,1,1,1);
+        gridLayout0->addWidget(Sumlayers3DCheckBox,5,0,1,2);
+        gridLayout0->addWidget(exportAbsButton,6,0,1,2);
     groupBox0->setLayout(gridLayout0);
 
     mainLayout->addWidget(groupBox0);
@@ -73,7 +79,7 @@ void SExportAbsWidget::createConnections()
     connect(exportAbsButton,SIGNAL(clicked()),this,SLOT(exportAbs()));
     connect(SumlayersCheckBox,SIGNAL(toggled(bool)),SumlayersthicknessSpinBox,SLOT(setEnabled(bool)));
     connect(SumlayersCheckBox,SIGNAL(toggled(bool)),SumlayersmodeComboBox,SLOT(setEnabled(bool)));
-    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),Sumlayers3DCheckBox,SLOT(setEnabled(bool)));
+//    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),Sumlayers3DCheckBox,SLOT(setEnabled(bool)));
 }
 
 
@@ -84,6 +90,7 @@ void SExportAbsWidget::exportAbs(){
 
     int fidsize = ancestor()->FID_2D->FID.size();
     int layernum = layersSpinBox->value();
+    bool onlyRealFlag = onlyRealCheckBox->isChecked();
 
     if(fidsize%layernum) return;
 
@@ -150,7 +157,11 @@ void SExportAbsWidget::exportAbs(){
             for(int j=0;j<ancestor()->FID_2D->al();j++){
                 Sum = 0;
                 for(int iSum=0;iSum<layernuminbundle;iSum++){
-                    Sum += ancestor()->FID_2D->FID.at((startlayer+iSum)*fidsize/layernum+i)->abs->sig.at(j);
+                    if (onlyRealFlag){
+                        Sum += abs(ancestor()->FID_2D->FID.at((startlayer+iSum)*fidsize/layernum+i)->real->sig.at(j));
+                    }else{
+                        Sum += ancestor()->FID_2D->FID.at((startlayer+iSum)*fidsize/layernum+i)->abs->sig.at(j);
+                    }
                 }
                 out << Sum;
                 if(j!=ancestor()->FID_2D->al()-1){out << " ";}
