@@ -128,7 +128,8 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
         }
     } // if
   } //k
-  pb=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
+  ob=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
+  pb=ob-op;
 
   double c,cMax;
   cIndex=0;
@@ -160,7 +161,8 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
         }
     } // if
   } // k
-  pc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
+  oc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
+  pc=oc-op;
 
   FPointAIndex=aIndex;
   FPointBIndex=bIndex;
@@ -326,7 +328,7 @@ void TCartesianMap3D::run()
     {
     for(int x=0; x<nCol; x++)
     {
-      if((int) ceil(rTable.at(x).at(y).at(z)) > nCol) // Outside the sphere -> zero
+      if((int) ceil(rTable.at(x).at(y).at(z)) > nCol-1) // Outside the sphere -> zero
       {
           helpFID2D->FID[x+z*nCol]->real->sig[y]=0.0;
           helpFID2D->FID[x+z*nCol]->imag->sig[y]=0.0;
