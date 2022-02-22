@@ -84,9 +84,11 @@ bool TCartesianMap3D::setOrigPolarAngles(QString qs)
 
 bool TCartesianMap3D::findPointsABC(TPolarAngle p)
 {
-  int aIndex,bIndex,cIndex;
+  int aIndex=-1,bIndex=-1,cIndex=-1;
+  QList<int> closerIndices;
+  int numberofFocusedPoint = 9; //>3
   QVector3D op,oa,ob,oc,pa,pb,pc,v1;
-  if(origPolarAngles.size()<3)
+  if(origPolarAngles.size()<numberofFocusedPoint)
   {
     errorQ=true;
     setErrorMessage("Number of points is insufficient.");
@@ -95,72 +97,95 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
 
   clearIndices();
   op=TPolarAngle::vector3D(p);
-  aIndex=closestPolarAngleIndex(p);
+  QVector3D ok,ol;
+  double coskop,coslop;
+  for(int k=0; k<origPolarAngles.size(); k++)
+  {
+      closerIndices.append(k);
+      ok=TPolarAngle::vector3D(origPolarAngles.at(k));
+      coskop = QVector3D::dotProduct(op,ok);
+
+      int l=closerIndices.size()-1;
+      while(l)
+      {
+          l-=1;
+          ol=TPolarAngle::vector3D(origPolarAngles.at(closerIndices.at(l)));
+          coslop = QVector3D::dotProduct(op,ol);
+          if(coslop<coskop)
+          {
+              closerIndices.swap(l,l+1);
+          }
+          else
+          {
+              l=0;
+          }
+      }
+      if(closerIndices.size()>numberofFocusedPoint)
+      {
+          closerIndices.removeLast();
+      }
+  }
+
+  QList<double> dotList;
+  dotList.clear();
+  for(int i=0;i<closerIndices.size();i++){
+      dotList.append(QVector3D::dotProduct(op,TPolarAngle::vector3D(origPolarAngles.at(closerIndices.at(i)))));
+      if(i>0){
+          if(dotList.at(i-1)<dotList.at(i)){
+              qDebug() << "something wrong with closer points list";
+          }
+      }
+  }
+
+  aIndex=closerIndices.at(0);
   if(aIndex<0)
   {
       errorQ=true;
       setErrorMessage("Failed to find point A.");
       return false;
   }
+
   oa=TPolarAngle::vector3D(origPolarAngles.at(aIndex));
   pa=oa-op;
 
-  double b,bMax;
-  if(aIndex==0) bIndex=1; else bIndex=0;
-  ob=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
-  pb=ob-op;
-  v1=QVector3D::crossProduct(pa,pb);
-  b=QVector3D::dotProduct(op,ob)*fabs(v1.length()/pb.length());
-  bMax=b;
-
-  for(int k=0; k<origPolarAngles.size(); k++)
+  double dotab,dotbc,dotca,dotap,dotbp,dotcp,u,v,w,angleSum,angleSumMin=3*PI;
+  dotap=QVector3D::dotProduct(oa,op);
+  for(int ib=1; ib<numberofFocusedPoint-1; ib++)
   {
-    if(k!=aIndex)
-    {
-        ob=TPolarAngle::vector3D(origPolarAngles.at(k));
-        pb=ob-op;
-        v1=QVector3D::crossProduct(pa,pb);
-        b=QVector3D::dotProduct(op,ob)*fabs(v1.length()/pb.length());
-        if(b>bMax)
-        {
-            bIndex=k;
-            bMax=b;
-        }
-    } // if
-  } //k
-  pb=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
+      ob=TPolarAngle::vector3D(origPolarAngles.at(closerIndices.at(ib)));
+      dotab=QVector3D::dotProduct(oa,ob);
+      dotbp=QVector3D::dotProduct(ob,op);
+      for(int ic=ib+1; ic<numberofFocusedPoint; ic++)
+      {
+          oc=TPolarAngle::vector3D(origPolarAngles.at(closerIndices.at(ic)));
+          dotbc=QVector3D::dotProduct(ob,oc);
+          dotca=QVector3D::dotProduct(oc,oa);
+          dotcp=QVector3D::dotProduct(oc,op);
+          u=(1-dotbc*dotbc)*dotap + (dotbc*dotca-dotab)*dotbp + (dotab*dotbc-dotca)*dotcp;
+          v=(dotbc*dotca-dotab)*dotap + (1-dotca*dotca)*dotbp + (dotca*dotab-dotbc)*dotcp;
+          w=(dotab*dotbc-dotca)*dotap + (dotca*dotab-dotbc)*dotbp + (1-dotab*dotab)*dotcp;
+          if(u<0||v<0||w<0){continue;}
 
-  double c,cMax;
-  cIndex=0;
-  while((cIndex==aIndex) || (cIndex==bIndex)) {cIndex++;}
-  if(cIndex>origPolarAngles.size()-1)
+          angleSum = acos(dotab)+acos(dotbc)+acos(dotca);
+          if(angleSum<angleSumMin)
+          {
+              angleSumMin=angleSum;
+              bIndex=ib;
+              cIndex=ic;
+          }
+      }
+  }
+  if(bIndex<0||cIndex<0)
   {
       errorQ=true;
-      setErrorMessage("cIndex exceeded the number of points.");
+      setErrorMessage("Failed to find point B and C.");
       return false;
   }
+
+  ob=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
+  pb=ob-op;
   oc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
   pc=oc-op;
-  v1=-1*(pa+pb);
-  c=QVector3D::dotProduct(v1,pc)/pc.lengthSquared();
-  cMax=c;
-
-  for(int k=0; k<origPolarAngles.size(); k++)
-  {
-    if((k!=aIndex) && (k!=bIndex))
-    {
-        oc=TPolarAngle::vector3D(origPolarAngles.at(k));
-        pc=oc-op;
-//        v1=-1*(pa+pb);
-        c=QVector3D::dotProduct(v1,pc)/pc.lengthSquared();
-        if(c>cMax)
-        {
-            cIndex=k;
-            cMax=c;
-        }
-    } // if
-  } // k
-  pc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
 
   FPointAIndex=aIndex;
   FPointBIndex=bIndex;
