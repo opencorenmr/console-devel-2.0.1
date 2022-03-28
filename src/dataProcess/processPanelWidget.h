@@ -28,6 +28,7 @@
 #include "covarianceWidget.h"
 #include "nutationWidget.h"
 #include "exportWidget.h"
+#include "exportAbsWidget.h"
 #include "apodizationWidget.h"
 #include "createFIDWidget.h"
 #include "fidMathWidget.h"
@@ -65,6 +66,7 @@ public:
     KCovarianceWidget *CovarianceWidget;
     KNutationWidget *NutationWidget;
     KExportWidget *exportWidget;
+    SExportAbsWidget *exportAbsWidget;
     KPeakPickWidget *peakPickWidget;
     KInterpolateWidget *interpolateWidget;
     //
@@ -94,7 +96,7 @@ public slots:
     void onFIDCreated();
     void applyProcess();
 
-    void clearProcessOperations();
+    void clearProcess();
     void updatePlotter();
     void initializePlotter();
     void resetProcessSettings();
@@ -135,8 +137,9 @@ public:
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
 
 signals:
-    void updateRequest();
-    void processRequest();
+    void initializeRequest();
+    void applyProcessRequest();
+    void clearProcessRequest();
 
 public slots:
 

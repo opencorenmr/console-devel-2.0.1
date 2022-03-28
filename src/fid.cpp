@@ -643,6 +643,76 @@ bool TFID_2D::WriteopaFile(QStringList fnList, QIODevice::OpenModeFlag flag)
     return true;
 }
 
+// JEOL Format
+bool TFID_2D::ReadjdfFile(QString fn)
+{
+    QMutexLocker locker(&mutex);
+
+    QFile file(fn);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+         errorMessage=QString(Q_FUNC_INFO)+ ": Failed to open " + fn;
+         return false;
+    }
+
+    QFileInfo fInfo;
+    fInfo.setFile(file);
+
+    QDataStream in(&file);
+    in.setFloatingPointPrecision(QDataStream::DoublePrecision);
+    in.setByteOrder(QDataStream::LittleEndian);
+
+    in.skipRawData(1712);
+    unsigned int po;
+    in >> po;
+    setAl(po);
+    // qDebug() << al();
+
+    // 1968 - 1716 = 252
+    in.skipRawData(252);
+    double d;
+    in >> d;
+    setSF1(d/1e6); // Hz -> MHz
+    // qDebug() << QString(Q_FUNC_INFO) << sf1();
+
+    // 2608 - 1976 = 632
+    in.skipRawData(632);
+    in >> d;
+    setDW(1e6*d/al());
+    // qDebug() << QString(Q_FUNC_INFO) << dw();
+
+
+    //16384 - 2616 = 13768
+    in.skipRawData(13768);
+    FID.clear();
+
+    for(int k=0; k<1; k++)
+    {
+        FID.append(new TFID(al()));
+        FID[FID.size()-1]->setSF1(sf1());
+        FID[FID.size()-1]->setDW(dw());
+        for(int m=0; m<al(); m++) in >> FID[k]->imag->sig[m];
+        for(int m=0; m<al(); m++) in >> FID[k]->real->sig[m];
+        FID[k]->updateAbs();
+        FID[k]->setCustomXAxis(isXAxisCustom());
+        FID[k]->setXInitialValue(xInitialValue());
+        FID[k]->setDx(dx());
+        FID[k]->setXAxisLabel(xAxisLabel());
+        FID[k]->setXAxisUnitSymbol(xAxisUnitSymbol());
+        FID[k]->setPrefix(prefix());
+        FID[k]->setPlotPrefix(plotPrefix());
+
+        FID[k]->setDomain(TFID::TimeDomain);
+
+        FID[k]->setEmpty(false);
+    } // k
+
+    setCurrentFID(0);
+
+    file.close();
+
+    return true;
+}
 
 bool TFID_2D::ReadopdFile(QString fn)
 {
