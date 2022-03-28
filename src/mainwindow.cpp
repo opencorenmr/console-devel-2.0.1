@@ -44,6 +44,10 @@ TwelcomeWidget::TwelcomeWidget(QWidget *parent) :
                                      + tr(", Build #")+QString::number(BUILD_NUMBER)
                                      + ", "
                                      + "written by Kazuyuki Takeda ("
+                                     + QString::number(RELEASE_DATE)
+                                     + " "
+                                     + RELEASE_MONTH
+                                     + " "
                                      + QString::number(RELEASE_YEAR)
                                      + ")"
                                      )

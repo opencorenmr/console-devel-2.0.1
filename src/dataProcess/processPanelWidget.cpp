@@ -251,7 +251,7 @@ void TProcessFileWidget::openFile()
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
                                                     path,
-                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d *.smd)"));
+                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d *.smd *.jdf)"));
     if (fileName.isEmpty()) {return;}
 
     setDataFilePath(QFileInfo(fileName).absolutePath());
@@ -280,6 +280,15 @@ void TProcessFileWidget::openFile()
     else if(0==QString::compare(fileExt,"smd"))
     {
         if(!FID_2D->ReadsmdFile(fileName))
+        {
+                      //qDebug()<<FID_2D->errorMessage;
+           QMessageBox::warning(this,QString(Q_FUNC_INFO)+tr(""), FID_2D->errorMessage);
+           return;
+        }
+    }
+    else if(0==QString::compare(fileExt,"jdf"))
+    {
+        if(!FID_2D->ReadjdfFile(fileName))
         {
                       //qDebug()<<FID_2D->errorMessage;
            QMessageBox::warning(this,QString(Q_FUNC_INFO)+tr(""), FID_2D->errorMessage);
