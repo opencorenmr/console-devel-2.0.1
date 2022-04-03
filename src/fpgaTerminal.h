@@ -104,6 +104,7 @@ public:
 
     Tdevice *device;
 
+    ComRxThread comRxThread;
     USBRxThread rThread;  // a thread receiving messages from pulse programmer
     USBTxThread tThread;  // a thread sending commands to pulse programmer
 
