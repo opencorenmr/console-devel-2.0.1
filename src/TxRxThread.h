@@ -88,5 +88,42 @@ private:
 
 
 
+class ComRxThread : public QThread
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(ComRxThread)
+
+public:
+    ComRxThread(QObject *parent=0);
+    ~ComRxThread();
+
+    void standBy();
+    void stop();
+    bool error() {return errorQ;}
+
+signals:
+    void commandRequest(QString);
+    void gotChar(QChar);
+    void gotPrompt(QChar);
+    void gotSentence(QString);
+    void readyPrompt();
+    void runPrompt();
+    void arrayPrompt();
+
+protected:
+    void run();
+
+private:
+    bool errorQ;
+    QString path0;
+    QMutex mutex;
+    QWaitCondition condition;
+    bool volatile stopped;
+
+};
+
+
+
+
 
 #endif // TXRXTHREAD_H
