@@ -1071,6 +1071,9 @@ void TfpgaTerminal::FTDIOpen()
       connect(&rThread,SIGNAL(gotPrompt(QChar)),&tThread,SLOT(proceed(QChar)));
       connect(&rThread,SIGNAL(gotPrompt(QChar)),this,SLOT(promptReceived(QChar)));
 
+      comRxThread.standBy();
+      connect(&comRxThread,SIGNAL(commandRequest(QString)),this,SLOT(transferPPG(QString)));
+
       terminalOpenCloseButtion->setText("Close");
 
       FPGAStatusTextEdit->insertPlainText("\nEstablishing communication with FPGA...\n");
@@ -1164,6 +1167,10 @@ void TfpgaTerminal::FTDIClose()
 
         rThread.stop();
         rThread.wait();
+
+        disconnect(&comRxThread,SIGNAL(commandRequest(QString)),this,SLOT(transferPPG(QString)));
+        comRxThread.stop();
+        comRxThread.wait();
 
         FT_Close(device->pulserHandle);
         FPGAStatusTextEdit->moveCursor(QTextCursor::End);
