@@ -36,6 +36,7 @@
 #include "interpolateWidget.h"
 #include "imageGenWidget.h"
 #include "cartesianMapWidget.h"
+#include "3DrearrangementWidget.h"
 
 class TFIDPlotters;
 class TProcessFileWidget;
@@ -79,6 +80,7 @@ public:
 
     TCreateFIDWidget *createFIDWidget;
     TCartesianMapWidget *cartesianMapWidget;
+    S3DrearrangementWidget *threeDrearrangementWidget;
 
     QString settingDirPath() {return FSettingDirPath;}
     void setSettingDirPath(QString qs);

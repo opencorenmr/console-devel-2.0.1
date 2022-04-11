@@ -137,6 +137,8 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
       }
   }
 
+//  qDebug() << closerIndices;
+
   aIndex=closerIndices.at(0);
   if(aIndex<0)
   {
@@ -170,8 +172,8 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
           if(angleSum<angleSumMin)
           {
               angleSumMin=angleSum;
-              bIndex=ib;
-              cIndex=ic;
+              bIndex=closerIndices.at(ib);
+              cIndex=closerIndices.at(ic);
           }
       }
   }
@@ -242,7 +244,7 @@ void TCartesianMap3D::calcWeight(TPolarAngle p,double rop){
 
     QVector3D oq;
     oq = (un0*OA + vn0*OB + wn0*OC)/kd0;
-    ceiledr = ceil(rop/oq.length());
+    ceiledr = (int) ceil(rop/oq.length());
 
 //    QVector3D sub = OP-(un*OA + vn*OB + wn*OC)/kn;
 //    if(sub.length()>1e-4){
@@ -484,7 +486,7 @@ void TCartesianMap3D::run()
                 return;
             }
 
-            // qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
+//             qDebug() << x << y << z << ":" << FPointAIndex << FPointBIndex << FPointCIndex;
 
             calcWeight(polarAngleTable.at(x).at(y).at(z),rTable.at(x).at(y).at(z));
 

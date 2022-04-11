@@ -161,7 +161,7 @@ private:
     int FPointBIndex;
     int FPointCIndex;
 
-    double ceiledr;
+    int ceiledr;
     double FWeightA;
     double FWeightB;
     double FWeightC;
