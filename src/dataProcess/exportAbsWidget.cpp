@@ -44,7 +44,7 @@ void SExportAbsWidget::createWidgets()
         SumlayersthicknessSpinBox->setEnabled(false);
     SumlayersmodeComboBox = new QComboBox();
         SumlayersmodeComboBox->setEnabled(false);
-    SumlayersmodeComboBox->addItems(QStringList() << "even" << "odd");
+    SumlayersmodeComboBox->addItems(QStringList() << tr("even") << tr("odd"));
         SumlayersmodeComboBox->setEnabled(false);
     Sumlayers3DCheckBox = new QCheckBox(tr("3D process (unworkable)"));
         Sumlayers3DCheckBox->setEnabled(false);

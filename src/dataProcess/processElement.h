@@ -53,6 +53,7 @@ public:
     virtual bool process(TFID *fid) {qDebug() << QString(Q_FUNC_INFO) << fid->comment(); return true;}
     virtual bool process(TFID_2D *fid_2d, int k) {qDebug() << QString(Q_FUNC_INFO) << fid_2d->comments << k; return true;}
     virtual bool process(TFID_2D *fid_2d) {qDebug() << QString(Q_FUNC_INFO) << fid_2d->comments; return true;}
+    virtual bool process(TFID_2D *fid_2d, int k, int l) {qDebug() << QString(Q_FUNC_INFO) << fid_2d->comments << k << l; return true;}
     virtual QString command() {return "";}
 
     virtual QStringList processInformation() {return QStringList();}

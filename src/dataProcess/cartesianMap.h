@@ -115,6 +115,7 @@ public:
 
     void checkParallel(TPolarAngle pa);
     bool findPointsABC(TPolarAngle p);
+    void calcWeight(TPolarAngle p,double rop);
 
     QList<TPolarAngle> origPolarAngles;
     QString origPolarAnglesStr();
@@ -131,6 +132,10 @@ public:
     int southEastIndex() {return FSouthEastIndex;}
 
     bool wasCanceled;
+
+    int interpolateMode;
+    enum{vector,dInverse};
+
 signals:
     void info(QString);
     void tableCount(int);
@@ -160,9 +165,11 @@ private:
     int FPointBIndex;
     int FPointCIndex;
 
+    int ceiledr;
     double FWeightA;
     double FWeightB;
     double FWeightC;
+    double FWeightQ;
 
     int FNorthWestIndex;
     double FNorthWestDotProduct;
