@@ -132,6 +132,10 @@ public:
     int southEastIndex() {return FSouthEastIndex;}
 
     bool wasCanceled;
+
+    int interpolateMode;
+    enum{vector,dInverse};
+
 signals:
     void info(QString);
     void tableCount(int);

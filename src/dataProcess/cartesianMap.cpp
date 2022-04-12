@@ -87,7 +87,7 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
   int aIndex=-1,bIndex=-1,cIndex=-1;
   QList<int> closerIndices;
   int numberofFocusedPoint = 9; //>3
-  QVector3D op,oa,ob,oc,pa,pb,pc,v1;
+  QVector3D op,oa,ob,oc;
   if(origPolarAngles.size()<numberofFocusedPoint)
   {
     errorQ=true;
@@ -148,7 +148,7 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
   }
 
   oa=TPolarAngle::vector3D(origPolarAngles.at(aIndex));
-  pa=oa-op;
+//  pa=oa-op;
 
   double dotab,dotbc,dotca,dotap,dotbp,dotcp,u,v,w,angleSum,angleSumMin=3*PI;
   dotap=QVector3D::dotProduct(oa,op);
@@ -184,30 +184,14 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
       return false;
   }
 
-  ob=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
-  pb=ob-op;
-  oc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
-  pc=oc-op;
+//  ob=TPolarAngle::vector3D(origPolarAngles.at(bIndex));
+//  pb=ob-op;
+//  oc=TPolarAngle::vector3D(origPolarAngles.at(cIndex));
+//  pc=oc-op;
 
   FPointAIndex=aIndex;
   FPointBIndex=bIndex;
   FPointCIndex=cIndex;
-
-//  double rpa=pa.length();
-//  double rpb=pb.length();
-//  double rpc=pc.length();
-
-//  double rps= rpa*rpb + rpb*rpc + rpc*rpa;
-//  if(rps>0)
-//  {
-//    FWeightA = rpb*rpc/rps;
-//    FWeightB = rpc*rpa/rps;
-//    FWeightC = rpa*rpb/rps;
-//  }
-//  else
-//  {
-//    FWeightA=0; FWeightB=0; FWeightC=0;
-//  }
 
   return true;
 }
@@ -228,58 +212,84 @@ void TCartesianMap3D::calcWeight(TPolarAngle p,double rop){
     OB = TPolarAngle::vector3D(origPolarAngles.at(FPointBIndex));
     OC = TPolarAngle::vector3D(origPolarAngles.at(FPointCIndex));
 
-    double dota,dotb,dotc,dotpa,dotpb,dotpc;
-    dota = QVector3D::dotProduct(OB,OC);
-    dotb = QVector3D::dotProduct(OC,OA);
-    dotc = QVector3D::dotProduct(OA,OB);
-    dotpa = QVector3D::dotProduct(op,OA);
-    dotpb = QVector3D::dotProduct(op,OB);
-    dotpc = QVector3D::dotProduct(op,OC);
+    if(interpolateMode==vector){
+        double dota,dotb,dotc,dotpa,dotpb,dotpc;
+        dota = QVector3D::dotProduct(OB,OC);
+        dotb = QVector3D::dotProduct(OC,OA);
+        dotc = QVector3D::dotProduct(OA,OB);
+        dotpa = QVector3D::dotProduct(op,OA);
+        dotpb = QVector3D::dotProduct(op,OB);
+        dotpc = QVector3D::dotProduct(op,OC);
 
-    double un0,vn0,wn0,kd0;
-    un0 = (1-dota*dota)*dotpa + (dota*dotb-dotc)*dotpb + (dotc*dota-dotb)*dotpc;
-    vn0 = (dota*dotb-dotc)*dotpa + (1-dotb*dotb)*dotpb + (dotb*dotc-dota)*dotpc;
-    wn0 = (dotc*dota-dotb)*dotpa + (dotb*dotc-dota)*dotpb + (1-dotc*dotc)*dotpc;
-    kd0 = un0+vn0+wn0;
+        double un0,vn0,wn0,kd0;
+        un0 = (1-dota*dota)*dotpa + (dota*dotb-dotc)*dotpb + (dotc*dota-dotb)*dotpc;
+        vn0 = (dota*dotb-dotc)*dotpa + (1-dotb*dotb)*dotpb + (dotb*dotc-dota)*dotpc;
+        wn0 = (dotc*dota-dotb)*dotpa + (dotb*dotc-dota)*dotpb + (1-dotc*dotc)*dotpc;
+        kd0 = un0+vn0+wn0;
 
-    QVector3D oq;
-    oq = (un0*OA + vn0*OB + wn0*OC)/kd0;
-    ceiledr = (int) ceil(rop/oq.length());
+        QVector3D oq;
+        oq = (un0*OA + vn0*OB + wn0*OC)/kd0;
+        ceiledr = (int) ceil(rop/oq.length());
 
-//    QVector3D sub = OP-(un*OA + vn*OB + wn*OC)/kn;
-//    if(sub.length()>1e-4){
-//        qDebug() << "Mismatch of coefficients";
-//        qDebug() << sub.length() << OP << (un*OA + vn*OB + wn*OC)/kn;
-//    }
-
-    if(kd0!=0)
-    {
-//        qDebug() << (un+vn+wn)/kd;
-//        if(un<0||vn<0||wn<0){
-//            qDebug() << "could not get surrounding 3 points";
-//            qDebug() << un/kd << vn/kd << wn/kd;
+//        QVector3D sub = OP-(un*OA + vn*OB + wn*OC)/kn;
+//        if(sub.length()>1e-4){
+//            qDebug() << "Mismatch of coefficients";
+//            qDebug() << sub.length() << OP << (un*OA + vn*OB + wn*OC)/kn;
 //        }
 
-        double QQ2Length,PQLength;
-        FWeightA = un0/kd0;
-        FWeightB = vn0/kd0;
-        FWeightC = wn0/kd0;
-        QQ2Length = oq.length();
-        PQLength = ceiledr*oq.length()-rop;
-        FWeightQ = 1 - PQLength/QQ2Length;
+        if(kd0!=0)
+        {
+//            qDebug() << (un+vn+wn)/kd;
+//            if(un<0||vn<0||wn<0){
+//                qDebug() << "could not get surrounding 3 points";
+//                qDebug() << un/kd << vn/kd << wn/kd;
+//            }
 
-//        if (abs(FWeightQ-0.5) > 0.5){
-//            qDebug() << rop << ceil(rop) << cr;
-//            qDebug() << OA << OB << OC;
-//            qDebug() << un0 << vn0 << wn0 << kd0;
-//            qDebug() << QQ2Length << PQLength << FWeightQ;
-//            qDebug() << (un0*OA + vn0*OB + wn0*OC)/kd0;
-//            qDebug() << "";
-//        }
-    }
-    else
-    {
-        FWeightA=0; FWeightB=0; FWeightC=0; FWeightQ=0;
+            double QQ2Length,PQLength;
+            FWeightA = un0/kd0;
+            FWeightB = vn0/kd0;
+            FWeightC = wn0/kd0;
+            QQ2Length = oq.length();
+            PQLength = ceiledr*oq.length()-rop;
+            FWeightQ = 1 - PQLength/QQ2Length;
+
+//            if (abs(FWeightQ-0.5) > 0.5){
+//                qDebug() << rop << ceil(rop) << cr;
+//                qDebug() << OA << OB << OC;
+//                qDebug() << un0 << vn0 << wn0 << kd0;
+//                qDebug() << QQ2Length << PQLength << FWeightQ;
+//                qDebug() << (un0*OA + vn0*OB + wn0*OC)/kd0;
+//                qDebug() << "";
+//            }
+        }
+        else
+        {
+            FWeightA=0; FWeightB=0; FWeightC=0; FWeightQ=0;
+        }
+    }else if(interpolateMode==dInverse){
+        ceiledr = (int) ceil(rop);
+        FWeightQ = rop-floor(rop);
+
+        QVector3D pa,pb,pc;
+        pa=OA-op;
+        pb=OB-op;
+        pc=OC-op;
+
+        double rpa=pa.length();
+        double rpb=pb.length();
+        double rpc=pc.length();
+
+        double rps= rpa*rpb + rpb*rpc + rpc*rpa;
+        if(rps>0)
+        {
+          FWeightA = rpb*rpc/rps;
+          FWeightB = rpc*rpa/rps;
+          FWeightC = rpa*rpb/rps;
+        }
+        else
+        {
+          FWeightA=0; FWeightB=0; FWeightC=0;
+        }
     }
 }
 
