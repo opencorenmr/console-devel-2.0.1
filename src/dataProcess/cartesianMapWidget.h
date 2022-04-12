@@ -23,6 +23,7 @@ public:
     QPushButton *loadAngleTablePushButton;
     QPushButton *saveAngleTablePushButton;
 //    QPushButton *setAngleTablePushButton;
+    QComboBox *selectModeComboBox;
     QPushButton *applyAngleTablePushButton;
     QString dataFilePath() {return FDataFilePath;}
     void setDataFilePath(QString qs) {FDataFilePath=qs;}

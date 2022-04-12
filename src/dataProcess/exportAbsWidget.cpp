@@ -16,6 +16,7 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDebug>
+#include <math.h>
 
 SExportAbsWidget::SExportAbsWidget()
 {
@@ -33,6 +34,20 @@ void SExportAbsWidget::createWidgets()
         layersSpinBox->setMaximum(65536);
         layersSpinBox->setValue(1);
     exportAbsButton = new QPushButton(tr("Export all abs for ImageJ"));
+
+    onlyRealCheckBox = new QCheckBox(tr("Abs of real only"));
+    SumlayersCheckBox = new QCheckBox(tr("Sum layers"));
+    SumlayersthicknessSpinBox = new QSpinBox;
+        SumlayersthicknessSpinBox->setMinimum(1);
+        SumlayersthicknessSpinBox->setMaximum(65536);
+        SumlayersthicknessSpinBox->setValue(1);
+        SumlayersthicknessSpinBox->setEnabled(false);
+    SumlayersmodeComboBox = new QComboBox();
+        SumlayersmodeComboBox->setEnabled(false);
+    SumlayersmodeComboBox->addItems(QStringList() << tr("even") << tr("odd"));
+        SumlayersmodeComboBox->setEnabled(false);
+    Sumlayers3DCheckBox = new QCheckBox(tr("3D process (unworkable)"));
+        Sumlayers3DCheckBox->setEnabled(false);
 }
 
 void SExportAbsWidget::createPanel()
@@ -43,7 +58,14 @@ void SExportAbsWidget::createPanel()
         QGridLayout *gridLayout0 = new QGridLayout;
         gridLayout0->addWidget(new QLabel(tr("Layers")),0,0,1,1);
         gridLayout0->addWidget(layersSpinBox,0,1,1,1);
-        gridLayout0->addWidget(exportAbsButton,1,0,1,2);
+        gridLayout0->addWidget(onlyRealCheckBox,1,0,1,2);
+        gridLayout0->addWidget(SumlayersCheckBox,2,0,1,2);
+        gridLayout0->addWidget(new QLabel(tr(" thickness")),3,0,1,1);
+        gridLayout0->addWidget(SumlayersthicknessSpinBox,3,1,1,1);
+        gridLayout0->addWidget(new QLabel(tr(" mode")),4,0,1,1);
+        gridLayout0->addWidget(SumlayersmodeComboBox,4,1,1,1);
+        gridLayout0->addWidget(Sumlayers3DCheckBox,5,0,1,2);
+        gridLayout0->addWidget(exportAbsButton,6,0,1,2);
     groupBox0->setLayout(gridLayout0);
 
     mainLayout->addWidget(groupBox0);
@@ -55,6 +77,9 @@ void SExportAbsWidget::createPanel()
 void SExportAbsWidget::createConnections()
 {
     connect(exportAbsButton,SIGNAL(clicked()),this,SLOT(exportAbs()));
+    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),SumlayersthicknessSpinBox,SLOT(setEnabled(bool)));
+    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),SumlayersmodeComboBox,SLOT(setEnabled(bool)));
+//    connect(SumlayersCheckBox,SIGNAL(toggled(bool)),Sumlayers3DCheckBox,SLOT(setEnabled(bool)));
 }
 
 
@@ -65,8 +90,27 @@ void SExportAbsWidget::exportAbs(){
 
     int fidsize = ancestor()->FID_2D->FID.size();
     int layernum = layersSpinBox->value();
+    bool onlyRealFlag = onlyRealCheckBox->isChecked();
 
     if(fidsize%layernum) return;
+
+    int thickness,edge,bundlenum;
+    if(SumlayersCheckBox->isChecked()){
+        thickness = SumlayersthicknessSpinBox->value();
+        if(thickness>layernum) return;
+        if(SumlayersmodeComboBox->currentIndex()) {
+            if((layernum+thickness)%2) return;
+            bundlenum=(((layernum+thickness)/2-1)/thickness)*2+1;
+        }else{
+            if(layernum%2) return;
+            bundlenum=((layernum/2-1)/thickness+1)*2;
+        }
+        edge = (layernum-(bundlenum-2)*thickness)/2;
+    }else{
+        thickness = 1;
+        edge = 1;
+        bundlenum = layernum;
+    }
 
     QString dirPath = ancestor()->processFileWidget->dataFilePath()+'/';
     QString dirName = QFileDialog::getExistingDirectory(this, "Export Ascii Data", dirPath);
@@ -74,25 +118,57 @@ void SExportAbsWidget::exportAbs(){
     if(dirName.isEmpty()) return;
     //qDebug() << dirName << endl;
 
-    for(int l=0; l<layernum; l++)
+    int digit = 1;
+    while (bundlenum>=pow(10,digit)){
+        digit += 1;
+    }
+
+    int digitl = 1;
+    int startlayer = 0,layernuminbundle = 0;
+
+    for(int l=0; l<bundlenum; l++)
     {
-        QString fileName = dirName + '/' + QString::number(l);
+        while (l>=pow(10,digitl)){
+            digitl += 1;
+        }
+        QString fileName = dirName + '/';
+        int zerofill = digit - digitl;
+        while (zerofill){
+            fileName += QString::number(0);
+            zerofill -= 1;
+        }
+        fileName += QString::number(l)+ ".txt";
         QFile file(fileName);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))break;
 
         QTextStream out(&file);
 
     //------------export absolute value------------
+
+        startlayer += layernuminbundle;
+        if((0<l)and(l<bundlenum-1)){
+            layernuminbundle = thickness;
+        }else{
+            layernuminbundle = edge;
+        }
+
+        double Sum = 0;
         for(int i=0;i<fidsize/layernum;i++){
             for(int j=0;j<ancestor()->FID_2D->al();j++){
-                out << ancestor()->FID_2D->FID.at(fidsize*l/layernum+i)->abs->sig.at(j);
+                Sum = 0;
+                for(int iSum=0;iSum<layernuminbundle;iSum++){
+                    if (onlyRealFlag){
+                        Sum += abs(ancestor()->FID_2D->FID.at((startlayer+iSum)*fidsize/layernum+i)->real->sig.at(j));
+                    }else{
+                        Sum += ancestor()->FID_2D->FID.at((startlayer+iSum)*fidsize/layernum+i)->abs->sig.at(j);
+                    }
+                }
+                out << Sum;
                 if(j!=ancestor()->FID_2D->al()-1){out << " ";}
             }
             out << '\n'; // Qt::endl;
         }
-
         file.close();
-
     }
 
     for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)

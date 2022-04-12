@@ -411,6 +411,7 @@ void TProcessPanelWidget::createWidgets()
                                     << "Math"
                                     << "Peak"
                                     << "Cartesian Map (experimental)"
+                                    << "3Drearrangement"
                                     );
 
       // Return Values (Array included)
@@ -482,6 +483,9 @@ void TProcessPanelWidget::createWidgets()
 
     cartesianMapWidget = new TCartesianMapWidget;
       cartesianMapWidget->setAncestor(this);
+
+    threeDrearrangementWidget = new S3DrearrangementWidget;
+        threeDrearrangementWidget->setAncestor(this);
 }
 
 void TProcessPanelWidget::createPanel()
@@ -509,6 +513,7 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(peakPickWidget);
 //    stackedWidget->addWidget(interpolateWidget);
     stackedWidget->addWidget(cartesianMapWidget);
+    stackedWidget->addWidget(threeDrearrangementWidget);
 
     QHBoxLayout *layout1 = new QHBoxLayout;
     //layout1->addWidget(new QLabel(tr("Operation")));

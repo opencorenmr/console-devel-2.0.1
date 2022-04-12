@@ -6,6 +6,8 @@
 #include <QSpinBox>
 #include <QPlainTextEdit>
 #include <QLineEdit>
+#include <QCheckBox>
+#include <QComboBox>
 
 #include "processBase.h"
 #include "fidDomain.h"
@@ -22,6 +24,10 @@ public:
 
     QSpinBox *layersSpinBox;
     QPushButton *exportAbsButton;
+
+    QCheckBox *onlyRealCheckBox,*SumlayersCheckBox,*Sumlayers3DCheckBox;
+    QSpinBox *SumlayersthicknessSpinBox;
+    QComboBox *SumlayersmodeComboBox;
 
 signals:
 

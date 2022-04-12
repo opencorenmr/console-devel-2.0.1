@@ -13,6 +13,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    ../dataProcess/3Drearrangement.cpp \
+    ../dataProcess/3DrearrangementWidget.cpp \
     ../dataProcess/cartesianMap.cpp \
     ../dataProcess/cartesianMapWidget.cpp \
     ../dataProcess/exportAbsWidget.cpp \
@@ -61,6 +63,8 @@ SOURCES += main.cpp\
 
 
 HEADERS  += mainwindow.h \
+    ../dataProcess/3Drearrangement.h \
+    ../dataProcess/3DrearrangementWidget.h \
     ../dataProcess/cartesianMap.h \
     ../dataProcess/cartesianMapWidget.h \
     ../dataProcess/exportAbsWidget.h \

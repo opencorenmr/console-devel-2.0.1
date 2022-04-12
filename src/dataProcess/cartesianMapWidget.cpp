@@ -22,6 +22,8 @@ void TCartesianMapWidget::createWidgets()
     loadAngleTablePushButton = new QPushButton(tr("Load"));
     saveAngleTablePushButton = new QPushButton(tr("Save"));
 //    setAngleTablePushButton = new QPushButton(tr("Set"));
+    selectModeComboBox = new QComboBox;
+        selectModeComboBox->addItems(QStringList() << tr("vector, linear") << tr("d^(-1) coef."));
     applyAngleTablePushButton = new QPushButton(tr("Apply"));
 
 }
@@ -34,8 +36,10 @@ void TCartesianMapWidget::createLayout()
     gLayout0->addWidget(loadAngleTablePushButton,0,0,1,1);
     gLayout0->addWidget(saveAngleTablePushButton,0,1,1,1);
     gLayout0->addWidget(thetaPhiTextEdit,1,0,1,2);
-//    gLayout0->addWidget(setAngleTablePushButton,2,0,1,1);
-    gLayout0->addWidget(applyAngleTablePushButton,2,1,1,1);
+    gLayout0->addWidget(new QLabel(tr("Mode")),2,0,1,1);
+    gLayout0->addWidget(selectModeComboBox,2,1,1,1);
+//    gLayout0->addWidget(setAngleTablePushButton,3,0,1,1);
+    gLayout0->addWidget(applyAngleTablePushButton,3,1,1,1);
 }
 
 void TCartesianMapWidget::createConnections()
@@ -90,6 +94,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     emit isCartesianMapIdle(false);
 
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
+    cartesianMap3D->interpolateMode = selectModeComboBox->currentIndex();
     if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
         QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
