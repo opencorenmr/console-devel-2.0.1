@@ -3,12 +3,14 @@
 
 #include "processElement.h"
 
-class SSetCenterattheOrigin : public TProcessElement
+class STranslation : public TProcessElement
 {
 public:
-    SSetCenterattheOrigin();
+    STranslation();
 
     bool process(TFID_2D *fid_2D,int size1,int size2);
+
+    int d1Displacement,d2Displacement,abscissaDisplacement;
 };
 
 class SxyzRotation : public TProcessElement
