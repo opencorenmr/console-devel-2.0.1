@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QDebug>
+#include <QMessageBox>
 
 #include "createFIDWidget.h"
 
@@ -31,6 +32,10 @@ void TCreateFIDWidget::createWidgets()
       sf1DoubleSpinBox->setMinimum(0);
       sf1DoubleSpinBox->setMaximum(1e100);
       sf1DoubleSpinBox->setValue(100);
+    sizeSpinBox = new QSpinBox;
+      sizeSpinBox->setMinimum(1);
+      sizeSpinBox->setMaximum(65536);
+      sizeSpinBox->setValue(1);
     freqDoubleSpinBox = new QDoubleSpinBox;
     createModeComboBox = new QComboBox;
       createModeComboBox->addItems(QStringList() << "ascii data");
@@ -74,8 +79,10 @@ void TCreateFIDWidget::createPanel()
     gLayout0->addWidget(dwDoubleSpinBox,0,1,1,1);
     gLayout0->addWidget(new QLabel(tr("Hz/ppm")),1,0,1,1);
     gLayout0->addWidget(sf1DoubleSpinBox,1,1,1,1);
-    gLayout0->addWidget(stackedWidget,2,0,1,2);
-    gLayout0->addWidget(createFIDPushButton,3,0,1,2);
+    gLayout0->addWidget(new QLabel(tr("Number of FIDs")),2,0,1,1);
+    gLayout0->addWidget(sizeSpinBox,2,1,1,1);
+    gLayout0->addWidget(stackedWidget,3,0,1,2);
+    gLayout0->addWidget(createFIDPushButton,4,0,1,2);
 }
 
 void TCreateFIDWidget::createConnections()
@@ -100,6 +107,8 @@ void TCreateFIDWidget::createFIDFromAsci()
     double re,im;
     QVector<double> inPhase,quadrature;
     inPhase.clear();quadrature.clear();
+    int nFID = sizeSpinBox->value();
+    int al;
 
     bool ok;
 
@@ -141,30 +150,39 @@ void TCreateFIDWidget::createFIDFromAsci()
 
     } // k
 
-
+    if(inPhase.size()%nFID){
+        QMessageBox::warning(this,"error","The number of FIDs does not match.");
+        return;
+    }
+    al=inPhase.size()/nFID;
 
     // We clear the content of FID, and immediately append one.
     FID_2D->FID.clear();
-    FID_2D->FID.append(new TFID(inPhase.size()));
-    // Since we have only a single item, we set the currentFID to be the first one.
-    FID_2D->setCurrentFID(0);
+
+    for(int j=0; j< nFID; j++)
+    {
+        FID_2D->FID.append(new TFID(al));
+        for(int k=0; k< al; k++)
+        {
+            FID_2D->FID[j]->real->sig[k]=inPhase.at(j*al+k);
+            FID_2D->FID[j]->imag->sig[k]=quadrature.at(j*al+k);
+            // qDebug() << QString(Q_FUNC_INFO) << FID_2D->FID[0]->real->sig[k]
+            // << FID_2D->FID[0]->imag->sig[k];
+        }
+        FID_2D->FID[j]->updateAbs();
+        FID_2D->FID[j]->setDomain(TFID::TimeDomain);
+        FID_2D->FID[j]->setEmpty(false);
+        qDebug() << FID_2D->FID.at(j)->real->sig;
+    }
 
     // Then we set dw according to the dwDoubleSpinBox, and al.
     FID_2D->setDW(dwDoubleSpinBox->value());
     FID_2D->setSF1(sf1DoubleSpinBox->value());
-    FID_2D->setAl(inPhase.size());
-    for(int k=0; k< FID_2D->al(); k++)
-    {
-        FID_2D->FID[0]->real->sig[k]=inPhase.at(k);
-        FID_2D->FID[0]->imag->sig[k]=quadrature.at(k);
-        // qDebug() << QString(Q_FUNC_INFO) << FID_2D->FID[0]->real->sig[k]
-        // << FID_2D->FID[0]->imag->sig[k];
-    }
-    FID_2D->FID[0]->updateAbs();
-    FID_2D->FID[0]->setDomain(TFID::TimeDomain);
-    FID_2D->FID[0]->setEmpty(false);
+    FID_2D->setAl(al);
 
-   // qDebug() << QString(Q_FUNC_INFO) << "update request";
+    FID_2D->setCurrentFID(0);
+
+    // qDebug() << QString(Q_FUNC_INFO) << "update request";
     emit updateRequest();
 
 
