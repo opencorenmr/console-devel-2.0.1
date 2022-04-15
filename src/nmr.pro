@@ -40,6 +40,8 @@ SOURCES += main.cpp\
     job.cpp \
     expSettings.cpp \
     metricPrefix.cpp \
+    dataProcess/3Drearrangement.cpp \
+    dataProcess/3DrearrangementWidget.cpp \
     dataProcess/arraySum.cpp \
     dataProcess/flatten.cpp \
     dataProcess/processElement.cpp \
@@ -113,6 +115,8 @@ HEADERS  += mainwindow.h \
     job.h \
     expSettings.h \
     metricPrefix.h \
+    dataProcess/3Drearrangement.h \
+    dataProcess/3DrearrangementWidget.h \
     dataProcess/arraySum.h \
     dataProcess/flatten.h \
     dataProcess/processElement.h \
