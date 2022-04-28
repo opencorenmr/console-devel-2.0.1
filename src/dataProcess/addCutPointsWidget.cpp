@@ -125,15 +125,23 @@ void TAddCutPointsWidget::onHeadTailComboBoxChanged()
     switch(headTailComboBox->currentIndex())
     {
     case TAddCutPoints::Head:
+        headPointsSpinBox->setEnabled(true);
+        tailPointsSpinBox->setEnabled(false);
         addCutPoints->setHeadTail(TAddCutPoints::Head);
         break;
     case TAddCutPoints::Tail:
+        headPointsSpinBox->setEnabled(false);
+        tailPointsSpinBox->setEnabled(true);
         addCutPoints->setHeadTail(TAddCutPoints::Tail);
         break;
     case TAddCutPoints::Both:
+        headPointsSpinBox->setEnabled(true);
+        tailPointsSpinBox->setEnabled(true);
         addCutPoints->setHeadTail(TAddCutPoints::Both);
         break;
     default:
+        headPointsSpinBox->setEnabled(true);
+        tailPointsSpinBox->setEnabled(true);
         addCutPoints->setHeadTail(TAddCutPoints::headTailUndefined);
         break;
 
@@ -148,21 +156,31 @@ void TAddCutPointsWidget::onOperationSelectComboBoxChanged()
    case TAddCutPoints::Cut:
        addCutPoints->setOperation(TAddCutPoints::Cut);
        headTailComboBox->setItemText(2,"Head and Tail");
+       headCheckBox->setEnabled(true);
+       tailCheckBox->setEnabled(true);
        break;
    case TAddCutPoints::Leave:
        addCutPoints->setOperation(TAddCutPoints::Leave);
        headTailComboBox->setItemText(2,"Middle");
+       headCheckBox->setEnabled(true);
+       tailCheckBox->setEnabled(true);
        break;
    case TAddCutPoints::ZeroFill:
        addCutPoints->setOperation(TAddCutPoints::ZeroFill);
        headTailComboBox->setItemText(2,"Head and Tail");
+       headCheckBox->setEnabled(false);
+       tailCheckBox->setEnabled(false);
        break;
    case TAddCutPoints::Extrapolate:
        addCutPoints->setOperation(TAddCutPoints::Extrapolate);
        headTailComboBox->setItemText(2,"Head and Tail");
+       headCheckBox->setEnabled(false);
+       tailCheckBox->setEnabled(false);
        break;
    default:
        addCutPoints->setOperation(TAddCutPoints::operationUndefined);
+       headCheckBox->setEnabled(true);
+       tailCheckBox->setEnabled(true);
        break;
 
    }
