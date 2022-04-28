@@ -14,6 +14,7 @@ TProcessFileWidget::TProcessFileWidget(QWidget *parent) : QWidget(parent)
     createPanel();
     createConnections();
     fidSetted=false;
+    processSetted=false;
 
 }
 
@@ -93,6 +94,7 @@ void TProcessPanelWidget::importProcess()
                               ));
         return;
     }
+
 
     updateProcessSettings();
 
