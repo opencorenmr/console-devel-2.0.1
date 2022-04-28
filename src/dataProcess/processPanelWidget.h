@@ -160,6 +160,7 @@ private:
 
     QString FDataFilePath;
     bool fidSetted;
+    bool processSetted;
 
 };
 
