@@ -127,12 +127,14 @@ public:
     explicit TProcessFileWidget(QWidget *parent=nullptr);
     ~TProcessFileWidget(){}
 
-    QPushButton *openButton,*openAndProcessButton,*saveButton;
+    QCheckBox *openAndProcessCheckBox;
+    QCheckBox *openProcessAndApplyCheckBox;
+    QPushButton *openDataButton,*openAndProcessButton,*saveDataButton;
     QLineEdit *currentFileLineEdit;
     QPlainTextEdit *parameterPlainTextEdit;
     QPushButton *exportDataButton;
     QSpinBox *plotterIDSpinBox;
-    QPushButton *exportProcessButton, *importProcessButton;
+    QPushButton *saveProcessButton, *openProcessButton;
     TFID_2D *FID_2D;
     void setFID2D(TFID_2D *f) {FID_2D=f;}
     QString dataFilePath() {return FDataFilePath;}

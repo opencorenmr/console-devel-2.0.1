@@ -20,9 +20,10 @@ TProcessFileWidget::TProcessFileWidget(QWidget *parent) : QWidget(parent)
 
 void TProcessFileWidget::createWidgets()
 {
-    openButton = new QPushButton(tr("Open"));
-    openAndProcessButton = new QPushButton(tr("Open and Process"));
-    saveButton = new QPushButton(tr("Save"));
+    openDataButton = new QPushButton(tr("Open"));
+    openAndProcessCheckBox = new QCheckBox(tr("Apply process"));
+//    openAndProcessButton = new QPushButton(tr("Open and Process"));
+    saveDataButton = new QPushButton(tr("Save"));
 
     currentFileLineEdit = new QLineEdit;
     currentFileLineEdit->setReadOnly(true);
@@ -32,32 +33,41 @@ void TProcessFileWidget::createWidgets()
     plotterIDSpinBox = new QSpinBox;
     plotterIDSpinBox->setMinimum(0);
     plotterIDSpinBox->setMaximum(0);
-    exportProcessButton = new QPushButton(tr("Export Process"));
-    importProcessButton = new QPushButton(tr("Import Process"));
+    openProcessButton = new QPushButton(tr("Open Process"));
+    openProcessAndApplyCheckBox = new QCheckBox(tr("Apply to data"));
+    saveProcessButton = new QPushButton(tr("Save Process"));
 }
 
 void TProcessFileWidget::createPanel()
 {
-    QGridLayout *mainLayout = new QGridLayout(this);
-//    mainLayout->addWidget(openButton,0,0,1,1,Qt::AlignLeft);
-    mainLayout->addWidget(openButton,0,0,1,1);
-    mainLayout->addWidget(openAndProcessButton,0,1,1,1);
-    mainLayout->addWidget(currentFileLineEdit,1,0,1,2);
-    mainLayout->addWidget(parameterPlainTextEdit,2,0,1,2);
-   // mainLayout->addWidget(exportDataButton,2,0,1,1);
-   // mainLayout->addWidget(new QLabel(tr("Plotter #")),2,1,1,1);
-   // mainLayout->addWidget(plotterIDSpinBox,2,2,1,1);
-   // mainLayout->addWidget(new QLabel(tr("Export data coming soon.")),3,0,1,3);
-    mainLayout->addWidget(saveButton,3,0,1,2);
-    mainLayout->addWidget(importProcessButton,4,0,1,1);
-    mainLayout->addWidget(exportProcessButton,4,1,1,1);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    QGroupBox *dataGroupBox = new QGroupBox(tr("Data"));
+    QGroupBox *processGroupBox = new QGroupBox(tr("Process"));
+
+    QGridLayout *gLayout1 = new QGridLayout;
+    gLayout1->addWidget(openDataButton,0,0,1,1);
+    gLayout1->addWidget(openAndProcessCheckBox,0,1,1,1);
+    gLayout1->addWidget(saveDataButton,0,2,1,1);
+    gLayout1->addWidget(currentFileLineEdit,1,0,1,3);
+    gLayout1->addWidget(parameterPlainTextEdit,2,0,1,3);
+    QGridLayout *gLayout2 = new QGridLayout;
+    gLayout2->addWidget(openProcessButton,0,0,1,1);
+    gLayout2->addWidget(openProcessAndApplyCheckBox,0,1,1,1);
+    gLayout2->addWidget(saveProcessButton,1,0,1,1);
+
+    dataGroupBox->setLayout(gLayout1);
+    processGroupBox->setLayout(gLayout2);
+
+    mainLayout->addWidget(dataGroupBox);
+    mainLayout->addWidget(processGroupBox);
+    mainLayout->addStretch();
+    setLayout(mainLayout);
 }
 
 void TProcessFileWidget::createConnections()
 {
-    connect(openButton,SIGNAL(clicked()),this,SLOT(openFile()));
-    connect(openAndProcessButton,SIGNAL(clicked()),this,SLOT(openFileAndProcess()));
-    connect(saveButton,SIGNAL(clicked()),this,SLOT(saveFile()));
+    connect(openDataButton,SIGNAL(clicked()),this,SLOT(openFile()));
+    connect(saveDataButton,SIGNAL(clicked()),this,SLOT(saveFile()));
 }
 
 void TProcessFileWidget::setNOfPlotters(int n)
@@ -97,6 +107,11 @@ void TProcessPanelWidget::importProcess()
 
 
     updateProcessSettings();
+
+    if(processFileWidget->openProcessAndApplyCheckBox->isChecked())
+    {
+        applyProcess();
+    }
 
 }
 
@@ -310,10 +325,18 @@ void TProcessFileWidget::openFile()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-    emit initializeRequest();
-    emit clearProcessRequest();
-
     fidSetted=true;
+
+    emit initializeRequest();
+
+    if(openAndProcessCheckBox->isChecked())
+    {
+       emit applyProcessRequest();
+    }
+    else
+    {
+       emit clearProcessRequest();
+    }
 
 
 }
@@ -540,9 +563,9 @@ void TProcessPanelWidget::createConnections()
 
     connect(processFileWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcess()));
     connect(processFileWidget,SIGNAL(initializeRequest()),this,SLOT(initialize()));
-    connect(processFileWidget->exportProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
+    connect(processFileWidget->saveProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
     connect(processFileWidget,SIGNAL(applyProcessRequest()),this,SLOT(applyProcess()));
-    connect(processFileWidget->importProcessButton,SIGNAL(clicked(bool)),this,SLOT(importProcess()));
+    connect(processFileWidget->openProcessButton,SIGNAL(clicked(bool)),this,SLOT(importProcess()));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),processFileWidget,SLOT(setNOfPlotters(int)));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),this,SLOT(updateNumberOfPlotters(int)));
 
