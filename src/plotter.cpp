@@ -1794,7 +1794,8 @@ void Plotter::drawHalfFID(THalfFID *hFID, QPainter *painter, QColor color)
 
 
     vCenter=topMargin+(height()-topMargin-bottomMargin)/2;
-    double scale2=scale()*(height()-(topMargin+bottomMargin))/2;
+//    double scale2=scale()*(height()-(topMargin+bottomMargin))/2;
+    double scale2=0.98*scale()*(vOffset()+(height()-(topMargin+bottomMargin))/2);
 
     double x1=leftMargin;
     double y1=round(vCenter-scale2*(hFID->sig.at(xini) - plotOffset)) + vOffset();
