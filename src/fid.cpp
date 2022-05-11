@@ -547,14 +547,14 @@ bool TFID_2D::WriteoppFile(QString fn)
     }
 
     QTextStream out(&file);
-    out << "point=" << QString::number(al()) << "\r\n";
-    out << "dw=" << QString::number(dw(),'g',12) << "\r\n";
-    out << "sf1=" << QString::number(sf1(),'g',12) << "\r\n";
-    out << "#\r\n";
+    out << "point=" << QString::number(al()) << "\n";
+    out << "dw=" << QString::number(dw(),'g',12) << "\n";
+    out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
+    out << "#\n";
 
-    for(int i=0; i<comments.size(); i++) out << comments.at(i) << "\r\n";
+    for(int i=0; i<comments.size(); i++) out << comments.at(i) << "\n";
 
-    for(int k=0; k< qsl.size(); k++) out << qsl.at(k) << "\r\n";
+    for(int k=0; k< qsl.size(); k++) out << qsl.at(k) << "\n";
 
     file.close();
     return true;
@@ -573,10 +573,10 @@ bool TFID_2D::Writesm2pFile(QString fn)
     }
 
     QTextStream out(&file);
-    out << "point=" << QString::number(al()) << "\r\n";
-    out << "dw=" << QString::number(dw(),'g',12) << "\r\n";
-    out << "sf1=" << QString::number(sf1(),'g',12) << "\r\n";
-    out << "#\r\n";
+    out << "point=" << QString::number(al()) << "\n";
+    out << "dw=" << QString::number(dw(),'g',12) << "\n";
+    out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
+    out << "#\n";
     for(int i=0; i<comments.size(); i++) out << comments.at(i);
 
     file.close();
@@ -595,10 +595,10 @@ bool TFID_2D::WriteopaFile(QString fn, QIODevice::OpenModeFlag flag)
     }
 
     QTextStream out(&file);
-//    out << "point=" << QString::number(al()) << "\r\n";
-//    out << "dw=" << QString::number(dw(),'g',12) << "\r\n";
-//    out << "sf1=" << QString::number(sf1(),'g',12) << "\r\n";
-//    out << "#\r\n";
+//    out << "point=" << QString::number(al()) << "\n";
+//    out << "dw=" << QString::number(dw(),'g',12) << "\n";
+//    out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
+//    out << "#\n";
 //    for(int i=0; i<comments.size(); i++) out << comments.at(i);
 
     for(int i=0; i<FID.size(); i++)
@@ -1010,7 +1010,7 @@ bool TFID::exportAscii(QString fn, int xini, int xfin)
         << QString::number(real->sig.at(k),'g',12) << " "
         << QString::number(imag->sig.at(k),'g',12) << " "
         << QString::number(abs->sig.at(k),'g',12)
-        << "\r\n";
+        << "\n";
 
     file.close();
     return true;
@@ -1041,7 +1041,7 @@ bool TFID::exportAscii(QString fn)
         << QString::number(real->sig.at(k),'g',12) << " "
         << QString::number(imag->sig.at(k),'g',12) << " "
         << QString::number(abs->sig.at(k),'g',12)
-        << "\r\n";
+        << "\n";
 
     file.close();
     return true;
@@ -1094,9 +1094,9 @@ bool TFID::WriteoppFile(QString fn)
     }
 
     QTextStream out(&file);
-    out << "point=" << QString::number(al()) << "\r\n";
-    out << "dw=" << QString::number(dw(),'g',12) << "\r\n";
-    out << "sf1=" << QString::number(sf1(),'g',12) << "\r\n";
+    out << "point=" << QString::number(al()) << "\n";
+    out << "dw=" << QString::number(dw(),'g',12) << "\n";
+    out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
     out << "#\n";
 
     for(int i=0; i<comment().size(); i++) out << comment().at(i);
@@ -1118,9 +1118,9 @@ bool TFID::Writesm2pFile(QString fn)
     }
 
     QTextStream out(&file);
-    out << "point=" << QString::number(al()) << "\r\n";
-    out << "dw=" << QString::number(dw(),'g',12) << "\r\n";
-    out << "sf1=" << QString::number(sf1(),'g',12) << "\r\n";
+    out << "point=" << QString::number(al()) << "\n";
+    out << "dw=" << QString::number(dw(),'g',12) << "\n";
+    out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
     out << "#\n";
 
     for(int i=0; i<comment().size(); i++) out << comment().at(i);
@@ -1223,9 +1223,9 @@ bool TFID::WritesmdFile(QString fn)
     }
 
     QTextStream out(&file);
-    out << "point=" << QString::number(al()) << "\r\n";
-    out << "dw=" << QString::number(dw(),'g',12) << "\r\n";
-    out << "sf1=" << QString::number(sf1(),'g',12) << "\r\n";
+    out << "point=" << QString::number(al()) << "\n";
+    out << "dw=" << QString::number(dw(),'g',12) << "\n";
+    out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
     out << "#" << "\n";
 
     for(int i=0; i<al(); i++) out << QString::number(real->sig.at(i),'g',12)
