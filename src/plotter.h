@@ -130,13 +130,6 @@ public:
 
     TFID *fid;
     TFID *localFID;
-
-    int xini;
-    int xfin;
-    int vCenter;
-    int vOffset() {return FvOffset;}
-    void setVOffset(int v) {FvOffset=v;}
-
     QPixmap pixmap;
 
     int Margin;
@@ -144,6 +137,22 @@ public:
     int bottomMargin;
     int leftMargin;
     int rightMargin;
+
+    int xini;
+    int xfin;
+    int vCenter;
+    int vOffset() {return FvOffset;}
+    void setVOffset(int v) {FvOffset=v;}
+
+    double vOffsetRatio() {return FvOffsetRatio;}
+    void setVOffsetRatio(double d) {
+        FvOffsetRatio=d;
+        setVOffset(round(
+                       (0.5-d)*(rect().height()-topMargin-bottomMargin)
+                       )
+                   );
+    }
+
 
     static double tic(double min, double max);
 
@@ -154,6 +163,7 @@ public:
 
     double scale() {return Fscale;}
     void setScale(double s) {Fscale=s;}
+
 
     int penWidth() {return FPenWidth;}
 
@@ -239,6 +249,7 @@ private:
     bool FbitLineIsShown;
 
     int FvOffset;
+    double FvOffsetRatio;
 
     int curZoom;
     QRect rubberBandRect;

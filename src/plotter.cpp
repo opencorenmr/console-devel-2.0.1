@@ -745,7 +745,8 @@ void FIDPlotter::updateVOffset(double d)
     {
         return;
     }
-    plotter->setVOffset(round((0.5-d)*plotter->rect().height()));
+//    plotter->setVOffset(round((0.5-d)*plotter->rect().height()));
+    plotter->setVOffsetRatio(d);
     update();
 }
 //------------------------------------------------------------------------------
@@ -984,6 +985,7 @@ Plotter::Plotter(QWidget *parent) :
   fidSetted=false;
   scaleSetting=ReceiverScale;
   setScale(1.0); // will be corrected later (Takeda)
+  setVOffsetRatio(0.5);
 
   setPlotSettings(PlotSettings());
 
@@ -1122,6 +1124,7 @@ void Plotter::resizeEvent(QResizeEvent * /* event */)
     absButton->move(realButton->width()+imagButton->width()+5,5);
 */
 
+    setVOffsetRatio(vOffsetRatio());
     refreshPixmap();
 }
 //------------------------------------------------------------------------------
@@ -1795,7 +1798,7 @@ void Plotter::drawHalfFID(THalfFID *hFID, QPainter *painter, QColor color)
 
     vCenter=topMargin+(height()-topMargin-bottomMargin)/2;
 //    double scale2=scale()*(height()-(topMargin+bottomMargin))/2;
-    double scale2=0.98*scale()*(vOffset()+(height()-(topMargin+bottomMargin))/2);
+    double scale2=scale()*(vOffset()+(height()-(topMargin+bottomMargin))/2);
 
     double x1=leftMargin;
     double y1=round(vCenter-scale2*(hFID->sig.at(xini) - plotOffset)) + vOffset();
