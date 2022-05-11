@@ -165,7 +165,7 @@ void KNutationWidget::processArray()
                         );
 //            out << QString::number(init+delta*k) << " "
 //                << QString::number(ancestor()->FID_2D->FID.at(k)->real->sig.at(start))
-//                << "\r\n";
+//                << "\n";
         };
     }
     //-----output area------
