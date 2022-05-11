@@ -172,7 +172,7 @@ void TCreateFIDWidget::createFIDFromAsci()
         FID_2D->FID[j]->updateAbs();
         FID_2D->FID[j]->setDomain(TFID::TimeDomain);
         FID_2D->FID[j]->setEmpty(false);
-        qDebug() << FID_2D->FID.at(j)->real->sig;
+//        qDebug() << FID_2D->FID.at(j)->real->sig;
     }
 
     // Then we set dw according to the dwDoubleSpinBox, and al.

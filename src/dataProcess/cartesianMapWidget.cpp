@@ -22,6 +22,15 @@ void TCartesianMapWidget::createWidgets()
     loadAngleTablePushButton = new QPushButton(tr("Load"));
     saveAngleTablePushButton = new QPushButton(tr("Save"));
 //    setAngleTablePushButton = new QPushButton(tr("Set"));
+    setCubeSidePointsSpinBox = new QSpinBox;
+        setCubeSidePointsSpinBox->setMinimum(1);
+        setCubeSidePointsSpinBox->setMaximum(1024);
+        setCubeSidePointsSpinBox->setValue(256);
+    setDistanceBetweenPointsDoubleSpinBox = new QDoubleSpinBox;
+        setDistanceBetweenPointsDoubleSpinBox->setSingleStep(0.01);
+        setDistanceBetweenPointsDoubleSpinBox->setMinimum(0.01);
+        setDistanceBetweenPointsDoubleSpinBox->setMaximum(100.00);
+        setDistanceBetweenPointsDoubleSpinBox->setValue(1.00);
     selectModeComboBox = new QComboBox;
         selectModeComboBox->addItems(QStringList() << tr("vector, linear") << tr("d^(-1) coef."));
     applyAngleTablePushButton = new QPushButton(tr("Apply"));
@@ -38,8 +47,12 @@ void TCartesianMapWidget::createLayout()
     gLayout0->addWidget(thetaPhiTextEdit,1,0,1,2);
     gLayout0->addWidget(new QLabel(tr("Mode")),2,0,1,1);
     gLayout0->addWidget(selectModeComboBox,2,1,1,1);
-//    gLayout0->addWidget(setAngleTablePushButton,3,0,1,1);
-    gLayout0->addWidget(applyAngleTablePushButton,3,1,1,1);
+    gLayout0->addWidget(new QLabel(tr("Points on cube side")),3,0,1,1);
+    gLayout0->addWidget(setCubeSidePointsSpinBox,3,1,1,1);
+    gLayout0->addWidget(new QLabel(tr("Distance between points")),4,0,1,1);
+    gLayout0->addWidget(setDistanceBetweenPointsDoubleSpinBox,4,1,1,1);
+//    gLayout0->addWidget(setAngleTablePushButton,5,0,1,1);
+    gLayout0->addWidget(applyAngleTablePushButton,5,1,1,1);
 }
 
 void TCartesianMapWidget::createConnections()
@@ -95,6 +108,8 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
     cartesianMap3D->interpolateMode = selectModeComboBox->currentIndex();
+    cartesianMap3D->numberofPointsonCubeSide = setCubeSidePointsSpinBox->value();
+    cartesianMap3D->ratioofDistanceBetweenPoints = setDistanceBetweenPointsDoubleSpinBox->value();
     if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
         QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());

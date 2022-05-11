@@ -133,6 +133,9 @@ public:
 
     bool wasCanceled;
 
+    int numberofPointsonCubeSide;
+    double ratioofDistanceBetweenPoints;
+
     int interpolateMode;
     enum{vector,dInverse};
 
