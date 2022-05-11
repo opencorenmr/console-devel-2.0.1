@@ -227,16 +227,6 @@ void TCartesianMap3D::calcWeight(TPolarAngle p,double rop){
         wn0 = (dotc*dota-dotb)*dotpa + (dotb*dotc-dota)*dotpb + (1-dotc*dotc)*dotpc;
         kd0 = un0+vn0+wn0;
 
-        QVector3D oq;
-        oq = (un0*OA + vn0*OB + wn0*OC)/kd0;
-        ceiledr = (int) ceil(rop/oq.length());
-
-//        QVector3D sub = OP-(un*OA + vn*OB + wn*OC)/kn;
-//        if(sub.length()>1e-4){
-//            qDebug() << "Mismatch of coefficients";
-//            qDebug() << sub.length() << OP << (un*OA + vn*OB + wn*OC)/kn;
-//        }
-
         if(kd0!=0)
         {
 //            qDebug() << (un+vn+wn)/kd;
@@ -244,6 +234,16 @@ void TCartesianMap3D::calcWeight(TPolarAngle p,double rop){
 //                qDebug() << "could not get surrounding 3 points";
 //                qDebug() << un/kd << vn/kd << wn/kd;
 //            }
+
+            QVector3D oq;
+            oq = (un0*OA + vn0*OB + wn0*OC)/kd0;
+            ceiledr = (int) ceil(rop/oq.length());
+
+    //        QVector3D sub = OP-(un*OA + vn*OB + wn*OC)/kn;
+    //        if(sub.length()>1e-4){
+    //            qDebug() << "Mismatch of coefficients";
+    //            qDebug() << sub.length() << OP << (un*OA + vn*OB + wn*OC)/kn;
+    //        }
 
             double QQ2Length,PQLength;
             FWeightA = un0/kd0;
@@ -264,7 +264,7 @@ void TCartesianMap3D::calcWeight(TPolarAngle p,double rop){
         }
         else
         {
-            FWeightA=0; FWeightB=0; FWeightC=0; FWeightQ=0;
+            FWeightA=0; FWeightB=0; FWeightC=0; FWeightQ=0; ceiledr=0;
         }
     }else if(interpolateMode==dInverse){
         ceiledr = (int) ceil(rop);
@@ -358,12 +358,12 @@ void TCartesianMap3D::run()
     TFID_2D *helpFID2D = new TFID_2D;
     helpFID2D->FID.clear();
     //
-    // We make a (nCol x nCol) x nCol matrix
+    // We make a (numberofPointsonCubeSide x numberofPointsonCubeSide) x numberofPointsonCubeSide matrix
     //
-    int arrayLength=nCol*nCol;
+    int arrayLength=numberofPointsonCubeSide*numberofPointsonCubeSide;
     for(int k=0; k<arrayLength; k++)
     {
-        helpFID2D->FID.append(new TFID(nCol));
+        helpFID2D->FID.append(new TFID(numberofPointsonCubeSide));
         helpFID2D->FID.last()->setEmpty(false);
     }
 
@@ -378,7 +378,7 @@ void TCartesianMap3D::run()
     iOrigin /= nRow;
 
     // We make tables
-    FLength1D=nCol;
+    FLength1D=numberofPointsonCubeSide;
 //    while(!thetaTable.isEmpty()) thetaTable.removeLast();
 //    while(!phiTable.isEmpty()) phiTable.removeLast();
     while(!rTable.isEmpty()) rTable.removeLast();
@@ -402,12 +402,12 @@ void TCartesianMap3D::run()
             for(int z=0; z<length1D(); z++)
             {
           //      cartesianMapTable[x][y].append(QPoint(x+z*length1D(),y));
-                int h=length1D() / 2;
-                int z2=z-h;
-                int x2=x-h;
-                int y2=y-h;
+                double h=double(length1D()) / 2.0;
+                double z2=double(z)-h;
+                double x2=double(x)-h;
+                double y2=double(y)-h;
                 polarAngleTable[x][y].append(TPolarAngle(x2,y2,z2));
-                rTable[x][y].append(sqrt(x2*x2+y2*y2+z2*z2));
+                rTable[x][y].append(ratioofDistanceBetweenPoints*sqrt(x2*x2+y2*y2+z2*z2));
 //                thetaTable[x][y].append(polarAngleTable[x][y][z].theta());
 //                phiTable[x][y].append(polarAngleTable[x][y][z].phi());
 
@@ -420,23 +420,23 @@ void TCartesianMap3D::run()
     //
     // Interpolation!
     //
-    for(int z=0; z<nCol; z++)
+    for(int z=0; z<numberofPointsonCubeSide; z++)
     {
       emit calcCount(z);
       emit info("Processing ... ("
               + QString::number(z) + "/"
-              + QString::number(nCol) + ")"
+              + QString::number(numberofPointsonCubeSide) + ")"
               );
       if(stopped) return;
 
-    for(int y=0; y<nCol; y++)
+    for(int y=0; y<numberofPointsonCubeSide; y++)
     {
-    for(int x=0; x<nCol; x++)
+    for(int x=0; x<numberofPointsonCubeSide; x++)
     {
       if((int) ceil(rTable.at(x).at(y).at(z)) > nCol-1) // Outside the sphere -> zero
       {
-          helpFID2D->FID[x+z*nCol]->real->sig[y]=0.0;
-          helpFID2D->FID[x+z*nCol]->imag->sig[y]=0.0;
+          helpFID2D->FID[x+z*numberofPointsonCubeSide]->real->sig[y]=0.0;
+          helpFID2D->FID[x+z*numberofPointsonCubeSide]->imag->sig[y]=0.0;
           emit info("Data zero was set at ("
                 + QString::number(x) + ","
                 + QString::number(y) + ","
@@ -445,10 +445,10 @@ void TCartesianMap3D::run()
 
    //       qDebug() << "TCartesianMap3D::process: Data zero was set at (" << x <<"," << y << "," << z << ").";
       }
-      else if(rTable.at(x).at(y).at(z)==0) // Origin
+      else if(rTable.at(x).at(y).at(z)<DBL_EPSILON) // Origin
       {
-          helpFID2D->FID[x+z*nCol]->real->sig[y]=rOrigin;
-          helpFID2D->FID[x+z*nCol]->imag->sig[y]=iOrigin;
+          helpFID2D->FID[x+z*numberofPointsonCubeSide]->real->sig[y]=rOrigin;
+          helpFID2D->FID[x+z*numberofPointsonCubeSide]->imag->sig[y]=iOrigin;
           emit info("Origin found at ("
                 + QString::number(x) + ","
                 + QString::number(y) + ","
@@ -474,8 +474,8 @@ void TCartesianMap3D::run()
             // qDebug() << "Parallel axis found at (" << x <<"," << y << "," << z << ").";
             if(fabs(rr-r)<DBL_EPSILON)
             {
-              helpFID2D->FID[x+z*nCol]->real->sig[y] = FID_2D->FID.at(parallelIndex())->real->sig.at(rr);
-              helpFID2D->FID[x+z*nCol]->imag->sig[y] = FID_2D->FID.at(parallelIndex())->imag->sig.at(rr);
+              helpFID2D->FID[x+z*numberofPointsonCubeSide]->real->sig[y] = FID_2D->FID.at(parallelIndex())->real->sig.at(rr);
+              helpFID2D->FID[x+z*numberofPointsonCubeSide]->imag->sig[y] = FID_2D->FID.at(parallelIndex())->imag->sig.at(rr);
             }
             else
             {
@@ -483,8 +483,8 @@ void TCartesianMap3D::run()
               d2=FID_2D->FID.at(parallelIndex())->real->sig.at(cr);
               e1=FID_2D->FID.at(parallelIndex())->imag->sig.at(fr);
               e2=FID_2D->FID.at(parallelIndex())->imag->sig.at(cr);
-              helpFID2D->FID[x+z*nCol]->real->sig[y] = (cr-r)*d1 + (r-fr)*d2;
-              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (cr-r)*e1 + (r-fr)*e2;
+              helpFID2D->FID[x+z*numberofPointsonCubeSide]->real->sig[y] = (cr-r)*d1 + (r-fr)*d2;
+              helpFID2D->FID[x+z*numberofPointsonCubeSide]->imag->sig[y] = (cr-r)*e1 + (r-fr)*e2;
             }
           }
           else // lateral interpolation
@@ -517,8 +517,8 @@ void TCartesianMap3D::run()
 //            else // We need to "radially" interpolate!
 //            {
               if(ceiledr>nCol-1){
-                  helpFID2D->FID[x+z*nCol]->real->sig[y] = 0.0;
-                  helpFID2D->FID[x+z*nCol]->imag->sig[y] = 0.0;
+                  helpFID2D->FID[x+z*numberofPointsonCubeSide]->real->sig[y] = 0.0;
+                  helpFID2D->FID[x+z*numberofPointsonCubeSide]->imag->sig[y] = 0.0;
 //                  qDebug() << rTable.at(x).at(y).at(z) << ceiledr;
               }else{
               da=FID_2D->FID.at(FPointAIndex)->real->sig.at(ceiledr-1);
@@ -538,8 +538,8 @@ void TCartesianMap3D::run()
               eb=FID_2D->FID.at(FPointBIndex)->imag->sig.at(ceiledr);
               ec=FID_2D->FID.at(FPointCIndex)->imag->sig.at(ceiledr);
               e2=FWeightA*ea + FWeightB*eb + FWeightC*ec;
-              helpFID2D->FID[x+z*nCol]->real->sig[y] = (1-FWeightQ)*d1 + FWeightQ*d2;
-              helpFID2D->FID[x+z*nCol]->imag->sig[y] = (1-FWeightQ)*e1 + FWeightQ*e2;
+              helpFID2D->FID[x+z*numberofPointsonCubeSide]->real->sig[y] = (1-FWeightQ)*d1 + FWeightQ*d2;
+              helpFID2D->FID[x+z*numberofPointsonCubeSide]->imag->sig[y] = (1-FWeightQ)*e1 + FWeightQ*e2;
               }
 //            } // else
           }
@@ -558,15 +558,15 @@ void TCartesianMap3D::run()
 
     //
     // We clear the content of FID_2D,
-    // make a (nCol x nCol) x nCol matrix,
+    // make a (numberofPointsonCubeSide x numberofPointsonCubeSide) x numberofPointsonCubeSide matrix,
     // and copy data from helpFID2D
     //
     FID_2D->FID.clear();
     for(int k=0; k<arrayLength; k++)
     {
         emit copyCount(k);
-        FID_2D->FID.append(new TFID(nCol));
-        for(int j=0; j<nCol; j++)
+        FID_2D->FID.append(new TFID(numberofPointsonCubeSide));
+        for(int j=0; j<numberofPointsonCubeSide; j++)
         {
            FID_2D->FID[k]->real->sig[j]=helpFID2D->FID.at(k)->real->sig.at(j);
            FID_2D->FID[k]->imag->sig[j]=helpFID2D->FID.at(k)->imag->sig.at(j);
