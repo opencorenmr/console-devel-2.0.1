@@ -130,13 +130,6 @@ public:
 
     TFID *fid;
     TFID *localFID;
-
-    int xini;
-    int xfin;
-    int vCenter;
-    int vOffset() {return FvOffset;}
-    void setVOffset(int v) {FvOffset=v;}
-
     QPixmap pixmap;
 
     int Margin;
@@ -144,6 +137,22 @@ public:
     int bottomMargin;
     int leftMargin;
     int rightMargin;
+
+    int xini;
+    int xfin;
+    int vCenter;
+    int vOffset() {return FvOffset;}
+    void setVOffset(int v) {FvOffset=v;}
+
+    double vOffsetRatio() {return FvOffsetRatio;}
+    void setVOffsetRatio(double d) {
+        FvOffsetRatio=d;
+        setVOffset(round(
+                       (0.5-d)*(rect().height()-topMargin-bottomMargin)
+                       )
+                   );
+    }
+
 
     static double tic(double min, double max);
 
@@ -155,6 +164,7 @@ public:
     double scale() {return Fscale;}
     void setScale(double s) {Fscale=s;}
 
+
     int penWidth() {return FPenWidth;}
 
     QColor backgroundColor0() {return FBackgroundColor0;}
@@ -162,6 +172,7 @@ public:
     void setBackgroundColor0(QColor col) {FBackgroundColor0=col;}
     void setBackgroundColor1(QColor col) {FBackgroundColor1=col;}
 
+    bool wheelToHScroll() {return FWheelToHScroll;}
 
 signals:
     void rubberBandActionRequest(bool b);
@@ -198,7 +209,7 @@ public slots:
     void setVCursorIsShown(bool b) {FvCursorIsShown=b;}
     void setRubberBandIsShown(bool b) {FrubberBandIsShown=b;}
     void setBitLineIsShown(bool b) {FbitLineIsShown=b;}
-
+    void setWheelToHScroll(bool b) {FWheelToHScroll=b;}
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -238,6 +249,7 @@ private:
     bool FbitLineIsShown;
 
     int FvOffset;
+    double FvOffsetRatio;
 
     int curZoom;
     QRect rubberBandRect;
@@ -263,6 +275,7 @@ private:
     int FPenWidth;
 
     int FDevicePixelRatio;
+    bool FWheelToHScroll;
 };
 
 class PlotSettings
@@ -359,6 +372,7 @@ public:
     int devicePixelRatio() {return FDevicePixelRatio;}
     Plotter *plotter;
     QComboBox *scaleComboBox;
+    QCheckBox *wheelToHScrollCheckBox;
     QComboBox *formatComboBox;
     TFID_2D *fid2d;
     QSpinBox *FIDSelectSpinBox;
@@ -409,6 +423,7 @@ public slots:
     void updateXInitialValue(double d);
     void updateXFinalValue(double d);
     void updateVOffset(double voffset);
+    void onWheelToHScrollCheckBoxStateChanged();
 
 private slots:
     void setRubberBand(bool b);

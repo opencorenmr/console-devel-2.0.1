@@ -53,6 +53,7 @@ private:
     bool zeroFillHeadTail(TFID *fid);
     bool extrapolateHead(TFID *fid);
     bool extrapolateTail(TFID *fid);
+    bool extrapolateHeadTail(TFID *fid);
 
 
 };

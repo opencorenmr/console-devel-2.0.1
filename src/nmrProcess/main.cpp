@@ -3,11 +3,11 @@
 
 #define VERSION_NUMBER 2
 #define VERSION_NUMBER2 0
-#define VERSION_NUMBER3 5
-#define BUILD_NUMBER 20220408
+#define VERSION_NUMBER3 6
+#define BUILD_NUMBER 20220501
 #define RELEASE_YEAR 2022
-#define RELEASE_MONTH "Apr"
-#define RELEASE_DATE 8
+#define RELEASE_MONTH "May"
+#define RELEASE_DATE 1
 
 int main(int argc, char *argv[])
 {
