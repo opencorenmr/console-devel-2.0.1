@@ -146,7 +146,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     connect(progressDialog1, SIGNAL(canceled()), cartesianMap3D, SLOT(cancel()));
     connect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog1, SLOT(setValue(int)));
-    connect(cartesianMap3D,SIGNAL(info(QString)), progressDialog1, SLOT(setLabelText(QString)));
+//    connect(cartesianMap3D,SIGNAL(info(QString)), progressDialog1, SLOT(setLabelText(QString)));
 
     QEventLoop loop1;
     loop1.connect(cartesianMap3D, SIGNAL(calcComplete()), &loop1, SLOT(quit()));
@@ -154,7 +154,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
     loop1.exec();
 
     disconnect(cartesianMap3D,SIGNAL(calcCount(int)), progressDialog1, SLOT(setValue(int)));
-    disconnect(cartesianMap3D,SIGNAL(info(QString)), progressDialog1, SLOT(setLabelText(QString)));
+//    disconnect(cartesianMap3D,SIGNAL(info(QString)), progressDialog1, SLOT(setLabelText(QString)));
     delete progressDialog1;
 
     if(cartesianMap3D->wasCanceled)
