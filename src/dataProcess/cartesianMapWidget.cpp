@@ -32,7 +32,7 @@ void TCartesianMapWidget::createWidgets()
         setDistanceBetweenPointsDoubleSpinBox->setMaximum(100.00);
         setDistanceBetweenPointsDoubleSpinBox->setValue(1.00);
     selectModeComboBox = new QComboBox;
-        selectModeComboBox->addItems(QStringList() << tr("vector, linear") << tr("d^(-1) coef."));
+        selectModeComboBox->addItems(QStringList() << tr("gridding (sinc)") << tr("vector, linear") << tr("d^(-1) coef."));
     applyAngleTablePushButton = new QPushButton(tr("Apply"));
 
 }
@@ -140,7 +140,7 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     QString qs1="Processing...";
     QProgressDialog *progressDialog1 = new QProgressDialog(qs1,
-                                                          "Cancel", 0, ancestor()->FID_2D->FID.at(0)->al());
+                                                          "Cancel", 0, cartesianMap3D->numberofPointsonCubeSide);
     progressDialog1->setMinimumDuration(10);
     progressDialog1->setWindowTitle("Cartesian map");
 

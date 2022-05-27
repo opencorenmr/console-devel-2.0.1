@@ -367,15 +367,15 @@ bool TFFT3D::process(TFID_2D *fid_2d)
          {
             for(int c1=0; c1<n1(); c1++)
             {
-                helpFID->real->sig[c1]=fid_2d->FID.at(c1*n1()+c2)->real->sig.at(c3);
-                helpFID->imag->sig[c1]=fid_2d->FID.at(c1*n1()+c2)->imag->sig.at(c3);
+                helpFID->real->sig[c1]=fid_2d->FID.at(c1*n2()+c2)->real->sig.at(c3);
+                helpFID->imag->sig[c1]=fid_2d->FID.at(c1*n2()+c2)->imag->sig.at(c3);
             }
             ok=FFT->process(helpFID);
             if(!ok) {setErrorMessage(FFT->errorMessage()); delete helpFID; delete FFT; return false;}
             for(int c1=0; c1<n1(); c1++)
             {
-                fid_2d->FID[c1*n1()+c2]->real->sig[c3]=helpFID->real->sig.at(c1);
-                fid_2d->FID[c1*n1()+c2]->imag->sig[c3]=helpFID->imag->sig.at(c1);
+                fid_2d->FID[c1*n2()+c2]->real->sig[c3]=helpFID->real->sig.at(c1);
+                fid_2d->FID[c1*n2()+c2]->imag->sig[c3]=helpFID->imag->sig.at(c1);
             }
          } // c2
       } // c3
@@ -387,15 +387,15 @@ bool TFFT3D::process(TFID_2D *fid_2d)
          {
             for(int c2=0; c2<n2(); c2++)
             {
-                helpFID->real->sig[c2]=fid_2d->FID.at(c1*n1()+c2)->real->sig.at(c3);
-                helpFID->imag->sig[c2]=fid_2d->FID.at(c1*n1()+c2)->imag->sig.at(c3);
+                helpFID->real->sig[c2]=fid_2d->FID.at(c1*n2()+c2)->real->sig.at(c3);
+                helpFID->imag->sig[c2]=fid_2d->FID.at(c1*n2()+c2)->imag->sig.at(c3);
             }
             ok=FFT->process(helpFID);
             if(!ok) {setErrorMessage(FFT->errorMessage()); delete helpFID; delete FFT; return false;}
             for(int c2=0; c2<n2(); c2++)
             {
-                fid_2d->FID[c1*n1()+c2]->real->sig[c3]=helpFID->real->sig.at(c2);
-                fid_2d->FID[c1*n1()+c2]->imag->sig[c3]=helpFID->imag->sig.at(c2);
+                fid_2d->FID[c1*n2()+c2]->real->sig[c3]=helpFID->real->sig.at(c2);
+                fid_2d->FID[c1*n2()+c2]->imag->sig[c3]=helpFID->imag->sig.at(c2);
             }
          } // c2
       } // c3

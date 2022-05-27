@@ -1,4 +1,5 @@
 #include "cartesianMap.h"
+//#include "fft.h"
 #include <QVector3D>
 #include <float.h>
 
@@ -335,9 +336,25 @@ int TCartesianMap3D::closestPolarAngleIndex(TPolarAngle polarAngle)
     return index;
 }
 
-
-
 void TCartesianMap3D::run()
+{
+    switch (interpolateMode){
+    case vector:
+        interpolate();
+        break;
+    case dInverse:
+        interpolate();
+        break;
+    case gridSinc:
+        gridding();
+        break;
+    default:
+        interpolate();
+        break;
+    }
+}
+
+void TCartesianMap3D::interpolate()
 {
   forever
   {
@@ -586,9 +603,158 @@ void TCartesianMap3D::run()
     condition.wait(&mutex); // We let the thread sleep.
     mutex.unlock();
 
-  } // foever
+  } // forever
 }
 
+void TCartesianMap3D::gridding()
+{
+    forever
+    {
+        if(stopped) return;
+
+        emit calcCount(0);
+
+        int nRow=FID_2D->FID.size();  //qDebug() << QString(Q_FUNC_INFO) << "nRow: " <<nRow;
+        int nCol=FID_2D->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
+
+        if(nRow!=origPolarAngles.size())
+        {
+            errorQ=true;
+            setErrorMessage("Size of data does not match that of the polar angle list.");
+            return;
+        }
+        // We introduce a new TFID_2D class, named "helpFID2D", and copy data
+        TFID_2D *helpFID2D = new TFID_2D;
+        helpFID2D->FID.clear();
+        //
+        // We make a (numberofPointsonCubeSide x numberofPointsonCubeSide) x numberofPointsonCubeSide matrix
+        //
+        int arrayLength=numberofPointsonCubeSide*numberofPointsonCubeSide;
+        for(int k=0; k<arrayLength; k++)
+        {
+            helpFID2D->FID.append(new TFID(numberofPointsonCubeSide));
+            helpFID2D->FID.last()->setEmpty(false);
+        }
+
+        double x,y,z,xB,yB,zB,density,tmpd,tmp;
+        QVector3D vec,vecB;
+        for(int row=0;row<nRow;row++){
+            emit tableCount(row*nCol/nRow);
+            vec = TPolarAngle::vector3D(origPolarAngles[row]);
+            for(int col=0;col<nCol;col++){
+                x = col * vec.x();
+                y = col * vec.y();
+                z = col * vec.z();
+                density = 0.0;
+                for(int rowB=0;rowB<nRow;rowB++){
+                    vecB = TPolarAngle::vector3D(origPolarAngles[rowB]);
+//                    for(int colB=0; colB<fmin(nCol,numberofPointsonCubeSide*ratioofDistanceBetweenPoints); colB++){  //debug
+                    for(int colB=0;colB<nCol;colB++){  //release
+                        xB = colB * vecB.x();
+                        yB = colB * vecB.y();
+                        zB = colB * vecB.z();
+                        tmpd = sinc(PI*(x-xB)/ratioofDistanceBetweenPoints)*sinc(PI*(y-yB)/ratioofDistanceBetweenPoints)*sinc(PI*(z-zB)/ratioofDistanceBetweenPoints);
+                        density += abs(tmpd);
+                    }
+                }
+                if(abs(density)<DBL_EPSILON){
+                    FID_2D->FID[row]->real->sig[col] = DBL_MAX;
+                    FID_2D->FID[row]->imag->sig[col] = DBL_MAX;
+                    qDebug() << "zero density point is found." << row << col;
+                }else{
+                    tmp = FID_2D->FID.at(row)->real->sig.at(col);
+                    FID_2D->FID[row]->real->sig[col] = tmp / density;
+                    tmp = FID_2D->FID.at(row)->imag->sig.at(col);
+                    FID_2D->FID[row]->imag->sig[col] = tmp / density;
+                }
+//                qDebug() << density;
+            }
+        }
+
+        emit genTableComplete();
+
+        //
+        // Gridding!
+        //
+        double xd,yd,zd,valr,vali,sigr,sigi,tmpr,tmpi;
+        for(int z=0; z<numberofPointsonCubeSide; z++)
+        {
+            emit calcCount(z);
+            emit info("Processing ... ("
+                    + QString::number(z) + "/"
+                    + QString::number(numberofPointsonCubeSide) + ")"
+                    );
+            if(stopped) return;
+            zd = (z-numberofPointsonCubeSide/2.0) * ratioofDistanceBetweenPoints;
+            for(int y=0; y<numberofPointsonCubeSide; y++)
+            {
+                yd = (y-numberofPointsonCubeSide/2.0) * ratioofDistanceBetweenPoints;
+                for(int x=0; x<numberofPointsonCubeSide; x++)
+                {
+                    xd = (x-numberofPointsonCubeSide/2.0) * ratioofDistanceBetweenPoints;
+                    valr = 0.0;
+                    vali = 0.0;
+                    for(int rowB=0; rowB<nRow; rowB++)
+                    {
+                        vecB = TPolarAngle::vector3D(origPolarAngles[rowB]);
+//                        for(int colB=0; colB<fmin(nCol,numberofPointsonCubeSide*ratioofDistanceBetweenPoints); colB++)  //debug
+                        for(int colB=0; colB<nCol; colB++)  //release
+                        {
+                            xB = colB * vecB.x();
+                            yB = colB * vecB.y();
+                            zB = colB * vecB.z();
+                            sigr = FID_2D->FID.at(rowB)->real->sig.at(colB);
+                            sigi = FID_2D->FID.at(rowB)->imag->sig.at(colB);
+                            tmpr = sigr*sinc(PI*(xd-xB)/ratioofDistanceBetweenPoints)*sinc(PI*(yd-yB)/ratioofDistanceBetweenPoints)*sinc(PI*(zd-zB)/ratioofDistanceBetweenPoints);
+                            tmpi = sigi*sinc(PI*(xd-xB)/ratioofDistanceBetweenPoints)*sinc(PI*(yd-yB)/ratioofDistanceBetweenPoints)*sinc(PI*(zd-zB)/ratioofDistanceBetweenPoints);
+                            valr += tmpr;
+                            vali += tmpi;
+                        }
+                    }
+                    helpFID2D->FID[x+z*numberofPointsonCubeSide]->real->sig[y] = valr;
+                    helpFID2D->FID[x+z*numberofPointsonCubeSide]->imag->sig[y] = vali;
+                }
+            }
+        }
+
+        emit calcComplete();
+
+//        TFFT3D *fft3d=new TFFT3D;
+//        fft3d->FFT3D_setLengths(numberofPointsonCubeSide,numberofPointsonCubeSide);
+//        fft3d->process(helpFID2D);
+
+        //
+        // We clear the content of FID_2D,
+        // make a (numberofPointsonCubeSide x numberofPointsonCubeSide) x numberofPointsonCubeSide matrix,
+        // and copy data from helpFID2D
+        //
+        FID_2D->FID.clear();
+        for(int k=0; k<arrayLength; k++)
+        {
+            emit copyCount(k);
+            FID_2D->FID.append(new TFID(numberofPointsonCubeSide));
+            for(int j=0; j<numberofPointsonCubeSide; j++)
+            {
+               FID_2D->FID[k]->real->sig[j]=helpFID2D->FID.at(k)->real->sig.at(j);
+               FID_2D->FID[k]->imag->sig[j]=helpFID2D->FID.at(k)->imag->sig.at(j);
+            } // j
+            // We update the absolute values
+            FID_2D->FID[k]->updateAbs();
+            FID_2D->FID[k]->setEmpty(false);
+        }
+
+        FID_2D->setCurrentFID(0);
+
+        delete helpFID2D;
+
+        emit copyComplete();
+
+        mutex.lock();
+        condition.wait(&mutex); // We let the thread sleep.
+        mutex.unlock();
+
+        } // forever
+}
 
 bool TCartesianMap3D::process(TFID_2D *fid_2d)
 {
@@ -626,6 +792,15 @@ QString TCartesianMap3D::command()
     return "cartesianMap3D";
 }
 
+double TCartesianMap3D::sinc(double x){
+    double fx;
+    if(abs(x)<DBL_EPSILON){
+        fx = 1.0;
+    }else{
+        fx = sin(x)/x;
+    }
+    return fx;
+}
 
 double TPolarAngle::regionalTheta(double t)
 {
