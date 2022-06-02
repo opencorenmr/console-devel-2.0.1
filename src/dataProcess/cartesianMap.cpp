@@ -636,7 +636,7 @@ void TCartesianMap3D::gridding()
             helpFID2D->FID.last()->setEmpty(false);
         }
 
-        double x,y,z,xB,yB,zB,density,tmpd,tmp;
+        double x,y,z,xB,yB,zB,dx,dy,dz,density,tmpd,tmp;
         QVector3D vec,vecB;
         for(int row=0;row<nRow;row++){
             emit tableCount(row*nCol/nRow);
@@ -653,8 +653,11 @@ void TCartesianMap3D::gridding()
                         xB = colB * vecB.x();
                         yB = colB * vecB.y();
                         zB = colB * vecB.z();
-                        tmpd = sinc(PI*(x-xB)/ratioofDistanceBetweenPoints)*sinc(PI*(y-yB)/ratioofDistanceBetweenPoints)*sinc(PI*(z-zB)/ratioofDistanceBetweenPoints);
-                        density += abs(tmpd);
+                        dx = x - xB;
+                        dy = y - yB;
+                        dz = z - zB;
+                        tmpd = weightFunction(PI*dx/ratioofDistanceBetweenPoints)*weightFunction(PI*dy/ratioofDistanceBetweenPoints)*weightFunction(PI*dz/ratioofDistanceBetweenPoints);
+                        density += tmpd;
                     }
                 }
                 if(abs(density)<DBL_EPSILON){
@@ -799,6 +802,12 @@ double TCartesianMap3D::sinc(double x){
     }else{
         fx = sin(x)/x;
     }
+    return fx;
+}
+
+double TCartesianMap3D::weightFunction(double x){
+    double fx;
+    fx = abs(sinc(x));
     return fx;
 }
 

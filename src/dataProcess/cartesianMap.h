@@ -165,6 +165,7 @@ private:
     void gridding();
     void clearIndices();
     double sinc(double x);
+    double weightFunction(double x);
 
     int FLength1D;
     int FPointAIndex;
