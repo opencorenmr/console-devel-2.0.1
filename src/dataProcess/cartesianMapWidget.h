@@ -23,6 +23,8 @@ public:
     QPushButton *loadAngleTablePushButton;
     QPushButton *saveAngleTablePushButton;
 //    QPushButton *setAngleTablePushButton;
+    QSpinBox *setCubeSidePointsSpinBox;
+    QDoubleSpinBox *setDistanceBetweenPointsDoubleSpinBox;
     QComboBox *selectModeComboBox;
     QPushButton *applyAngleTablePushButton;
     QString dataFilePath() {return FDataFilePath;}

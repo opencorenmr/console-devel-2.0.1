@@ -133,8 +133,11 @@ public:
 
     bool wasCanceled;
 
+    int numberofPointsonCubeSide;
+    double ratioofDistanceBetweenPoints;
+
     int interpolateMode;
-    enum{vector,dInverse};
+    enum{gridSinc,vector,dInverse};
 
 signals:
     void info(QString);
@@ -158,7 +161,11 @@ private:
 
     TFID_2D *FID_2D;
     void run();
+    void interpolate();
+    void gridding();
     void clearIndices();
+    double sinc(double x);
+    double weightFunction(double x);
 
     int FLength1D;
     int FPointAIndex;
