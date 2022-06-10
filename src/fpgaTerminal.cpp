@@ -1662,11 +1662,10 @@ bool TfpgaTerminal::accumulation()
 
       }
 
-      if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked())
-      {
-          expSettings->acquisitionWidget->onMultipleAcquisitionOptionChanged();
-
-      }
+//      if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked())
+//      {
+//          expSettings->acquisitionWidget->onMultipleAcquisitionOptionChanged();
+//      }
 
       if(expSettings->xAxisOptionWidget->customAxisRadioButton->isChecked())
           expSettings->xAxisOptionWidget->onApplyButtonClicked();
@@ -2025,8 +2024,9 @@ void TfpgaTerminal::copyFID(TFID *f)
 
       // qDebug() << "actualNA: "<< nmrData->FID[nmrData->currentFID()]->actualNA;
 
-       if(nmrData->FID[nmrData->currentFID()]->actualNA>ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt())
-          nmrData->FID[nmrData->currentFID()]->actualNA=ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt();
+      // commented out by KT 9 June 2022 (because I found malfunction for multiple acq. experiments!)
+      // if(nmrData->FID[nmrData->currentFID()]->actualNA>ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt())
+      //    nmrData->FID[nmrData->currentFID()]->actualNA=ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt();
    }
    // then increment actualNA (just below), and set nCopyOperations=0
 
