@@ -263,7 +263,13 @@ void TAcquisitionWidget::onSeparateDataStorageSpinBoxChanged(int i)
 void TAcquisitionWidget::onSeparateDataStorageOptionChanged()
 {
     if(!ppgSetted) return;
-   // if(!ppg->compiled) return;
+    setSeparateDataStorageOption();
+    emit commandRequest(ppg->updatedPPG);
+    emit modified();
+}
+
+void TAcquisitionWidget::setSeparateDataStorageOption()
+{
     int naIndex=ppg->variableIndex("NA");
     int m=separateDataStorageSpinBox->value();
     int newNA;
@@ -285,8 +291,6 @@ void TAcquisitionWidget::onSeparateDataStorageOptionChanged()
     if(naIndex>-1 && naIndex<ppg->variables.size()) ppg->variables[naIndex]->setNumeric(QVariant(newNA));
     ppg->updateVariable();
 
-    emit commandRequest(ppg->updatedPPG);
-    emit modified();
 }
 
 void TAcquisitionWidget::onToggleParamsPushButtonClicked()
@@ -297,8 +301,13 @@ void TAcquisitionWidget::onToggleParamsPushButtonClicked()
 
 void TAcquisitionWidget::onMultipleAcquisitionOptionChanged()
 {
-    if(!ppgSetted) return;
-   // int alIndex=ppg->variableIndex("AL");
+  if(!ppgSetted) return;
+  setMultipleAcquisitionOption();
+  emit modified();
+}
+
+void TAcquisitionWidget::setMultipleAcquisitionOption()
+{
     multiplicity=multipleAcquisitionSpinBox->value();
    // int newAL;
     int newNA=multiplicity*origNA();
@@ -352,24 +361,32 @@ void TAcquisitionWidget::onMultipleAcquisitionOptionChanged()
         multiplicity=1;
     }
     //ppg->receiverInfo.setAL(newAL);
-
-
-   // qDebug() << QString(Q_FUNC_INFO) << ": multiplicity=" << multiplicity;
-
-  emit modified();
 }
 
 
 void TAcquisitionWidget::onOffsetChanged()
 {
     if(!ppgSetted) return;
-    if(offsetCorrectionCheckBox->isChecked())
-    {
-        ppg->receiverInfo.setDCOffset(offsetCorrectionSpinBox->value());
-    }
-    else
-    {
-        ppg->receiverInfo.setDCOffset(0);
-    }
+    setOffsetOption();
     emit modified();
+}
+
+void TAcquisitionWidget::setOffsetOption()
+{
+        if(offsetCorrectionCheckBox->isChecked())
+        {
+            ppg->receiverInfo.setDCOffset(offsetCorrectionSpinBox->value());
+        }
+        else
+        {
+            ppg->receiverInfo.setDCOffset(0);
+        }
+
+}
+
+void TAcquisitionWidget::setOptions()
+{
+    setSeparateDataStorageOption();
+    setMultipleAcquisitionOption();
+    setOffsetOption();
 }

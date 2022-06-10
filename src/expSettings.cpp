@@ -577,6 +577,8 @@ void TExpSettings::readJob(QString fileName)
 
     setCarrierFreq();  // Added in build 168.  2016.3.3 KT
 
+    acquisitionWidget->setOptions();
+
 
     setModified(false);
     // Having read a job, we set FIsModified to false.
