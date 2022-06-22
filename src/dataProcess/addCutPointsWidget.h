@@ -10,6 +10,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSettings>
+#include <QLabel>
 #include "addCutPoints.h"
 #include "processBase.h"
 
@@ -34,6 +35,8 @@ public:
     QComboBox *operationSelectComboBox; // select cut/leave/zero-fill/extrapolate
     QComboBox *headTailComboBox;        // select head/tail/head&tail
 
+    QComboBox *pointsToComboBox;
+    QLabel *pointsToLabel;
     QPushButton *applyPushButton;
 
 signals:
@@ -62,6 +65,7 @@ private slots:
 
     void onOperationSelectComboBoxChanged();
     void onHeadTailComboBoxChanged();
+    void onPointsToComboBoxChanged();
 
 
 private:

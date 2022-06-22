@@ -742,7 +742,8 @@ void TProcessPanelWidget::initialize()
 {
     exportWidget->setDataFilePath(processFileWidget->dataFilePath());
 
-    initializePlotter();
+    updatePlotter();
+//    initializePlotter();
 
     axisFormatWidget->domainComboBox->setCurrentIndex(0);
     axisFormatWidget->axisStyle->setDomain("time");
