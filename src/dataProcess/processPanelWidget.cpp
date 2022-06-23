@@ -367,11 +367,14 @@ TProcessPanelWidget::TProcessPanelWidget(QWidget *parent) : QWidget(parent)
     processOperations=new TProcessOperations;
     processSettings=new QSettings;
 
+    setIsFirstTime(true);
+
     createWidgets();
     createPanel();
     createConnections();
 
     stackedWidget->setCurrentIndex(0);
+
 
 }
 
@@ -742,8 +745,15 @@ void TProcessPanelWidget::initialize()
 {
     exportWidget->setDataFilePath(processFileWidget->dataFilePath());
 
-    updatePlotter();
-//    initializePlotter();
+    if(isFirstTime())
+    {
+        initializePlotter();
+        setIsFirstTime(false);
+    }
+    else
+    {
+        updatePlotter();
+    }
 
     axisFormatWidget->domainComboBox->setCurrentIndex(0);
     axisFormatWidget->axisStyle->setDomain("time");
