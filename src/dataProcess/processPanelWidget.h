@@ -110,6 +110,10 @@ public slots:
     void onVOffsetRequestReceived(double);
 
 private:
+    bool FIsFirstTime;
+    bool isFirstTime() {return FIsFirstTime;}
+    void setIsFirstTime(bool b) {FIsFirstTime=b;}
+
     QString FSettingDirPath;
 
     int FDevicePixelRatio;
