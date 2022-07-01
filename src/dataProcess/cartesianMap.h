@@ -164,8 +164,13 @@ private:
     void interpolate();
     void gridding();
     void clearIndices();
-    double sinc(double x);
     double weightFunction(double x);
+    double griddingKernel(double x);
+
+    double sinc(double x);
+    double hamming(double x);
+    double unitBox(double x);
+    double gaussian(double x);
 
     int FLength1D;
     int FPointAIndex;
