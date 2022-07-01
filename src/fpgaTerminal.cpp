@@ -241,7 +241,7 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
     fidPlotters.append(new FIDPlotter);
     fidPlotters[0]->setFID2D(nmrData);
     fidPlotters[0]->plotter->xini=0;
-    fidPlotters[0]->plotter->xfin=32768;
+    fidPlotters[0]->plotter->xfin=65536;
 
     plotSplitters[0]->addWidget(fidPlotters[0]);
     connect(fidPlotters[0],SIGNAL(splitRequest(FIDPlotter*,TFIDPlotters::PlotSplitMode)),
@@ -1071,6 +1071,9 @@ void TfpgaTerminal::FTDIOpen()
       connect(&rThread,SIGNAL(gotPrompt(QChar)),&tThread,SLOT(proceed(QChar)));
       connect(&rThread,SIGNAL(gotPrompt(QChar)),this,SLOT(promptReceived(QChar)));
 
+      comRxThread.standBy();
+      connect(&comRxThread,SIGNAL(commandRequest(QString)),this,SLOT(transferPPG(QString)));
+
       terminalOpenCloseButtion->setText("Close");
 
       FPGAStatusTextEdit->insertPlainText("\nEstablishing communication with FPGA...\n");
@@ -1164,6 +1167,10 @@ void TfpgaTerminal::FTDIClose()
 
         rThread.stop();
         rThread.wait();
+
+        disconnect(&comRxThread,SIGNAL(commandRequest(QString)),this,SLOT(transferPPG(QString)));
+        comRxThread.stop();
+        comRxThread.wait();
 
         FT_Close(device->pulserHandle);
         FPGAStatusTextEdit->moveCursor(QTextCursor::End);
@@ -1655,11 +1662,10 @@ bool TfpgaTerminal::accumulation()
 
       }
 
-      if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked())
-      {
-          expSettings->acquisitionWidget->onMultipleAcquisitionOptionChanged();
-
-      }
+//      if(expSettings->acquisitionWidget->multipleAcquisitionsCheckBox->isChecked())
+//      {
+//          expSettings->acquisitionWidget->onMultipleAcquisitionOptionChanged();
+//      }
 
       if(expSettings->xAxisOptionWidget->customAxisRadioButton->isChecked())
           expSettings->xAxisOptionWidget->onApplyButtonClicked();
@@ -2018,8 +2024,9 @@ void TfpgaTerminal::copyFID(TFID *f)
 
       // qDebug() << "actualNA: "<< nmrData->FID[nmrData->currentFID()]->actualNA;
 
-       if(nmrData->FID[nmrData->currentFID()]->actualNA>ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt())
-          nmrData->FID[nmrData->currentFID()]->actualNA=ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt();
+      // commented out by KT 9 June 2022 (because I found malfunction for multiple acq. experiments!)
+      // if(nmrData->FID[nmrData->currentFID()]->actualNA>ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt())
+      //    nmrData->FID[nmrData->currentFID()]->actualNA=ppg->variables.at(ppg->variableIndex("NA"))->numeric().toInt();
    }
    // then increment actualNA (just below), and set nCopyOperations=0
 

@@ -14,14 +14,16 @@ TProcessFileWidget::TProcessFileWidget(QWidget *parent) : QWidget(parent)
     createPanel();
     createConnections();
     fidSetted=false;
+    processSetted=false;
 
 }
 
 void TProcessFileWidget::createWidgets()
 {
-    openButton = new QPushButton(tr("Open"));
-    openAndProcessButton = new QPushButton(tr("Open and Process"));
-    saveButton = new QPushButton(tr("Save"));
+    openDataButton = new QPushButton(tr("Open"));
+    openAndProcessCheckBox = new QCheckBox(tr("Apply process"));
+//    openAndProcessButton = new QPushButton(tr("Open and Process"));
+    saveDataButton = new QPushButton(tr("Save"));
 
     currentFileLineEdit = new QLineEdit;
     currentFileLineEdit->setReadOnly(true);
@@ -31,32 +33,41 @@ void TProcessFileWidget::createWidgets()
     plotterIDSpinBox = new QSpinBox;
     plotterIDSpinBox->setMinimum(0);
     plotterIDSpinBox->setMaximum(0);
-    exportProcessButton = new QPushButton(tr("Export Process"));
-    importProcessButton = new QPushButton(tr("Import Process"));
+    openProcessButton = new QPushButton(tr("Open Process"));
+    openProcessAndApplyCheckBox = new QCheckBox(tr("Apply to data"));
+    saveProcessButton = new QPushButton(tr("Save Process"));
 }
 
 void TProcessFileWidget::createPanel()
 {
-    QGridLayout *mainLayout = new QGridLayout(this);
-//    mainLayout->addWidget(openButton,0,0,1,1,Qt::AlignLeft);
-    mainLayout->addWidget(openButton,0,0,1,1);
-    mainLayout->addWidget(openAndProcessButton,0,1,1,1);
-    mainLayout->addWidget(currentFileLineEdit,1,0,1,2);
-    mainLayout->addWidget(parameterPlainTextEdit,2,0,1,2);
-   // mainLayout->addWidget(exportDataButton,2,0,1,1);
-   // mainLayout->addWidget(new QLabel(tr("Plotter #")),2,1,1,1);
-   // mainLayout->addWidget(plotterIDSpinBox,2,2,1,1);
-   // mainLayout->addWidget(new QLabel(tr("Export data coming soon.")),3,0,1,3);
-    mainLayout->addWidget(saveButton,3,0,1,2);
-    mainLayout->addWidget(importProcessButton,4,0,1,1);
-    mainLayout->addWidget(exportProcessButton,4,1,1,1);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    QGroupBox *dataGroupBox = new QGroupBox(tr("Data"));
+    QGroupBox *processGroupBox = new QGroupBox(tr("Process"));
+
+    QGridLayout *gLayout1 = new QGridLayout;
+    gLayout1->addWidget(openDataButton,0,0,1,1);
+    gLayout1->addWidget(openAndProcessCheckBox,0,1,1,1);
+    gLayout1->addWidget(saveDataButton,0,2,1,1);
+    gLayout1->addWidget(currentFileLineEdit,1,0,1,3);
+    gLayout1->addWidget(parameterPlainTextEdit,2,0,1,3);
+    QGridLayout *gLayout2 = new QGridLayout;
+    gLayout2->addWidget(openProcessButton,0,0,1,1);
+    gLayout2->addWidget(openProcessAndApplyCheckBox,0,1,1,1);
+    gLayout2->addWidget(saveProcessButton,1,0,1,1);
+
+    dataGroupBox->setLayout(gLayout1);
+    processGroupBox->setLayout(gLayout2);
+
+    mainLayout->addWidget(dataGroupBox);
+    mainLayout->addWidget(processGroupBox);
+    mainLayout->addStretch();
+    setLayout(mainLayout);
 }
 
 void TProcessFileWidget::createConnections()
 {
-    connect(openButton,SIGNAL(clicked()),this,SLOT(openFile()));
-    connect(openAndProcessButton,SIGNAL(clicked()),this,SLOT(openFileAndProcess()));
-    connect(saveButton,SIGNAL(clicked()),this,SLOT(saveFile()));
+    connect(openDataButton,SIGNAL(clicked()),this,SLOT(openFile()));
+    connect(saveDataButton,SIGNAL(clicked()),this,SLOT(saveFile()));
 }
 
 void TProcessFileWidget::setNOfPlotters(int n)
@@ -94,7 +105,13 @@ void TProcessPanelWidget::importProcess()
         return;
     }
 
+
     updateProcessSettings();
+
+    if(processFileWidget->openProcessAndApplyCheckBox->isChecked())
+    {
+        applyProcess();
+    }
 
 }
 
@@ -196,7 +213,7 @@ void TProcessFileWidget::saveFile()
 
 
 void TProcessFileWidget::openFileAndProcess()
-{
+{    
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
@@ -238,11 +255,10 @@ void TProcessFileWidget::openFileAndProcess()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-    // emit updateRequest();
+    fidSetted=true;
 
-     fidSetted=true;
-
-     emit processRequest();
+    emit initializeRequest();
+    emit applyProcessRequest();
 }
 
 void TProcessFileWidget::openFile()
@@ -252,7 +268,7 @@ void TProcessFileWidget::openFile()
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open data"),
                                                     path,
-                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d *.smd)"));
+                                                    tr("Opencore files (*.opp *.opd *.sm2p *.sm2d *.smd *.jdf)"));
     if (fileName.isEmpty()) {return;}
 
     setDataFilePath(QFileInfo(fileName).absolutePath());
@@ -287,6 +303,15 @@ void TProcessFileWidget::openFile()
            return;
         }
     }
+    else if(0==QString::compare(fileExt,"jdf"))
+    {
+        if(!FID_2D->ReadjdfFile(fileName))
+        {
+                      //qDebug()<<FID_2D->errorMessage;
+           QMessageBox::warning(this,QString(Q_FUNC_INFO)+tr(""), FID_2D->errorMessage);
+           return;
+        }
+    }
     else
     {
         QMessageBox::warning(this,tr(""), "." + fileExt + " is not supported.");
@@ -300,9 +325,18 @@ void TProcessFileWidget::openFile()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
-    emit updateRequest();
-
     fidSetted=true;
+
+    emit initializeRequest();
+
+    if(openAndProcessCheckBox->isChecked())
+    {
+       emit applyProcessRequest();
+    }
+    else
+    {
+       emit clearProcessRequest();
+    }
 
 
 }
@@ -333,11 +367,14 @@ TProcessPanelWidget::TProcessPanelWidget(QWidget *parent) : QWidget(parent)
     processOperations=new TProcessOperations;
     processSettings=new QSettings;
 
+    setIsFirstTime(true);
+
     createWidgets();
     createPanel();
     createConnections();
 
     stackedWidget->setCurrentIndex(0);
+
 
 }
 
@@ -527,10 +564,11 @@ void TProcessPanelWidget::createConnections()
     connect(operationListWidget,SIGNAL(currentRowChanged(int)),stackedWidget,SLOT(setCurrentIndex(int)));
       operationListWidget->setCurrentRow(0);
 
-    connect(processFileWidget,SIGNAL(updateRequest()),this,SLOT(initialize()));
-    connect(processFileWidget->exportProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
-    connect(processFileWidget,SIGNAL(processRequest()),this,SLOT(applyProcess()));
-    connect(processFileWidget->importProcessButton,SIGNAL(clicked(bool)),this,SLOT(importProcess()));
+    connect(processFileWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcess()));
+    connect(processFileWidget,SIGNAL(initializeRequest()),this,SLOT(initialize()));
+    connect(processFileWidget->saveProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
+    connect(processFileWidget,SIGNAL(applyProcessRequest()),this,SLOT(applyProcess()));
+    connect(processFileWidget->openProcessButton,SIGNAL(clicked(bool)),this,SLOT(importProcess()));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),processFileWidget,SLOT(setNOfPlotters(int)));
     connect(plotters,SIGNAL(numberOfPlottersUpdated(int)),this,SLOT(updateNumberOfPlotters(int)));
 
@@ -540,15 +578,93 @@ void TProcessPanelWidget::createConnections()
 }
 void TProcessPanelWidget::applyProcess()
 {
-    if(FID_2D->FID.isEmpty()) return;
-    if(processOperations->applyTo(FID_2D))
+    if(FID_2D->FID.isEmpty())
     {
-       refresh();
+        QMessageBox::warning(this,tr("process error"), "Data is empty.");
+        return;
     }
-    else
+    if(processOperations->processElements.isEmpty())
     {
-       QMessageBox::warning(this,tr("process error"), processOperations->errorMessage());
+        QMessageBox::warning(this,tr("process error"), "Process is empty.");
+        return;
     }
+
+    for(int k=0; k<processOperations->processElements.size(); k++)
+    {
+        bool ok=processOperations->processElements[k]->process(FID_2D);
+        if(!ok)
+        {
+            QMessageBox::warning(this,tr("process error"), processOperations->processElements[k]->errorMessage());
+            return;
+        }
+
+
+        //TODO: widget update
+
+        switch(processOperations->processElements.at(k)->processType())
+        {
+        case TProcessElement::CutAdd:
+          break;
+        case TProcessElement::Apodization:
+          break;
+        case TProcessElement::Phase:
+          phaseWidget->breakConnections();
+          phaseWidget->phase0ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase0());
+          phaseWidget->phase1ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase1());
+          phaseWidget->phasePivotSpinBox->setValue(processOperations->processElements.at(k)->pivot());
+          phaseWidget->createConnections();
+          break;
+        case TProcessElement::FFT:
+          transformWidget->emit vOffsetRequest(0.1);
+          break;
+        case TProcessElement::IFFT:
+          transformWidget->emit vOffsetRequest(0.5);
+          break;
+        case TProcessElement::AxisStyle:
+          if(processOperations->processElements.at(k)->domain()==TAxisStyle::TimeDomain)
+            axisFormatWidget->domainComboBox->setCurrentIndex(0);
+          else if (processOperations->processElements.at(k)->domain()==TAxisStyle::FrequencyDomain)
+            axisFormatWidget->domainComboBox->setCurrentIndex(1);
+          else axisFormatWidget->domainComboBox->setCurrentIndex(2);
+          axisFormatWidget->setDomain();
+
+          axisFormatWidget->setUnitComboBox(processOperations->processElements.at(k)->unit());
+
+          axisFormatWidget->axisLabelLineEdit->setText(
+                      processOperations->processElements.at(k)->label()
+                      );
+
+          axisFormatWidget->setReferenceSpinBox->setValue(
+                      processOperations->processElements.at(k)->referencePoint()
+                      );
+
+          axisFormatWidget->referenceValueLineEdit->setText(
+                      QString::number(processOperations->processElements.at(k)->referenceValue())
+                      );
+          axisFormatWidget->setUnit();
+
+
+          break;
+        case TProcessElement::Transpose: break;
+        case TProcessElement::ArraySum: break;
+        case TProcessElement::Flatten: break;
+
+        case TProcessElement::CartesianMap3D:
+
+          break;
+
+        case TProcessElement::FFT3D:
+
+          break;
+
+        default:
+          break;
+        }
+
+    }
+
+    refresh();
+
 }
 
 void TProcessPanelWidget::onVOffsetRequestReceived(double vo)
@@ -569,7 +685,7 @@ void TProcessPanelWidget::updateNumberOfPlotters(int i)
     imageGenWidget->plotterIDSpinBox->setMaximum(i-1);
 }
 
-void TProcessPanelWidget::clearProcessOperations()
+void TProcessPanelWidget::clearProcess()
 {
     //processOperations->clear();
     commandHistoryListWidget->clear();
@@ -629,11 +745,20 @@ void TProcessPanelWidget::initialize()
 {
     exportWidget->setDataFilePath(processFileWidget->dataFilePath());
 
-    initializePlotter();
+    if(isFirstTime())
+    {
+        initializePlotter();
+        setIsFirstTime(false);
+    }
+    else
+    {
+        updatePlotter();
+    }
 
     axisFormatWidget->domainComboBox->setCurrentIndex(0);
     axisFormatWidget->axisStyle->setDomain("time");
     axisFormatWidget->init();
+    axisFormatWidget->axisLabelLineEdit->clear();
     axisFormatWidget->refresh();
     // Before resetting the phase widget we break connections tentatively.
     // Otherwise, the unintended phasing is performed to the data.
@@ -646,9 +771,13 @@ void TProcessPanelWidget::initialize()
       phaseWidget->phasePivotCheckBox->setEnabled(true);
       phaseWidget->phasePivotCheckBox->setChecked(false);
     phaseWidget->createConnections(); // We resume the connection
-    clearProcessOperations();
+
+    phaseWidget->phaseRotation->resetInitialPhase();
 
 }
+
+
+
 
 void TProcessPanelWidget::refresh()
 {

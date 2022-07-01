@@ -232,6 +232,7 @@ class TFID_2D
     QString xAxisUnitSymbol() {return FXAxisUnitSymbol;}
     void setXAxisUnitSymbol(QString qs) {FXAxisUnitSymbol=qs;}
 
+    bool ReadjdfFile(QString fn);
     bool ReadsmdFile(QString fn);
 
     bool Readsm2pFile(QString fn);

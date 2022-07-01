@@ -98,7 +98,7 @@ public slots:
     void onFIDCreated();
     void applyProcess();
 
-    void clearProcessOperations();
+    void clearProcess();
     void updatePlotter();
     void initializePlotter();
     void resetProcessSettings();
@@ -110,6 +110,10 @@ public slots:
     void onVOffsetRequestReceived(double);
 
 private:
+    bool FIsFirstTime;
+    bool isFirstTime() {return FIsFirstTime;}
+    void setIsFirstTime(bool b) {FIsFirstTime=b;}
+
     QString FSettingDirPath;
 
     int FDevicePixelRatio;
@@ -127,20 +131,23 @@ public:
     explicit TProcessFileWidget(QWidget *parent=nullptr);
     ~TProcessFileWidget(){}
 
-    QPushButton *openButton,*openAndProcessButton,*saveButton;
+    QCheckBox *openAndProcessCheckBox;
+    QCheckBox *openProcessAndApplyCheckBox;
+    QPushButton *openDataButton,*openAndProcessButton,*saveDataButton;
     QLineEdit *currentFileLineEdit;
     QPlainTextEdit *parameterPlainTextEdit;
     QPushButton *exportDataButton;
     QSpinBox *plotterIDSpinBox;
-    QPushButton *exportProcessButton, *importProcessButton;
+    QPushButton *saveProcessButton, *openProcessButton;
     TFID_2D *FID_2D;
     void setFID2D(TFID_2D *f) {FID_2D=f;}
     QString dataFilePath() {return FDataFilePath;}
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
 
 signals:
-    void updateRequest();
-    void processRequest();
+    void initializeRequest();
+    void applyProcessRequest();
+    void clearProcessRequest();
 
 public slots:
 
@@ -159,6 +166,7 @@ private:
 
     QString FDataFilePath;
     bool fidSetted;
+    bool processSetted;
 
 };
 

@@ -558,9 +558,15 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
 
 }
 //------------------------------------------------------------------------------
+void FIDPlotter::onWheelToHScrollCheckBoxStateChanged()
+{
+   plotter->setWheelToHScroll(wheelToHScrollCheckBox->isChecked());
+}
+//------------------------------------------------------------------------------
 void FIDPlotter::createActions()
 {
-
+    wheelToHScrollCheckBox = new QCheckBox(tr("wheel to move R/L"));
+    connect(wheelToHScrollCheckBox,SIGNAL(stateChanged(int)),this,SLOT(onWheelToHScrollCheckBoxStateChanged()));
     FFTCheckBox = new QCheckBox(tr("FFT")); FFTCheckBox->setChecked(false);
     processCheckBox = new QCheckBox(tr("Process")); processCheckBox->setChecked(false);
     formatComboBox = new QComboBox;
@@ -675,6 +681,8 @@ void FIDPlotter::createToolBar()
     toolBar->addWidget(new QLabel(tr("Scale")));
     toolBar->addWidget(scaleComboBox);scaleComboBox->setFixedWidth(80);
     toolBar->addSeparator();
+    toolBar->addWidget(wheelToHScrollCheckBox);
+    toolBar->addSeparator();
     toolBar->addWidget(formatComboBox);
     toolBar->addSeparator();
     toolBar->addWidget(FIDSelectSpinBox);
@@ -737,7 +745,8 @@ void FIDPlotter::updateVOffset(double d)
     {
         return;
     }
-    plotter->setVOffset(round((0.5-d)*plotter->rect().height()));
+//    plotter->setVOffset(round((0.5-d)*plotter->rect().height()));
+    plotter->setVOffsetRatio(d);
     update();
 }
 //------------------------------------------------------------------------------
@@ -976,6 +985,7 @@ Plotter::Plotter(QWidget *parent) :
   fidSetted=false;
   scaleSetting=ReceiverScale;
   setScale(1.0); // will be corrected later (Takeda)
+  setVOffsetRatio(0.5);
 
   setPlotSettings(PlotSettings());
 
@@ -998,6 +1008,7 @@ Plotter::Plotter(QWidget *parent) :
   rightMargin=0;
 
   plotItemOption << plotReal << plotImag << plotAbs;
+  setWheelToHScroll(false);
 
 }
 //------------------------------------------------------------------------------
@@ -1113,6 +1124,7 @@ void Plotter::resizeEvent(QResizeEvent * /* event */)
     absButton->move(realButton->width()+imagButton->width()+5,5);
 */
 
+    setVOffsetRatio(vOffsetRatio());
     refreshPixmap();
 }
 //------------------------------------------------------------------------------
@@ -1375,7 +1387,9 @@ void Plotter::wheelEvent(QWheelEvent *event)
 {
     if(!fidSetted) return;
 
-    if(event->orientation()==Qt::Horizontal)
+    if(event->orientation()==Qt::Horizontal ||
+       (event->orientation()==Qt::Vertical && wheelToHScroll()==true)
+            )
     {
 
 #if defined(__APPLE__)
@@ -1783,7 +1797,8 @@ void Plotter::drawHalfFID(THalfFID *hFID, QPainter *painter, QColor color)
 
 
     vCenter=topMargin+(height()-topMargin-bottomMargin)/2;
-    double scale2=scale()*(height()-(topMargin+bottomMargin))/2;
+//    double scale2=scale()*(height()-(topMargin+bottomMargin))/2;
+    double scale2=scale()*(vOffset()+(height()-(topMargin+bottomMargin))/2);
 
     double x1=leftMargin;
     double y1=round(vCenter-scale2*(hFID->sig.at(xini) - plotOffset)) + vOffset();

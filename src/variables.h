@@ -15,7 +15,7 @@
 #define MIN_NA_VALUE 1
 #define MAX_TIME_VALUE 10000
 #define MIN_TIME_VALUE 25E-9
-#define MAX_AL_VALUE 16384
+#define MAX_AL_VALUE 65536
 #define MIN_AL_VALUE 1
 #define MAX_DW_VALUE 1E-3
 #define MIN_DW_VALUE MIN_TIME_VALUE
@@ -105,7 +105,7 @@ class TVariable {
           }
         return e;
     }
-    int exponent() {return TVariable::exponent(FUnit);}
+    int exponent() {return TVariable::exponent(unit());}
 
 
     bool isConst() {return FisConst;}
@@ -114,15 +114,15 @@ class TVariable {
     static QString unitString(Unit unit);
 
     QString unitString() {
-      QString qs=TVariable::unitString(FUnit);
+      QString qs=TVariable::unitString(unit());
       if(type()==timeVariable || type()==dwVariable || type()==pdVariable)
         if(FUnit==TVariable::Unity)  qs+="s";
       return qs;
     }
 
     QString unitString2() {
-      QString qs=TVariable::unitString(FUnit);
-      if(type()==timeVariable || type()==dwVariable) qs+="s";
+      QString qs=TVariable::unitString(unit());
+      if(type()==timeVariable || type()==dwVariable || type()==pdVariable) qs+="s";
       else if(type()==freqVariable) qs+="MHz";
       else if(type()==phaseVariable) qs+="deg.";
       return qs;

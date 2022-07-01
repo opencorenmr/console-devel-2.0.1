@@ -147,7 +147,7 @@ void KExportWidget::performExportAscii()
         << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12) << sep
         << QString::number(ancestor()->FID_2D->FID.at(j)->imag->sig.at(k),'g',12) << sep
         << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12)
-        << "\r\n";
+        << "\n";
     } // k
     } // j
     file.close();

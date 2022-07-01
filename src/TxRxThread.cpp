@@ -1,6 +1,6 @@
 #include <QDebug>
 #include <QApplication>
-
+#include <QDir>
 #include <QProgressDialog>
 #include "TxRxThread.h"
 
@@ -199,5 +199,106 @@ void USBRxThread::run()
     }
 
 //    qDebug()<< "ftStatus: " <<ftStatus;
+
+}
+
+
+
+
+
+
+ComRxThread::ComRxThread(QObject *parent):QThread(parent)
+{
+    stopped=false;
+    errorQ=false;
+    path0=QDir::homePath()+"/.opencorenmr/cmd/cmd0";
+//    qDebug() << QString(Q_FUNC_INFO)+ ": constructor";
+
+}
+
+ComRxThread::~ComRxThread()
+{
+//    qDebug() << QString(Q_FUNC_INFO)+ ": destructor";
+    mutex.lock();
+      stopped=true;
+      condition.wakeOne();
+    mutex.unlock();
+    wait();
+}
+
+
+void ComRxThread::stop()
+{
+    QMutexLocker locker(&mutex);
+    stopped=true;
+}
+
+void ComRxThread::standBy()
+{
+//    qDebug() << QString(Q_FUNC_INFO)+ ": standBy";
+
+    QMutexLocker locker(&mutex);
+    stopped=false;
+    if(!isRunning()) start(LowPriority); else condition.wakeOne();
+}
+
+void ComRxThread::run()
+{
+//    qDebug() << QString(Q_FUNC_INFO)+ ": trying to open";
+
+    QFile file(path0);
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text))
+    {
+    //   qDebug() << QString(Q_FUNC_INFO)+ ": Failed to open " + path0;
+       errorQ=true;
+       return;
+    }
+    file.resize(0);
+    file.close();
+
+    QString source; source.clear();
+
+
+    forever {
+      if (stopped)
+      {
+       // file.close();
+        return;
+      }
+
+      QFile file(path0);
+      if (!file.open(QIODevice::ReadWrite | QIODevice::Text))
+      {
+         qDebug() << QString(Q_FUNC_INFO)+ ": Failed to open " + path0;
+         errorQ=true;
+         return;
+      }
+
+
+      QTextStream in(&file);
+      source=in.readAll().trimmed();
+      file.resize(0);
+      if(0==source.compare("g",Qt::CaseInsensitive))
+      {
+        //  qDebug() << QString(Q_FUNC_INFO)+ ": g command received in" + path0;
+          emit commandRequest("g");
+      }
+      else if(0==source.compare("rs",Qt::CaseInsensitive))
+      {
+        //  qDebug() << QString(Q_FUNC_INFO)+ ": rs command received in" + path0;
+          emit commandRequest("rs");
+      }
+      else if(0==source.compare("i",Qt::CaseInsensitive))
+      {
+        //  qDebug() << QString(Q_FUNC_INFO)+ ": i command received in" + path0;
+          emit commandRequest("i");
+      }
+
+     file.close();
+   //  msleep(100);
+
+    }
+
+//    qDebug() << QString(Q_FUNC_INFO) << ": ...";
 
 }

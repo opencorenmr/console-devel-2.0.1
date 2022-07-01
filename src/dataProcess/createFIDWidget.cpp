@@ -43,7 +43,7 @@ void TCreateFIDWidget::createWidgets()
     decayFunctionComboBox = new QComboBox;
     alSpinBox = new QSpinBox;
       alSpinBox->setMinimum(2);
-      alSpinBox->setMaximum(32768);
+      alSpinBox->setMaximum(65536);
     createFIDPushButton = new QPushButton(tr("Create FID"));
 
     stackedWidget = new QStackedWidget;

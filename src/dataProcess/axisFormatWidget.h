@@ -59,6 +59,7 @@ public slots:
     void createSettings(QSettings *settings, QString section);
     void readSettings(QSettings *settings, QString section);
   //  void updateXAxis();
+    void setUnitComboBox(int i);
 
 private slots:
     void onSetReferencePushButtonToggled();

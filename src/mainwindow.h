@@ -20,11 +20,11 @@
 
 #define VERSION_NUMBER 2
 #define VERSION_NUMBER2 0
-#define VERSION_NUMBER3 1
-#define BUILD_NUMBER 211
-#define RELEASE_YEAR 2020
-#define RELEASE_MONTH "Oct"
-#define RELEASE_DATE 1
+#define VERSION_NUMBER3 4
+#define BUILD_NUMBER 20220609
+#define RELEASE_YEAR 2022
+#define RELEASE_MONTH "Jun"
+#define RELEASE_DATE 9
 
 class TwelcomeWidget;
 

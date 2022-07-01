@@ -20,7 +20,7 @@ TImageGenWidget::TImageGenWidget()
   FBoundingBox4=400;
   FLeftMargin=10;
   FRightMargin=10;
-  FTopMargin=0;
+  FTopMargin=10;
   FBottomMargin=60;
 
   createWidgets();
@@ -424,16 +424,24 @@ bool TImageGenWidget::drawEPSHalfFID(THalfFID *hf)
 
   int xc=xRangeIni();
   while(xc<xPlotIni()) {xc++;}
+
+  //  plot area is given by:
+  //  plotHeight()-topMargin()-bottomMargin()-offset()*plotHeight()
+  //  = plotHeight()*(1-offset())-bottomMargin()
+  //  The scaling factor is obtained by dividing it by plotHeight()
+  //  1-offset()-(topMargin()+bottomMargin())/plotHeight()
+  double sc=1-offset()-(topMargin()+bottomMargin())/plotHeight();
+
   // move to the 1st point
   qs1 = QString::number(leftMargin()) + " "
-        + QString::number(bottomMargin()+offset()*plotHeight()+(hf->sig.at(xc))*scale()) + " m"; // moveto
+        + QString::number(bottomMargin()+offset()*plotHeight()+(hf->sig.at(xc))*scale()*sc) + " m"; // moveto
   eps0.append(qs1);
   xc++;
   x += dx;
 
   while(xc<=xPlotFin())
   {  
-    qs1 = QString::number(x) + " " + QString::number(bottomMargin() + offset()*plotHeight() + (hf->sig.at(xc))*scale()) + " l";
+    qs1 = QString::number(x) + " " + QString::number(bottomMargin() + offset()*plotHeight() + (hf->sig.at(xc))*scale()*sc) + " l";
     eps0.append(qs1);
 
     xc++;

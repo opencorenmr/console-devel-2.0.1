@@ -36,7 +36,8 @@ void TAddCutPointsWidget::createWidgets()
 
     operationSelectComboBox = new QComboBox; // select cut/leave/zero-fill/extrapolate
     headTailComboBox = new QComboBox;        // select head/tail/head&tail
-
+    pointsToComboBox = new QComboBox;
+    pointsToLabel = new QLabel(tr("Points To"));
     applyPushButton = new QPushButton(tr("Apply Cut/Add"));
 }
 
@@ -64,7 +65,11 @@ void TAddCutPointsWidget::createPanel()
       gridLayout0->addWidget(new QLabel(tr("Tail Points")),3,0,1,1);
       gridLayout0->addWidget(tailPointsSpinBox,3,1,1,1);
       gridLayout0->addWidget(tailCheckBox,3,2,1,1);
-      gridLayout0->addWidget(applyPushButton,4,0,1,3);
+      gridLayout0->addWidget(pointsToLabel,4,0,1,1);
+      gridLayout0->addWidget(pointsToComboBox,4,1,1,2);
+
+
+      gridLayout0->addWidget(applyPushButton,5,0,1,3);
 
     groupBox0->setLayout(gridLayout0);
 
@@ -86,6 +91,25 @@ void TAddCutPointsWidget::initialize()
   headTailComboBox->addItems(QStringList() << "Head"
                                            << "Tail"
                                            << "Head and Tail"
+                             );
+
+  pointsToComboBox->addItems(QStringList()
+                             << "2^n"
+                             << "2"
+                             << "4"
+                             << "8"
+                             << "16"
+                             << "32"
+                             << "64"
+                             << "128"
+                             << "256"
+                             << "512"
+                             << "1024"
+                             << "2048"
+                             << "4096"
+                             << "8192"
+                             << "16384"
+                             << "32768"
                              );
 
   operationSelectComboBox->setCurrentIndex(0);
@@ -116,6 +140,7 @@ void TAddCutPointsWidget::createConnections()
   connect(headCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetHeadPoints()));
   connect(tailCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetTailPoints()));
   connect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(onApplyButtonClicked()));
+  connect(pointsToComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(onPointsToComboBoxChanged()));
 //  connect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(performAddCutPoints()));
 
 }
@@ -125,15 +150,23 @@ void TAddCutPointsWidget::onHeadTailComboBoxChanged()
     switch(headTailComboBox->currentIndex())
     {
     case TAddCutPoints::Head:
+        headPointsSpinBox->setEnabled(true);
+        tailPointsSpinBox->setEnabled(false);
         addCutPoints->setHeadTail(TAddCutPoints::Head);
         break;
     case TAddCutPoints::Tail:
+        headPointsSpinBox->setEnabled(false);
+        tailPointsSpinBox->setEnabled(true);
         addCutPoints->setHeadTail(TAddCutPoints::Tail);
         break;
     case TAddCutPoints::Both:
+        headPointsSpinBox->setEnabled(true);
+        tailPointsSpinBox->setEnabled(true);
         addCutPoints->setHeadTail(TAddCutPoints::Both);
         break;
     default:
+        headPointsSpinBox->setEnabled(true);
+        tailPointsSpinBox->setEnabled(true);
         addCutPoints->setHeadTail(TAddCutPoints::headTailUndefined);
         break;
 
@@ -148,21 +181,47 @@ void TAddCutPointsWidget::onOperationSelectComboBoxChanged()
    case TAddCutPoints::Cut:
        addCutPoints->setOperation(TAddCutPoints::Cut);
        headTailComboBox->setItemText(2,"Head and Tail");
+       headCheckBox->setEnabled(true);
+       headCheckBox->setChecked(false);
+       pointsToLabel->setVisible(true);
+       pointsToComboBox->setVisible(true);
+       tailCheckBox->setEnabled(true);
+       tailCheckBox->setChecked(false);
        break;
    case TAddCutPoints::Leave:
        addCutPoints->setOperation(TAddCutPoints::Leave);
        headTailComboBox->setItemText(2,"Middle");
+       headCheckBox->setEnabled(true);
+       headCheckBox->setChecked(false);
+       pointsToLabel->setVisible(false);
+       pointsToComboBox->setVisible(false);
+       tailCheckBox->setEnabled(true);
+       tailCheckBox->setChecked(false);
        break;
    case TAddCutPoints::ZeroFill:
        addCutPoints->setOperation(TAddCutPoints::ZeroFill);
        headTailComboBox->setItemText(2,"Head and Tail");
+       headCheckBox->setChecked(false);
+       headCheckBox->setEnabled(false);
+       pointsToLabel->setVisible(true);
+       pointsToComboBox->setVisible(true);
+       tailCheckBox->setChecked(false);
+       tailCheckBox->setEnabled(false);
        break;
    case TAddCutPoints::Extrapolate:
        addCutPoints->setOperation(TAddCutPoints::Extrapolate);
        headTailComboBox->setItemText(2,"Head and Tail");
+       headCheckBox->setChecked(false);
+       headCheckBox->setEnabled(false);
+       pointsToLabel->setVisible(true);
+       pointsToComboBox->setVisible(true);
+       tailCheckBox->setChecked(false);
+       tailCheckBox->setEnabled(false);
        break;
    default:
        addCutPoints->setOperation(TAddCutPoints::operationUndefined);
+       headCheckBox->setEnabled(true);
+       tailCheckBox->setEnabled(true);
        break;
 
    }
@@ -190,6 +249,114 @@ void TAddCutPointsWidget::setResidualTailPoints(int p)
         q=ancestor()->FID_2D->FID.at(ancestor()->FID_2D->currentFID())->al()-p;
     }
     setTailPoints(q);
+}
+
+void TAddCutPointsWidget::onPointsToComboBoxChanged()
+{
+    if(!isAncestorDefined())
+    {
+        pointsToComboBox->setCurrentIndex(0);
+        return;
+    }
+    if(ancestor()->FID_2D->FID.isEmpty())
+    {
+        pointsToComboBox->setCurrentIndex(0);
+        return;
+    }
+
+    int al=ancestor()->FID_2D->al();
+    int k=pointsToComboBox->currentIndex();
+    int p=pow(2,k);
+
+    switch(operationSelectComboBox->currentIndex())
+    {
+    case TAddCutPoints::Cut:
+        switch(headTailComboBox->currentIndex())
+        {
+        case TAddCutPoints::Head:
+            if(p<al)
+            {
+              headPointsSpinBox->setValue(al-p);
+            }
+            else
+            {
+              headPointsSpinBox->setValue(0);
+            }
+            break;
+        case TAddCutPoints::Tail:
+            if(p<al)
+            {
+              tailPointsSpinBox->setValue(al-p);
+            }
+            else
+            {
+              tailPointsSpinBox->setValue(0);
+            }
+            break;
+        case TAddCutPoints::Both:
+            if(p<al-1)
+            {
+              headPointsSpinBox->setValue((al-p)/2);
+              tailPointsSpinBox->setValue((al-p)-(al-p)/2);
+            }
+            else
+            {
+              headPointsSpinBox->setValue(0);
+              tailPointsSpinBox->setValue(0);
+            }
+            break;
+        default:
+            break;
+        } // switch
+        break;
+    case TAddCutPoints::Leave:
+        break;
+    case TAddCutPoints::ZeroFill:
+    case TAddCutPoints::Extrapolate:
+        switch(headTailComboBox->currentIndex())
+        {
+        case TAddCutPoints::Head:
+            if(p>al)
+            {
+              headPointsSpinBox->setValue(p-al);
+            }
+            else
+            {
+              headPointsSpinBox->setValue(0);
+            }
+            break;
+        case TAddCutPoints::Tail:
+            if(p>al)
+            {
+              tailPointsSpinBox->setValue(p-al);
+            }
+            else
+            {
+              tailPointsSpinBox->setValue(0);
+            }
+            break;
+        case TAddCutPoints::Both:
+            if(p>al)
+            {
+              headPointsSpinBox->setValue((p-al)/2);
+              tailPointsSpinBox->setValue((p-al)-(p-al)/2);
+            }
+            else
+            {
+              headPointsSpinBox->setValue(0);
+              tailPointsSpinBox->setValue(0);
+            }
+            break;
+        default:
+            break;
+        } // switch
+        break;
+    default:
+        break;
+
+    }
+
+
 }
 
 void TAddCutPointsWidget::clickSetHeadPoints()
@@ -232,8 +399,16 @@ void TAddCutPointsWidget::clickSetTailPoints()
     {
       for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
       {
-        connect(ancestor()->plotters->FIDPlotters[k]->plotter,SIGNAL(clickedXPosition(int)),
+        if(operationSelectComboBox->currentIndex()==TAddCutPoints::Leave)
+        {
+            connect(ancestor()->plotters->FIDPlotters[k]->plotter,SIGNAL(clickedXPosition(int)),
+                  this,SLOT(setTailPoints(int)));
+        }
+        else
+        {
+          connect(ancestor()->plotters->FIDPlotters[k]->plotter,SIGNAL(clickedXPosition(int)),
                 this,SLOT(setResidualTailPoints(int)));
+        }
       }
     }
     else
@@ -241,11 +416,16 @@ void TAddCutPointsWidget::clickSetTailPoints()
       for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
       {
          disconnect(ancestor()->plotters->FIDPlotters[k]->plotter,SIGNAL(clickedXPosition(int)),
+                  this,SLOT(setTailPoints(int)));
+         disconnect(ancestor()->plotters->FIDPlotters[k]->plotter,SIGNAL(clickedXPosition(int)),
                   this,SLOT(setResidualTailPoints(int)));
       }
     }
 
 }
+
+
+
 
 void TAddCutPointsWidget::cut()
 {

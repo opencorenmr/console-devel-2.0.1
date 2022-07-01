@@ -58,64 +58,64 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
 
     //--------write parameter for contour plot-----------
     QTextStream out(&file);
-    out << "[Points]" << "\r\n";
-    out << "t1 = " << QString::number(fid_2d->FID.size()) << "\r\n";
-    out << "t2 = " << QString::number(fid_2d->al()) << "\r\n";
+    out << "[Points]" << "\n";
+    out << "t1 = " << QString::number(fid_2d->FID.size()) << "\n";
+    out << "t2 = " << QString::number(fid_2d->al()) << "\n";
 
-    out << "[Area]" << "\r\n";
-    out << "F1 = " << QString::number(sf1) << "\r\n";
-    out << "to = " << QString::number(ef1) << "\r\n";
-    out << "F2 = " << QString::number(sf1) << "\r\n";
-    out << "to = " << QString::number(ef1) << "\r\n";
+    out << "[Area]" << "\n";
+    out << "F1 = " << QString::number(sf1) << "\n";
+    out << "to = " << QString::number(ef1) << "\n";
+    out << "F2 = " << QString::number(sf1) << "\n";
+    out << "to = " << QString::number(ef1) << "\n";
 
     bool get2=getMaxMinParameter(fid_2d, &max, &min, &base, &f1, &f2);
 
     if(get2==false) return false;
 
-    out << "[Max and Min]" << "\r\n";
-    out << "Max = " << QString::number(max,'E',14) <<"\r\n";
-    out << "Min =" << QString::number(min,'E',14) <<"\r\n";
-    out << "Base= " << QString::number(base,'E',14) <<"\r\n";
-    out << "F2  = " << QString::number(f2) <<"\r\n";
-    out << "F1  = " << QString::number(f1) <<"\r\n";
+    out << "[Max and Min]" << "\n";
+    out << "Max = " << QString::number(max,'E',14) <<"\n";
+    out << "Min =" << QString::number(min,'E',14) <<"\n";
+    out << "Base= " << QString::number(base,'E',14) <<"\n";
+    out << "F2  = " << QString::number(f2) <<"\n";
+    out << "F1  = " << QString::number(f1) <<"\n";
 
-    out << "[Contours]" << "\r\n";
-    out << "Linear" << "\r\n";
-    out << " + : " << QString::number(line) << "\r\n";
-    out << " - : 0" << "\r\n";
-    out << "High= " << QString::number(contH) << "\r\n";
-    out << "Low = " << QString::number(contL) << "\r\n";
+    out << "[Contours]" << "\n";
+    out << "Linear" << "\n";
+    out << " + : " << QString::number(line) << "\n";
+    out << " - : 0" << "\n";
+    out << "High= " << QString::number(contH) << "\n";
+    out << "Low = " << QString::number(contL) << "\n";
 
-    out << "[t1/f1]" << "\r\n";
-    out << "Width   = " << QString::number(1.0e6 / fid_2d->dw()) <<"\r\n";
-    out << "Larmour = " << QString::number(fid_2d->sf1()) <<"\r\n";
-    out << "Point   = " << QString::number(fid_2d->al()) << "\r\n";
-    out << "Todat   = " << QString::number(fid_2d->al()) << "\r\n";
-    out << "True    = " << QString::number(fid_2d->al()) << "\r\n";
-    out << "Reference value = 0.00000" << "\r\n";
-    out << "Reference mark  = 0.00000" << "\r\n";
-    out << "Reference point = 1" << "\r\n";
-    out << "kHz" << "\r\n";
-    out << "5" << "\r\n";
+    out << "[t1/f1]" << "\n";
+    out << "Width   = " << QString::number(1.0e6 / fid_2d->dw()) <<"\n";
+    out << "Larmour = " << QString::number(fid_2d->sf1()) <<"\n";
+    out << "Point   = " << QString::number(fid_2d->al()) << "\n";
+    out << "Todat   = " << QString::number(fid_2d->al()) << "\n";
+    out << "True    = " << QString::number(fid_2d->al()) << "\n";
+    out << "Reference value = 0.00000" << "\n";
+    out << "Reference mark  = 0.00000" << "\n";
+    out << "Reference point = 1" << "\n";
+    out << "kHz" << "\n";
+    out << "5" << "\n";
 
-    out << "[t2/f2]" << "\r\n";
-    out << "Width   = " << QString::number(1.0e6 / fid_2d->dw()) <<"\r\n";
-    out << "Larmour = " << QString::number(fid_2d->sf1()) <<"\r\n";
-    out << "Point   = " << QString::number(fid_2d->al()) << "\r\n";
-    out << "Todat   = " << QString::number(fid_2d->al()) << "\r\n";
-    out << "True    = " << QString::number(fid_2d->al()) << "\r\n";
-    out << "Reference value = 0.00000" << "\r\n";
-    out << "Reference mark  = 0.00000" << "\r\n";
-    out << "Reference point = 1" << "\r\n";
-    out << "kHz" << "\r\n";
-    out << "5" << "\r\n";
+    out << "[t2/f2]" << "\n";
+    out << "Width   = " << QString::number(1.0e6 / fid_2d->dw()) <<"\n";
+    out << "Larmour = " << QString::number(fid_2d->sf1()) <<"\n";
+    out << "Point   = " << QString::number(fid_2d->al()) << "\n";
+    out << "Todat   = " << QString::number(fid_2d->al()) << "\n";
+    out << "True    = " << QString::number(fid_2d->al()) << "\n";
+    out << "Reference value = 0.00000" << "\n";
+    out << "Reference mark  = 0.00000" << "\n";
+    out << "Reference point = 1" << "\n";
+    out << "kHz" << "\n";
+    out << "5" << "\n";
 
-    out << "[Options]" << "\r\n";
-    out << "No Diag" << "\r\n";
-    out << "Same F1F2" << "\r\n";
-    out << "No Mirror" << "\r\n";
-    out << "BlackLine" << "\r\n";
-    out << "Norm_Line" << "\r\n";
+    out << "[Options]" << "\n";
+    out << "No Diag" << "\n";
+    out << "Same F1F2" << "\n";
+    out << "No Mirror" << "\n";
+    out << "BlackLine" << "\n";
+    out << "Norm_Line" << "\n";
     if(multiplied){
         out << "# multiplied 100000";
     }

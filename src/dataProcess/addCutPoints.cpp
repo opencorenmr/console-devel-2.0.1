@@ -61,6 +61,7 @@ bool TAddCutPoints::process(TFID *fid)
     case Extrapolate:
         if(headTail()==Head) {ok=extrapolateHead(fid);}
         else if(headTail()==Tail) {ok=extrapolateTail(fid);}
+        else if(headTail()==Both) {ok=extrapolateHeadTail(fid);}
         else {
           setErrorMessage("Unsupported extrapolation operation.");
           ok=false;
@@ -117,11 +118,14 @@ bool TAddCutPoints::cutHead(TFID *fid)
       return false;
   }
 
+  double newIniX=fid->xValue(headPoints());
+
   fid->real->sig.remove(0,headPoints());
   fid->imag->sig.remove(0,headPoints());
   fid->abs->sig.remove(0,headPoints());
 
   fid->setAL(fid->al()-headPoints());
+  fid->setXInitialValue(newIniX);
 
   return true;
 }
@@ -156,9 +160,9 @@ bool TAddCutPoints::cutHeadTail(TFID *fid)
     }
 
     bool ok;
-    ok=cutHead(fid);
-    if(!ok) return false;
     ok=cutTail(fid);
+    if(!ok) return false;
+    ok=cutHead(fid);
     if(!ok) return false;
     return true;
 }
@@ -207,33 +211,50 @@ bool TAddCutPoints::leaveTail(TFID *fid)
         return false;
     }
 
+    double newIniX=fid->xValue(headPoints());
+
     fid->real->sig.remove(0,fid->al()-tailPoints());
     fid->imag->sig.remove(0,fid->al()-tailPoints());
     fid->abs->sig.remove(0,fid->al()-tailPoints());
 
     fid->setAL(tailPoints());
 
+    fid->setXInitialValue(newIniX);
+
     return true;
 }
 
 bool TAddCutPoints::leaveMiddle(TFID *fid)
 {
-    if(headPoints()+tailPoints()==0)
-    {
-        setErrorMessage("Nothing to be done.");
-        return false;
-    }
-
-  if(headPoints()+tailPoints() > fid->al()-1)
+  if(headPoints()+tailPoints()==0)
   {
-      setErrorMessage("[leaveMiddle error] You cannot cut more points than " + QString::number(fid->al()-1) + ".");
+     setErrorMessage("Nothing to be done.");
+     return false;
+  }
+
+  if(headPoints()>tailPoints())
+  {
+      setErrorMessage("[leaveMiddle error] Head Points needs to be smaller than the Tail Points.");
+      return false;
+  }
+
+  if(headPoints() > fid->al()-1)
+  {
+      setErrorMessage("[leaveMiddle error] You cannot cut more Head Points than " + QString::number(fid->al()-1) + ".");
+      return false;
+  }
+
+  if(tailPoints() > fid->al()-1)
+  {
+      setErrorMessage("[leaveMiddle error] Tail Points need to be smaller than " + QString::number(fid->al()-1) + ".");
       return false;
   }
 
   bool ok;
+  // tail points needs to be cut BEFORE head points are cut,
+  // because the tailPoints will lose consistency by cutHead!
+  fid->setAL(tailPoints());
   ok=cutHead(fid);
-  if(!ok) return false;
-  ok=cutTail(fid);
   if(!ok) return false;
   return true;
 }
@@ -267,6 +288,8 @@ bool TAddCutPoints::zeroFillHead(TFID *fid)
        fid->imag->sig[k]=0.0;
        fid->abs->sig[k]=0.0;
    }
+
+   fid->setXInitialValue(fid->xInitialValue()-headPoints()*fid->dx());
 
   return true;
 }
@@ -308,6 +331,19 @@ bool TAddCutPoints::zeroFillHeadTail(TFID *fid)
   return true;
 }
 
+bool TAddCutPoints::extrapolateHeadTail(TFID *fid)
+{
+    if(headPoints()+tailPoints()==0)
+    {
+        return false;
+    }
+
+  extrapolateHead(fid);
+  extrapolateTail(fid);
+  return true;
+
+}
+
 bool TAddCutPoints::extrapolateHead(TFID *fid)
 {
     if(headPoints()==0)
@@ -339,9 +375,11 @@ bool TAddCutPoints::extrapolateHead(TFID *fid)
         fid->abs->sig[k]=fid->abs->sig.at(headPoints());
     }
 
+    fid->setXInitialValue(fid->xInitialValue()-headPoints()*fid->dx());
 
    return true;
 }
+
 bool TAddCutPoints::extrapolateTail(TFID *fid)
 {
     if(tailPoints()==0)

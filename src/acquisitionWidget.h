@@ -95,8 +95,11 @@ public slots:
     void onSeparateDataStorageOptionChanged();
     void onSeparateDataStorageSpinBoxChanged(int i);
     void onOffsetChanged();
-
     void onToggleParamsPushButtonClicked();
+    void setSeparateDataStorageOption();
+    void setMultipleAcquisitionOption();
+    void setOffsetOption();
+    void setOptions();
 
 private slots:
 
@@ -110,24 +113,24 @@ private slots:
 
     void onQDCheckBoxChanged(bool b) {
         if(ppgSetted) {
-          if(b) ppg->receiverInfo.qdOption=TDSPOption::QD_On;
-          else ppg->receiverInfo.qdOption=TDSPOption::QD_Off;
+          if(b) {ppg->receiverInfo.qdOption=TDSPOption::QD_On;}
+          else {ppg->receiverInfo.qdOption=TDSPOption::QD_Off;}
           emit modified();
         }
     }
 
     void onDigitalFilterCheckBoxChanged(bool b) {
         if(ppgSetted) {
-          if(b) ppg->receiverInfo.digitalFilterOption=TDSPOption::FIR_On;
-          else ppg->receiverInfo.digitalFilterOption=TDSPOption::FIR_Off;
+          if(b) {ppg->receiverInfo.digitalFilterOption=TDSPOption::FIR_On;}
+          else {ppg->receiverInfo.digitalFilterOption=TDSPOption::FIR_Off;}
           emit modified();
         }
     }
 
     void onInFPGAAccumCheckBokChanged(bool b) {
        if(!ppgSetted) return;
-       if(b) ppg->receiverInfo.setStep(inFPGAAccumSpinBox->value());
-       else ppg->receiverInfo.setStep(1);
+       if(b) {ppg->receiverInfo.setStep(inFPGAAccumSpinBox->value());}
+       else {ppg->receiverInfo.setStep(1);}
        emit modified();
     }
     void onInFPGAAccumSpinBoxChanged(int i) {
