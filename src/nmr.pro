@@ -81,6 +81,7 @@ SOURCES += main.cpp\
     dataProcess/imageGenWidget.cpp \
     dataProcess/cartesianMap.cpp \
     dataProcess/cartesianMapWidget.cpp \
+    dataProcess/cartesianMapWeight.cpp \
     dataProcess/exportAbsWidget.cpp
 
 
@@ -156,6 +157,7 @@ HEADERS  += mainwindow.h \
     dataProcess/imageGenWidget.h \
     dataProcess/cartesianMap.h \
     dataProcess/cartesianMapWidget.h \
+    dataProcess/cartesianMapWeight.h \
     dataProcess/exportAbsWidget.h
 
 

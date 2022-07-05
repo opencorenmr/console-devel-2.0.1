@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QPlainTextEdit>
 #include "cartesianMap.h"
+#include "cartesianMapWeight.h"
 #include "processBase.h"
 
 class TCartesianMapWidget : public TProcessBase
@@ -26,6 +27,7 @@ public:
     QSpinBox *setCubeSidePointsSpinBox;
     QDoubleSpinBox *setDistanceBetweenPointsDoubleSpinBox;
     QComboBox *selectModeComboBox;
+    QPushButton *calcWeightPushButton;
     QPushButton *applyAngleTablePushButton;
     QString dataFilePath() {return FDataFilePath;}
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
@@ -37,10 +39,11 @@ public slots:
     void onLoadAngleTablePushButtonClicked();
     void onSaveAngleTablePushButtonClicked();
 //    void onSetAngleTablePushButtonClicked();
+    void changeCalcWeightPushButtonEnabled(int);
+    void onCalcWeightPushButtonClicked();
     void onApplyAngleTablePushButtonClicked();
 
 private:
-
     void createWidgets();
     void createLayout();
     void createConnections();

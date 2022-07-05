@@ -10,12 +10,14 @@ public:
     SCartesianMapWeight3D();
     ~SCartesianMapWeight3D();
 
-    bool process(TFID_2D *fid_2D);
+    bool process(TFID_2D *fid_2d);
 
     QStringList processInformation();
     QString command();
 
-private:
+    int iteration;
+
+protected:
     void run();
 };
 

@@ -137,7 +137,7 @@ public:
     double ratioofDistanceBetweenPoints;
 
     int interpolateMode;
-    enum{gridSinc,vector,dInverse};
+    enum{gridGaus,gridSinc,vector,dInverse};
 
 signals:
     void info(QString);
@@ -157,7 +157,7 @@ public slots:
        emit canceled();
     }
 
-private:
+protected:
 
     TFID_2D *FID_2D;
     void run();
