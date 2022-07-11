@@ -5,6 +5,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QGroupBox>
 
 S3DrearrangementWidget::S3DrearrangementWidget()
 {
@@ -23,31 +24,59 @@ void S3DrearrangementWidget::createWidgets()
         size2SpinBox->setMinimum(1);
         size2SpinBox->setMaximum(65536);
         size2SpinBox->setValue(1);
+    d1DisplacementSpinBox = new QSpinBox;
+        d1DisplacementSpinBox->setMinimum(0);
+        d1DisplacementSpinBox->setMaximum(65536);
+        d1DisplacementSpinBox->setValue(0);
+    d2DisplacementSpinBox = new QSpinBox;
+        d2DisplacementSpinBox->setMinimum(0);
+        d2DisplacementSpinBox->setMaximum(65536);
+        d2DisplacementSpinBox->setValue(0);
+    abscissaDisplacementSpinBox = new QSpinBox;
+        abscissaDisplacementSpinBox->setMinimum(0);
+        abscissaDisplacementSpinBox->setMaximum(65536);
+        abscissaDisplacementSpinBox->setValue(0);
 
-    setCenterattheOriginPushButton = new QPushButton(tr("Set center data at the origin"));
+    translationPushButton = new QPushButton(tr("Translation"));
     xyzRotationPushButton = new QPushButton(tr("xyz rotation"));
 }
 
 void S3DrearrangementWidget::createPanel()
 {
+    QGroupBox *translationGroupBox = new QGroupBox(tr("Translation"));
+    QGridLayout *translationLayout = new QGridLayout;
+    translationLayout->addWidget(new QLabel(tr("Displacement (1st dim.)")),0,0,1,1);
+    translationLayout->addWidget(d1DisplacementSpinBox,0,1,1,1);
+    translationLayout->addWidget(new QLabel(tr("Displacement (2nd dim.)")),1,0,1,1);
+    translationLayout->addWidget(d2DisplacementSpinBox,1,1,1,1);
+    translationLayout->addWidget(new QLabel(tr("Displacement (Abscissa)")),2,0,1,1);
+    translationLayout->addWidget(abscissaDisplacementSpinBox,2,1,1,1);
+    translationLayout->addWidget(translationPushButton,3,0,1,2);
+    translationGroupBox->setLayout(translationLayout);
+
+    QGroupBox *xyzRotationGroupBox = new QGroupBox(tr("Rotation"));
+    QGridLayout *xyzRotationLayout = new QGridLayout;
+    xyzRotationLayout->addWidget(xyzRotationPushButton,0,0,1,1);
+    xyzRotationGroupBox->setLayout(xyzRotationLayout);
+
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(new QLabel(tr("Size (1st dimension)")),0,0,1,1);
     layout->addWidget(size1SpinBox,0,1,1,1);
-    layout->addWidget(new QLabel(tr("Size (2st dimension)")),1,0,1,1);
+    layout->addWidget(new QLabel(tr("Size (2nd dimension)")),1,0,1,1);
     layout->addWidget(size2SpinBox,1,1,1,1);
-    layout->addWidget(setCenterattheOriginPushButton,2,0,1,2);
-    layout->addWidget(xyzRotationPushButton,3,0,1,2);
+    layout->addWidget(translationGroupBox,2,0,1,2);
+    layout->addWidget(xyzRotationGroupBox,3,0,1,2);
 
     setLayout(layout);
 }
 
 void S3DrearrangementWidget::CreateConnections()
 {
-    connect(setCenterattheOriginPushButton,SIGNAL(clicked()),this,SLOT(performSetCenterattheOrigin()));
+    connect(translationPushButton,SIGNAL(clicked()),this,SLOT(performTranslation()));
     connect(xyzRotationPushButton,SIGNAL(clicked()),this,SLOT(performxyzRotation()));
 }
 
-void S3DrearrangementWidget::performSetCenterattheOrigin()
+void S3DrearrangementWidget::performTranslation()
 {
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
@@ -55,12 +84,15 @@ void S3DrearrangementWidget::performSetCenterattheOrigin()
     bool ok;
     int size1=size1SpinBox->value();
     int size2=size2SpinBox->value();
-    SSetCenterattheOrigin *SCatO = new SSetCenterattheOrigin;
-    ok=SCatO->process(ancestor()->FID_2D,size1,size2);
+    STranslation *translation = new STranslation;
+    translation->d1Displacement = d1DisplacementSpinBox->value();
+    translation->d2Displacement = d2DisplacementSpinBox->value();
+    translation->abscissaDisplacement = abscissaDisplacementSpinBox->value();
+    ok=translation->process(ancestor()->FID_2D,size1,size2);
     if(!ok)
     {
-        QMessageBox::warning(this,"error",SCatO->errorMessage());
-        delete SCatO;
+        QMessageBox::warning(this,"error",translation->errorMessage());
+        delete translation;
         return;
     }
 

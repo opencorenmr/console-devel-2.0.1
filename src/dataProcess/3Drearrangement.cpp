@@ -1,11 +1,11 @@
 #include "3Drearrangement.h"
 
-SSetCenterattheOrigin::SSetCenterattheOrigin()
+STranslation::STranslation()
 {
 
 }
 
-bool SSetCenterattheOrigin::process(TFID_2D *fid_2d, int size1, int size2)
+bool STranslation::process(TFID_2D *fid_2d, int size1, int size2)
 {
     int al=fid_2d->FID[0]->al();
     int fidsize=fid_2d->FID.size();
@@ -14,43 +14,34 @@ bool SSetCenterattheOrigin::process(TFID_2D *fid_2d, int size1, int size2)
         setErrorMessage("length does not match.");
         return false;
     }
-    if(al%2)
-    {
-        setErrorMessage("FID length is odd.");
-        return false;
-    }
-    if(size1%2)
-    {
-        setErrorMessage("Size1 is odd.");
-        return false;
-    }
-    if(size2%2)
-    {
-        setErrorMessage("Size2 is odd.");
-        return false;
-    }
 
-    double tmp_r,tmp_i;
-    int s1m,s2m,lm;
-    for(int s1=0;s1<size1/2;s1++){
-        s1m=s1+size1/2;
+    TFID_2D *helpfid_2d = new TFID_2D;
+    helpfid_2d->FID.clear();
+
+    int s1s,s2s,ls;
+    for(int s1=0;s1<size1;s1++){
+        s1s = (s1+d1Displacement*(size1-1))%size1;
         for(int s2=0;s2<size2;s2++){
-            s2m=(s2+size2/2)%size2;
+            s2s = (s2+d2Displacement*(size2-1))%size2;
+            helpfid_2d->FID.append(new TFID(al));
             for(int l=0;l<al;l++){
-                lm=(l+al/2)%al;
-                tmp_r=fid_2d->FID.at(s1*size2+s2)->real->sig.at(l);
-                tmp_i=fid_2d->FID.at(s1*size2+s2)->imag->sig.at(l);
-                fid_2d->FID[s1*size2+s2]->real->sig[l]=fid_2d->FID.at(s1m*size2+s2m)->real->sig.at(lm);
-                fid_2d->FID[s1*size2+s2]->imag->sig[l]=fid_2d->FID.at(s1m*size2+s2m)->imag->sig.at(lm);
-                fid_2d->FID[s1m*size2+s2m]->real->sig[lm]=tmp_r;
-                fid_2d->FID[s1m*size2+s2m]->imag->sig[lm]=tmp_i;
+                ls = (l+abscissaDisplacement*(al-1))%al;
+                helpfid_2d->FID[s1*size2+s2]->real->sig[l] = fid_2d->FID.at(s1s*size2+s2s)->real->sig.at(ls);
+                helpfid_2d->FID[s1*size2+s2]->imag->sig[l] = fid_2d->FID.at(s1s*size2+s2s)->imag->sig.at(ls);
             }
-            fid_2d->FID[s1*size2+s2]->updateAbs();
-            fid_2d->FID[s1m*size2+s2m]->updateAbs();
+            helpfid_2d->FID.last()->updateAbs();
         }
     }
 
-    fid_2d->setCurrentFID(0);
+    for(int s=0;s<helpfid_2d->FID.size();s++){
+        for(int l=0;l<helpfid_2d->FID.at(0)->al();l++){
+            fid_2d->FID[s]->real->sig[l] = helpfid_2d->FID.at(s)->real->sig.at(l);
+            fid_2d->FID[s]->imag->sig[l] = helpfid_2d->FID.at(s)->imag->sig.at(l);
+        }
+        fid_2d->FID[s]->updateAbs();
+    }
+
+    delete helpfid_2d;
 
     return true;
 }

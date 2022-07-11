@@ -14,11 +14,12 @@ public:
     ~S3DrearrangementWidget(){;}
 
     QSpinBox *size1SpinBox,*size2SpinBox;
-    QPushButton *setCenterattheOriginPushButton;
+    QSpinBox *d1DisplacementSpinBox,*d2DisplacementSpinBox,*abscissaDisplacementSpinBox;
+    QPushButton *translationPushButton;
     QPushButton *xyzRotationPushButton;
 
 public slots:
-    void performSetCenterattheOrigin();
+    void performTranslation();
     void performxyzRotation();
 
 private:

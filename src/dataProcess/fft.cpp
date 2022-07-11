@@ -405,5 +405,9 @@ bool TFFT3D::process(TFID_2D *fid_2d)
     delete helpFID;
     delete FFT;
 
+    for(int i=0;i<fid_2d->FID.size();i++){
+        fid_2d->FID[i]->updateAbs();
+    }
+
     return ok;
 }

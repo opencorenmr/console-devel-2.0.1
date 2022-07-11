@@ -23,7 +23,7 @@ public:
     QDoubleSpinBox *dwDoubleSpinBox, *sf1DoubleSpinBox;
     QDoubleSpinBox *freqDoubleSpinBox;
     QComboBox *createModeComboBox, *decayFunctionComboBox;
-    QSpinBox *alSpinBox;
+    QSpinBox *alSpinBox,*sizeSpinBox;
     QPushButton *createFIDPushButton;
     QPushButton *loadFromFileButton;
 

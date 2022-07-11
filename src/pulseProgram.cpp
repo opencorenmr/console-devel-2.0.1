@@ -5779,6 +5779,7 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
         {
             switch(variables.at(vIndex)->type()){
               case TVariable::timeVariable:
+              case TVariable::pdVariable:
               case TVariable::ampVariable:
               case TVariable::phaseVariable:
               case TVariable::freqVariable:

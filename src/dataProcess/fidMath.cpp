@@ -60,13 +60,40 @@ QStringList TFIDMath::processInformation()
                          << "operation="+mathOperationString()
                          << "with="+operationWithString();
 }
+
 bool TFIDMath::process(TFID_2D *fid_2d)
 {
-    bool r;
-    for(int c=0; c<fid_2d->FID.size(); c++)
+    bool r=true;
+
+    switch(operationWith())
     {
-        r=process(fid_2d->FID[c]);
+      case 0:
+        for(int c=0; c<fid_2d->FID.size(); c++)
+        {
+            r=process(fid_2d->FID[c]);
+            loadFlag = false;
+            if(!r)break;
+        }
+        break;
+      case 1:
+        r=loadFile();
+        if(!r)return false;
+        if(afid2->FID.size()==fid_2d->FID.size()){
+             r=operationWith2DFile(fid_2d);
+        }else{
+            for(int c=0; c<fid_2d->FID.size(); c++)
+            {
+                r=process(fid_2d->FID[c]);
+                loadFlag = false;
+                if(!r)break;
+            }
+        }
+        break;
+      default:
+        return false;
     }
+
+    loadFlag = true;
     return r;
 }
 
@@ -103,7 +130,40 @@ bool TFIDMath::process(TFID *fid)
         break;
     }
 
+    loadFlag = true;
     return ok;
+}
+
+bool TFIDMath::loadFile()
+{
+    TFID_2D *helpfid_2D=new TFID_2D();
+    // try to open file
+    bool ok;
+
+   // qDebug () << QString(Q_FUNC_INFO) << fileType();
+
+    switch (fileType())
+    {
+      case opd:
+        ok=helpfid_2D->ReadopFiles(fileName());
+        break;
+      case sm2d:
+        ok=helpfid_2D->Readsm2Files(fileName());
+        break;
+      case smd:
+        ok=helpfid_2D->ReadsmdFile(fileName());
+        break;
+      default:
+        ok=false;
+    }
+    // qDebug() << QString(Q_FUNC_INFO) << "2" << ok;
+
+    if(!ok) {delete helpfid_2D; return false;}
+
+    if(afid2!=nullptr)delete afid2;
+    afid2 = helpfid_2D;
+    loadFlag = false;
+    return true;
 }
 
 bool TFIDMath::operationWithNumber(TFID *fid)
@@ -227,37 +287,19 @@ bool TFIDMath::operationWithNumber(TFID *fid)
 
 bool TFIDMath::operationWithFile(TFID *fid)
 {
-    TFID_2D *afid2=new TFID_2D();
-    // try to open file
-    bool ok;
+    bool ok=true;
 
-   // qDebug () << QString(Q_FUNC_INFO) << fileType();
+    if(loadFlag) ok = loadFile();
 
-    switch (fileType())
-    {
-      case opd:
-        ok=afid2->ReadopFiles(fileName());
-        break;
-      case sm2d:
-        ok=afid2->Readsm2Files(fileName());
-        break;
-      case smd:
-        ok=afid2->ReadsmdFile(fileName());
-        break;
-      default:
-        ok=false;
-    }
-    // qDebug() << QString(Q_FUNC_INFO) << "2" << ok;
-
-    if(!ok) {delete afid2; return false;}
+    if(!ok) {/*delete afid2;*/ return false;}
 
     // At this moment we can implement operation with
     // a single (i.e., non-arrayed) data
     if(afid2->FID.size()!=1)
     {
         errorQ=true;
-        setErrorMessage("Math operation with arrayed data is not supported.");
-        delete afid2;
+        setErrorMessage("Math operation of two data with different data size is not allowed.");
+//        delete afid2;
         return false;
     }
 
@@ -265,10 +307,9 @@ bool TFIDMath::operationWithFile(TFID *fid)
     {
         errorQ=true;
         setErrorMessage("Math operation of two data with different data length is not allowed.");
-        delete afid2;
+//        delete afid2;
         return false;
     }
-
 
     double re1=0,im1=0,re2=0,im2=0,ab2=0;
     switch(FIDMathOperation())
@@ -308,7 +349,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
            {
                errorQ=true;
                setErrorMessage("Division by zero is not allowed.");
-               delete afid2;
+//               delete afid2;
                return false;
            }
         }
@@ -330,11 +371,95 @@ bool TFIDMath::operationWithFile(TFID *fid)
       default:
         errorQ=true;
         setErrorMessage("Invalid operation");
-        delete afid2;
         return false;
 
     }
-    delete afid2;
+    return true;
+}
+
+bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
+{
+    if(afid2->al()!=fid_2D->al())
+    {
+        errorQ=true;
+        setErrorMessage("Math operation of two data with different data length is not allowed.");
+//        delete afid2;
+        return false;
+    }
+
+    double re1=0,im1=0,re2=0,im2=0,ab2=0;
+    switch(FIDMathOperation())
+    {
+      case Add:
+        for(int l=0; l<fid_2D->FID.size(); l++){
+            for(int k=0; k<fid_2D->al(); k++)
+            {
+                fid_2D->FID[l]->real->sig[k]+=afid2->FID.at(l)->real->sig.at(k);
+                fid_2D->FID[l]->imag->sig[k]+=afid2->FID.at(l)->imag->sig.at(k);
+            }
+            fid_2D->FID.at(l)->updateAbs();
+        }
+        break;
+      case Subtract:
+        for(int l=0; l<fid_2D->FID.size(); l++){
+            for(int k=0; k<fid_2D->al(); k++)
+            {
+                fid_2D->FID[l]->real->sig[k]-=afid2->FID.at(l)->real->sig.at(k);
+                fid_2D->FID[l]->imag->sig[k]-=afid2->FID.at(l)->imag->sig.at(k);
+            }
+            fid_2D->FID.at(l)->updateAbs();
+        }
+        break;
+      case Multiply:
+        for(int l=0; l<fid_2D->FID.size(); l++){
+            for(int k=0; k<fid_2D->al(); k++)
+            {
+               re1=fid_2D->FID.at(l)->real->sig.at(k);
+               im1=fid_2D->FID.at(l)->imag->sig.at(k);
+               re2=afid2->FID.at(l)->real->sig.at(k);
+               im2=afid2->FID.at(l)->imag->sig.at(k);
+               fid_2D->FID[l]->real->sig[k] = (re1*re2)-(im1*im2);
+               fid_2D->FID[l]->imag->sig[k] = (im1*re2)+(re1*im2);
+            }
+            fid_2D->FID.at(l)->updateAbs();
+        }
+        break;
+      case Divide:
+        for(int l=0; l<afid2->FID.size(); l++){
+            for(int k=0; k<afid2->al(); k++)
+            {
+               if(fabs(afid2->FID.at(l)->abs->sig.at(k))<DBL_EPSILON)
+               {
+                   errorQ=true;
+                   setErrorMessage("Division by zero is not allowed.");
+//                   delete afid2;
+                   return false;
+               }
+            }
+        }
+        for(int l=0; l<afid2->FID.size(); l++){
+            for(int k=0; k<afid2->al(); k++)
+            {
+                re1=fid_2D->FID.at(l)->real->sig.at(k);
+                im1=fid_2D->FID.at(l)->imag->sig.at(k);
+                re2=afid2->FID.at(l)->real->sig.at(k);
+                im2=afid2->FID.at(l)->imag->sig.at(k);
+                ab2=afid2->FID.at(l)->abs->sig.at(k);
+
+                //complex division
+                fid_2D->FID[l]->real->sig[k] = (re1*re2+im1*im2)/(ab2*ab2);
+                fid_2D->FID[l]->imag->sig[k] = (im1*re2-re1*im2)/(ab2*ab2);
+
+            }
+            fid_2D->FID.at(l)->updateAbs();
+        }
+        break;
+      default:
+        errorQ=true;
+        setErrorMessage("Invalid operation");
+        return false;
+
+    }
     return true;
 }
 

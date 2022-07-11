@@ -47,12 +47,17 @@ private:
     int FXIni,FXFin;
     QString FFileName;
     TFileType FFileType;
+    TFID_2D *afid2=nullptr;
+    bool loadFlag=true;
 
     QString mathOperationString();
     QString operationWithString();
 
+    bool loadFile();
+
     bool operationWithNumber(TFID *fid);
     bool operationWithFile(TFID *fid);
+    bool operationWith2DFile(TFID_2D *fid_2D);
    // bool operationWithBuffer(TFID *fid);
 };
 

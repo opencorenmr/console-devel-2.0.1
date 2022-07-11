@@ -16,6 +16,7 @@ SOURCES += main.cpp\
     ../dataProcess/3Drearrangement.cpp \
     ../dataProcess/3DrearrangementWidget.cpp \
     ../dataProcess/cartesianMap.cpp \
+    ../dataProcess/cartesianMapWeight.cpp \
     ../dataProcess/cartesianMapWidget.cpp \
     ../dataProcess/exportAbsWidget.cpp \
     ../dataProcess/interpolate.cpp \
@@ -66,6 +67,7 @@ HEADERS  += mainwindow.h \
     ../dataProcess/3Drearrangement.h \
     ../dataProcess/3DrearrangementWidget.h \
     ../dataProcess/cartesianMap.h \
+    ../dataProcess/cartesianMapWeight.h \
     ../dataProcess/cartesianMapWidget.h \
     ../dataProcess/exportAbsWidget.h \
     ../dataProcess/interpolate.h \
