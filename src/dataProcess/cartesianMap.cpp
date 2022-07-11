@@ -875,9 +875,13 @@ double TCartesianMap3D::unitBox(double x)
 double TCartesianMap3D::gaussian(double x)
 {
     double fx;
-    double sigma = 0.33;
     fx = exp(-x*x/2.0/sigma/sigma);
     return fx;
+}
+
+void TCartesianMap3D::getSigma(double d)
+{
+    sigma = d;
 }
 
 double TPolarAngle::regionalTheta(double t)

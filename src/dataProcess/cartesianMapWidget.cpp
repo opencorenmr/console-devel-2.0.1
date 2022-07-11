@@ -108,12 +108,33 @@ void TCartesianMapWidget::onApplyAngleTablePushButtonClicked()
 
     }
 
-    emit isCartesianMapIdle(false);
-
     TCartesianMap3D *cartesianMap3D = new TCartesianMap3D;
     cartesianMap3D->interpolateMode = selectModeComboBox->currentIndex();
     cartesianMap3D->numberofPointsonCubeSide = setCubeSidePointsSpinBox->value();
     cartesianMap3D->ratioofDistanceBetweenPoints = setDistanceBetweenPointsDoubleSpinBox->value();
+
+    switch(selectModeComboBox->currentIndex()){
+    case TCartesianMap3D::gridGaus:
+        if(!gaussianOption){
+            gaussianOption = new SCartesianMapGaussianOption(this);
+            connect(gaussianOption,SIGNAL(sendSigma(double)),cartesianMap3D,SLOT(getSigma(double)));
+        }
+        if(gaussianOption->exec() != QDialog::Accepted){
+            delete cartesianMap3D;
+            return;
+        }
+        break;
+    case TCartesianMap3D::gridSinc:
+        break;
+    case TCartesianMap3D::vector:
+        break;
+    case TCartesianMap3D::dInverse:
+        break;
+    default:
+        break;
+    }
+
+    emit isCartesianMapIdle(false);
     if (!cartesianMap3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
         QMessageBox::warning(this,"error",cartesianMap3D->errorMessage());
@@ -263,8 +284,6 @@ void TCartesianMapWidget::changeCalcWeightPushButtonEnabled(int index)
 
 void TCartesianMapWidget::onCalcWeightPushButtonClicked()
 {
-    int iteration = 10;
-
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty())
     {
@@ -274,13 +293,45 @@ void TCartesianMapWidget::onCalcWeightPushButtonClicked()
 
     }
 
-    emit isCartesianMapIdle(false);
-
     SCartesianMapWeight3D *cartesianMapWeight3D = new SCartesianMapWeight3D;
     cartesianMapWeight3D->interpolateMode = selectModeComboBox->currentIndex();
     cartesianMapWeight3D->numberofPointsonCubeSide = setCubeSidePointsSpinBox->value();
     cartesianMapWeight3D->ratioofDistanceBetweenPoints = setDistanceBetweenPointsDoubleSpinBox->value();
-    cartesianMapWeight3D->iteration = iteration;
+
+    switch(selectModeComboBox->currentIndex()){
+    case TCartesianMap3D::gridGaus:
+        if(!gaussianOption){
+            gaussianOption = new SCartesianMapGaussianOption(this);
+            connect(gaussianOption,SIGNAL(sendSigma(double)),cartesianMapWeight3D,SLOT(getSigma(double)));
+        }
+        if(gaussianOption->exec() != QDialog::Accepted){
+            delete cartesianMapWeight3D;
+            return;
+        }
+        break;
+    case TCartesianMap3D::gridSinc:
+        break;
+    case TCartesianMap3D::vector:
+        delete cartesianMapWeight3D;
+        return;
+    case TCartesianMap3D::dInverse:
+        delete cartesianMapWeight3D;
+        return;
+    default:
+        delete cartesianMapWeight3D;
+        return;
+    }
+
+    if(!weightOption){
+        weightOption = new SCartesianMapWeightOption(this);
+        connect(weightOption,SIGNAL(sendIteration(int)),cartesianMapWeight3D,SLOT(getIteration(int)));
+    }
+    if(weightOption->exec() != QDialog::Accepted){
+        delete cartesianMapWeight3D;
+        return;
+    }
+
+    emit isCartesianMapIdle(false);
     if (!cartesianMapWeight3D->setOrigPolarAngles(thetaPhiTextEdit->toPlainText().trimmed()))
     {
         QMessageBox::warning(this,"error",cartesianMapWeight3D->errorMessage());
@@ -311,7 +362,7 @@ void TCartesianMapWidget::onCalcWeightPushButtonClicked()
 
     QString qs1="Processing...";
     QProgressDialog *progressDialog1 = new QProgressDialog(qs1,
-                                                          "Cancel", 0, iteration);
+                                                          "Cancel", 0, cartesianMapWeight3D->iteration);
     progressDialog1->setMinimumDuration(10);
     progressDialog1->setWindowTitle("Calculate weight");
 
@@ -364,4 +415,90 @@ void TCartesianMapWidget::onCalcWeightPushButtonClicked()
     addOperation(cartesianMapWeight3D);
 
     emit isCartesianMapIdle(true);
+}
+
+
+SCartesianMapGaussianOption::SCartesianMapGaussianOption(QWidget *parent)
+    :QDialog(parent)
+{
+    sigmaDoubleSpinBox = new QDoubleSpinBox;
+        sigmaDoubleSpinBox->setDecimals(2);
+        sigmaDoubleSpinBox->setSingleStep(0.01);
+        sigmaDoubleSpinBox->setMinimum(0.01);
+        sigmaDoubleSpinBox->setMaximum(10.00);
+        sigmaDoubleSpinBox->setValue(1.00);
+    okPushButton = new QPushButton(tr("OK"));
+    cancelPushButton = new QPushButton(tr("Cancel"));
+
+    QGridLayout *centerLayout = new QGridLayout;
+    centerLayout->addWidget(new QLabel(tr("Sigma")),0,0,1,1);
+    centerLayout->addWidget(sigmaDoubleSpinBox,0,1,1,1);
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(okPushButton);
+    buttonLayout->addWidget(cancelPushButton);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(centerLayout);
+    mainLayout->addLayout(buttonLayout);
+    this->setLayout(mainLayout);
+
+    connect(okPushButton,SIGNAL(clicked()),this,SLOT(onAccept()));
+    connect(cancelPushButton,SIGNAL(clicked()),this,SLOT(onReject()));
+}
+
+SCartesianMapGaussianOption::~SCartesianMapGaussianOption()
+{
+
+}
+
+void SCartesianMapGaussianOption::onAccept()
+{
+    emit sendSigma(sigmaDoubleSpinBox->value());
+    accept();
+}
+
+void SCartesianMapGaussianOption::onReject()
+{
+    reject();
+}
+
+
+SCartesianMapWeightOption::SCartesianMapWeightOption(QWidget *parent)
+    :QDialog(parent)
+{
+    iterationSpinBox = new QSpinBox;
+        iterationSpinBox->setMinimum(1);
+        iterationSpinBox->setMaximum(128);
+        iterationSpinBox->setValue(10);
+    calculatePushButton = new QPushButton(tr("Calculate"));
+    cancelPushButton = new QPushButton(tr("Cancel"));
+
+    QGridLayout *centerLayout = new QGridLayout;
+    centerLayout->addWidget(new QLabel(tr("Iteration")),0,0,1,1);
+    centerLayout->addWidget(iterationSpinBox,0,1,1,1);
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(calculatePushButton);
+    buttonLayout->addWidget(cancelPushButton);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(centerLayout);
+    mainLayout->addLayout(buttonLayout);
+    this->setLayout(mainLayout);
+
+    connect(calculatePushButton,SIGNAL(clicked()),this,SLOT(onAccept()));
+    connect(cancelPushButton,SIGNAL(clicked()),this,SLOT(onReject()));
+}
+
+SCartesianMapWeightOption::~SCartesianMapWeightOption()
+{
+
+}
+
+void SCartesianMapWeightOption::onAccept()
+{
+    emit sendIteration(iterationSpinBox->value());
+    accept();
+}
+
+void SCartesianMapWeightOption::onReject()
+{
+    reject();
 }

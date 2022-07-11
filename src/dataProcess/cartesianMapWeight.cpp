@@ -147,3 +147,8 @@ QString SCartesianMapWeight3D::command()
 {
     return "cartesianMapWeight3D";
 }
+
+void SCartesianMapWeight3D::getIteration(int i)
+{
+    iteration = i;
+}

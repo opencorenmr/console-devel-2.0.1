@@ -2,6 +2,7 @@
 #define TCARTESIANMAPWIDGET_H
 
 #include <QWidget>
+#include <QDialog>
 #include <QCheckBox>
 #include <QSettings>
 #include <QComboBox>
@@ -13,6 +14,44 @@
 #include "cartesianMap.h"
 #include "cartesianMapWeight.h"
 #include "processBase.h"
+
+class SCartesianMapGaussianOption : public QDialog
+{
+    Q_OBJECT
+public:
+    SCartesianMapGaussianOption(QWidget *parent);
+    ~SCartesianMapGaussianOption();
+
+public slots:
+    void onAccept();
+    void onReject();
+
+signals:
+    void sendSigma(double d);
+
+private:
+    QDoubleSpinBox *sigmaDoubleSpinBox;
+    QPushButton *okPushButton, *cancelPushButton;
+};
+
+class SCartesianMapWeightOption : public QDialog
+{
+    Q_OBJECT
+public:
+    SCartesianMapWeightOption(QWidget *parent);
+    ~SCartesianMapWeightOption();
+
+public slots:
+    void onAccept();
+    void onReject();
+
+signals:
+    void sendIteration(int i);
+
+private:
+    QSpinBox *iterationSpinBox;
+    QPushButton *calculatePushButton, *cancelPushButton;
+};
 
 class TCartesianMapWidget : public TProcessBase
 {
@@ -49,6 +88,9 @@ private:
     void createConnections();
     void addOperation(TCartesianMap3D *cMap3D);
     QString FDataFilePath;
+
+    SCartesianMapWeightOption *weightOption = 0;
+    SCartesianMapGaussianOption *gaussianOption = 0;
 };
 
 #endif // TCARTESIANMAPWIDGET_H

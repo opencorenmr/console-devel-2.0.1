@@ -139,6 +139,8 @@ public:
     int interpolateMode;
     enum{gridGaus,gridSinc,vector,dInverse};
 
+    double sigma;
+
 signals:
     void info(QString);
     void tableCount(int);
@@ -156,6 +158,8 @@ public slots:
        wasCanceled=true;
        emit canceled();
     }
+
+    void getSigma(double d);
 
 protected:
 

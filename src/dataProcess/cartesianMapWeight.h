@@ -17,6 +17,9 @@ public:
 
     int iteration;
 
+public slots:
+    void getIteration(int i);
+
 protected:
     void run();
 };
