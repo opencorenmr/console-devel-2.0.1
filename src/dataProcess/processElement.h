@@ -34,6 +34,7 @@ public:
                        FFT,
                        IFFT,
                        Phase,
+                       PhaseReverse,
                        AxisStyle,
                        ArraySum,
                        Transpose,

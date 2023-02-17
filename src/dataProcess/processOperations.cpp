@@ -64,6 +64,10 @@ bool TProcessOperations::saveToFile(QString filename)
           processSettings->setValue("finalPhase1", processElements.at(index)->accumPhase1());
           processSettings->setValue("pivot", processElements.at(index)->pivot());
           break;
+
+        case TProcessElement::PhaseReverse:
+          break;
+
         case TProcessElement::FFT:
         case TProcessElement::IFFT:
           processSettings->setValue("laplace", processElements.at(index)->Laplace());
@@ -162,6 +166,10 @@ bool TProcessOperations::loadFromFile(QString filename)
             processElements.last()->setPivot(settings.value("pivot",0).toInt());
             processElements.last()->setPhase0(processElements.last()->accumPhase0()-processElements.last()->initialPhase0());
             processElements.last()->setPhase1(processElements.last()->accumPhase1()-processElements.last()->initialPhase1());
+            break;
+
+          case TProcessElement::PhaseReverse:
+            processElements.append(new TPhaseReverse);
             break;
 
           case TProcessElement::AxisStyle:
