@@ -348,6 +348,9 @@ void TCartesianMap3D::run()
     case gridSinc:
         gridding();
         break;
+    case gridGaus:
+        gridding();
+        break;
     default:
         interpolate();
         break;
@@ -636,50 +639,74 @@ void TCartesianMap3D::gridding()
             helpFID2D->FID.last()->setEmpty(false);
         }
 
-        double x,y,z,xB,yB,zB,dx,dy,dz,density,tmpd,tmp;
-        QVector3D vec,vecB;
-        for(int row=0;row<nRow;row++){
-            emit tableCount(row*nCol/nRow);
-            vec = TPolarAngle::vector3D(origPolarAngles[row]);
-            for(int col=0;col<nCol;col++){
-                x = col * vec.x();
-                y = col * vec.y();
-                z = col * vec.z();
-                density = 0.0;
-                for(int rowB=0;rowB<nRow;rowB++){
-                    vecB = TPolarAngle::vector3D(origPolarAngles[rowB]);
-//                    for(int colB=0; colB<fmin(nCol,numberofPointsonCubeSide*ratioofDistanceBetweenPoints); colB++){  //debug
-                    for(int colB=0;colB<nCol;colB++){  //release
-                        xB = colB * vecB.x();
-                        yB = colB * vecB.y();
-                        zB = colB * vecB.z();
-                        dx = x - xB;
-                        dy = y - yB;
-                        dz = z - zB;
-                        tmpd = weightFunction(PI*dx/ratioofDistanceBetweenPoints)*weightFunction(PI*dy/ratioofDistanceBetweenPoints)*weightFunction(PI*dz/ratioofDistanceBetweenPoints);
-                        density += tmpd;
-                    }
-                }
-                if(abs(density)<DBL_EPSILON){
-                    FID_2D->FID[row]->real->sig[col] = DBL_MAX;
-                    FID_2D->FID[row]->imag->sig[col] = DBL_MAX;
-                    qDebug() << "zero density point is found." << row << col;
-                }else{
-                    tmp = FID_2D->FID.at(row)->real->sig.at(col);
-                    FID_2D->FID[row]->real->sig[col] = tmp / density;
-                    tmp = FID_2D->FID.at(row)->imag->sig.at(col);
-                    FID_2D->FID[row]->imag->sig[col] = tmp / density;
-                }
-//                qDebug() << density;
-            }
-        }
+////        double x,y,z,xB,yB,zB,dx,dy,dz,tmpd;
+//        double density,tmp;
+//        double weight,n_1;
+////        QVector3D vec,vecB;
+//        for(int row=0;row<nRow;row++){
+//            emit tableCount(row*nCol/nRow);
+////            vec = TPolarAngle::vector3D(origPolarAngles[row]);
+//            for(int col=0;col<nCol;col++){
+////                x = col * vec.x();
+////                y = col * vec.y();
+////                z = col * vec.z();
+////                density = 0.0;
+////                for(int rowB=0;rowB<nRow;rowB++){
+////                    vecB = TPolarAngle::vector3D(origPolarAngles[rowB]);
+//////                    for(int colB=0; colB<fmin(nCol,numberofPointsonCubeSide*ratioofDistanceBetweenPoints); colB++){  //debug
+////                    for(int colB=0;colB<nCol;colB++){  //release
+////                        xB = colB * vecB.x();
+////                        yB = colB * vecB.y();
+////                        zB = colB * vecB.z();
+////                        dx = x - xB;
+////                        dy = y - yB;
+////                        dz = z - zB;
+////                        tmpd = weightFunction(PI*dx/ratioofDistanceBetweenPoints)*weightFunction(PI*dy/ratioofDistanceBetweenPoints)*weightFunction(PI*dz/ratioofDistanceBetweenPoints);
+////                        density += tmpd;
+////                    }
+////                }
+//                n_1 = sqrt((3.0*nRow/PI-1.0)/12.0);
+//                if(0<col&&col<n_1){
+//                    weight = (12.0*col*col+1.0)/3.0/nRow;
+//                }else if(n_1<=col){
+//                    weight = 8.0*n_1*(col-n_1)/nRow+1.0/PI;
+//                }else{
+//                    weight = 1.0/6.0/nRow;
+//                }
+//                density = 1.0/weight;
+//                if(abs(density)<DBL_EPSILON){
+//                    FID_2D->FID[row]->real->sig[col] = DBL_MAX;
+//                    FID_2D->FID[row]->imag->sig[col] = DBL_MAX;
+//                    qDebug() << "zero density point is found." << row << col;
+//                }else{
+//                    tmp = FID_2D->FID.at(row)->real->sig.at(col);
+//                    FID_2D->FID[row]->real->sig[col] = tmp / density;
+//                    tmp = FID_2D->FID.at(row)->imag->sig.at(col);
+//                    FID_2D->FID[row]->imag->sig[col] = tmp / density;
+//                }
+////                qDebug() << density;
+//            }
+//        }
 
         emit genTableComplete();
+
+        double (TCartesianMap3D::*kernel)(double);
+        switch (interpolateMode){
+        case gridSinc:
+            kernel = &TCartesianMap3D::sinc;
+            break;
+        case gridGaus:
+            kernel = &TCartesianMap3D::gaussian;
+            break;
+        default:
+            kernel = &TCartesianMap3D::gaussian;
+        }
 
         //
         // Gridding!
         //
-        double xd,yd,zd,valr,vali,sigr,sigi,tmpr,tmpi;
+        double xd,yd,zd,xB2,yB2,zB2,valr,vali,sigr,sigi,tmpr,tmpi;
+        QVector3D vecB2;
         for(int z=0; z<numberofPointsonCubeSide; z++)
         {
             emit calcCount(z);
@@ -699,17 +726,17 @@ void TCartesianMap3D::gridding()
                     vali = 0.0;
                     for(int rowB=0; rowB<nRow; rowB++)
                     {
-                        vecB = TPolarAngle::vector3D(origPolarAngles[rowB]);
+                        vecB2 = TPolarAngle::vector3D(origPolarAngles[rowB]);
 //                        for(int colB=0; colB<fmin(nCol,numberofPointsonCubeSide*ratioofDistanceBetweenPoints); colB++)  //debug
                         for(int colB=0; colB<nCol; colB++)  //release
                         {
-                            xB = colB * vecB.x();
-                            yB = colB * vecB.y();
-                            zB = colB * vecB.z();
+                            xB2 = colB * vecB2.x();
+                            yB2 = colB * vecB2.y();
+                            zB2 = colB * vecB2.z();
                             sigr = FID_2D->FID.at(rowB)->real->sig.at(colB);
                             sigi = FID_2D->FID.at(rowB)->imag->sig.at(colB);
-                            tmpr = sigr*sinc(PI*(xd-xB)/ratioofDistanceBetweenPoints)*sinc(PI*(yd-yB)/ratioofDistanceBetweenPoints)*sinc(PI*(zd-zB)/ratioofDistanceBetweenPoints);
-                            tmpi = sigi*sinc(PI*(xd-xB)/ratioofDistanceBetweenPoints)*sinc(PI*(yd-yB)/ratioofDistanceBetweenPoints)*sinc(PI*(zd-zB)/ratioofDistanceBetweenPoints);
+                            tmpr = sigr*(this->*kernel)((xd-xB2)/ratioofDistanceBetweenPoints)*(this->*kernel)((yd-yB2)/ratioofDistanceBetweenPoints)*(this->*kernel)((zd-zB2)/ratioofDistanceBetweenPoints);
+                            tmpi = sigi*(this->*kernel)((xd-xB2)/ratioofDistanceBetweenPoints)*(this->*kernel)((yd-yB2)/ratioofDistanceBetweenPoints)*(this->*kernel)((zd-zB2)/ratioofDistanceBetweenPoints);
                             valr += tmpr;
                             vali += tmpi;
                         }
@@ -795,19 +822,61 @@ QString TCartesianMap3D::command()
     return "cartesianMap3D";
 }
 
-double TCartesianMap3D::sinc(double x){
+double TCartesianMap3D::weightFunction(double x)
+{
     double fx;
-    if(abs(x)<DBL_EPSILON){
+    fx = abs(griddingKernel(x));
+    return fx;
+}
+
+double TCartesianMap3D::griddingKernel(double x)
+{
+    double fx;
+    fx = gaussian(x);
+    return fx;
+}
+
+double TCartesianMap3D::sinc(double x)
+{
+    double fx;
+    double xs = PI*x;
+    if(abs(xs)<DBL_EPSILON){
         fx = 1.0;
     }else{
-        fx = sin(x)/x;
+        fx = sin(xs)/xs;
     }
     return fx;
 }
 
-double TCartesianMap3D::weightFunction(double x){
+double TCartesianMap3D::hamming(double x)
+{
     double fx;
-    fx = abs(sinc(x));
+    const double a=0.54;
+    const double w=3;
+    if(abs(x)<PI*w/2){
+        fx = a + (1-a)*cos(2*x/w);
+    }else{
+        fx = 0;
+    }
+    return fx;
+}
+
+double TCartesianMap3D::unitBox(double x)
+{
+    double fx;
+    if(abs(x)<=0.5){
+        fx = 1.0;
+    }else{
+        fx = 0;
+    }
+    return fx;
+}
+
+double TCartesianMap3D::gaussian(double x)
+{
+    double fx;
+    double sigma = 0.33;
+    fx = exp(-x*x/2.0/sigma/sigma);
     return fx;
 }
 

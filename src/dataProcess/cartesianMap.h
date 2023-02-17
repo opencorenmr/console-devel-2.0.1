@@ -137,7 +137,7 @@ public:
     double ratioofDistanceBetweenPoints;
 
     int interpolateMode;
-    enum{gridSinc,vector,dInverse};
+    enum{gridGaus,gridSinc,vector,dInverse};
 
 signals:
     void info(QString);
@@ -157,15 +157,20 @@ public slots:
        emit canceled();
     }
 
-private:
+protected:
 
     TFID_2D *FID_2D;
     void run();
     void interpolate();
     void gridding();
     void clearIndices();
-    double sinc(double x);
     double weightFunction(double x);
+    double griddingKernel(double x);
+
+    double sinc(double x);
+    double hamming(double x);
+    double unitBox(double x);
+    double gaussian(double x);
 
     int FLength1D;
     int FPointAIndex;
