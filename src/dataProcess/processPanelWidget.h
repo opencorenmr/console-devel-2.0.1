@@ -89,6 +89,7 @@ public:
     QString processFilePath() {return FProcessFilePath;}
     void setProcessFilePath(QString qs) {FProcessFilePath=qs;}
 
+    QSplitter *splitter0,*splitter1;
 
 signals:
 
@@ -143,6 +144,7 @@ public:
     void setFID2D(TFID_2D *f) {FID_2D=f;}
     QString dataFilePath() {return FDataFilePath;}
     void setDataFilePath(QString qs) {FDataFilePath=qs;}
+
 
 signals:
     void initializeRequest();
