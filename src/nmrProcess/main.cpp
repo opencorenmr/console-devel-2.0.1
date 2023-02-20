@@ -1,22 +1,22 @@
 #include "mainwindow.h"
 #include <QApplication>
 
-#define VERSION_NUMBER 2
-#define VERSION_NUMBER2 0
-#define VERSION_NUMBER3 9
-#define BUILD_NUMBER 20230217
+#define VERSION_MAJOR 2
+#define VERSION_MINOR 0
+#define VERSION_PATCH 10
+#define BUILD_NUMBER 20230219
 #define RELEASE_YEAR 2023
 #define RELEASE_MONTH "Feb"
-#define RELEASE_DATE 17
+#define RELEASE_DATE 19
 
 int main(int argc, char *argv[])
 {
 
     QApplication a(argc, argv);
     MainWindow w;
-    w.setWindowTitle(QObject::tr("Opencore NMR Process ") + QString::number(VERSION_NUMBER)
-                     +"."+QString::number(VERSION_NUMBER2)
-                     +"."+QString::number(VERSION_NUMBER3)
+    w.setWindowTitle(QObject::tr("Opencore NMR Process ") + QString::number(VERSION_MAJOR)
+                     +"."+QString::number(VERSION_MINOR)
+                     +"."+QString::number(VERSION_PATCH)
                   //   + QObject::tr(" #") + QString::number(BUILD_NUMBER)
                      + QObject::tr(" (")
                      + QString::number(RELEASE_DATE) + QObject::tr(" ")
@@ -25,6 +25,12 @@ int main(int argc, char *argv[])
                      );
 
     w.show();
+
+    w.processPanel->processOperations->setMajorVersion(VERSION_MAJOR);
+    w.processPanel->processOperations->setMinorVersion(VERSION_MINOR);
+    w.processPanel->processOperations->setPatchVersion(VERSION_PATCH);
+
+
 
     return a.exec();
 }

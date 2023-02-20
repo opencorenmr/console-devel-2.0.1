@@ -3,8 +3,6 @@
 TAddCutPoints::TAddCutPoints()
 {
   setProcessType(TProcessElement::CutAdd);
-  setHeadTail(headTailUndefined);
-  setOperation(operationUndefined);
   FHeadPoints=0;
   FTailPoints=0;
   FAveragePoints=1;

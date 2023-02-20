@@ -390,7 +390,9 @@ void TPhaseWidget::addPhaseReverseOperation()
     // common settings
     ancestor()->updateProcessSettings();
     // settings specific to phase rotation
-    createSettings(ancestor()->processSettings,QString::number(ancestor()->processOperations->processElements.size()-1));
+
+
+    //createSettings(ancestor()->processSettings,QString::number(ancestor()->processOperations->processElements.size()-1));
 
     return;
 }

@@ -7,27 +7,41 @@
 class TFIDMath : public TProcessElement
 {
 public:
-    enum TFIDMathOperation {Add,Subtract,Multiply,Divide,
-                            Normalize,CorrectOffset,CorrectPhaseOffset,
-                            ReversePhase};
-    enum TOperationWith {Number,File,Buffer};
+
+// ---- moved to processElement.h (20 Feb 2023, KT) ----
+//
+//    enum TFIDMathOperation {Add,Subtract,Multiply,Divide,
+//                            Normalize,CorrectOffset,CorrectPhaseOffset,
+//                            ReversePhase, Invalid};
+//    enum TFIDMathOperationWith {Number,File,Buffer};
+//-------------------------------------------------------
     enum TFileType {sm2d,opd,smd};
     TFIDMath();
+    ~TFIDMath();
 
     TFIDMathOperation FIDMathOperation() {return FFIDMathOperation;}
-    TOperationWith operationWith() {return FOperationWith;}
-    double number1() {return FNumber1;}
-    void setNumber1(double d) {FNumber1=d;}
-    double number2() {return FNumber2;}
-    void setNumber2(double d) {FNumber2=d;}
-    int xini(){return FXIni;}
-    void setXIni(int k) {FXIni=k;}
-    void setXFin(int k) {FXFin=k;}
-    int xfin(){return FXFin;}
-    QString fileName() {return FFileName;}
-    void setFileName(QString qs) {FFileName=qs;}
-    TFileType fileType() {return FFileType;}
-    void setFileType(TFileType ft) {FFileType=ft;}
+    QString FIDMathOperationStr();
+    void setFIDMathOperationStr(QString qs);
+
+    TFIDMathOperationWith FIDMathOperationWith() {return FOperationWith;}
+    QString FIDMathOperationWithStr();
+    void setFIDMathOperationWithStr(QString qs);
+
+    double FIDMathReal() {return FNumber1;}
+    void setFIDMathReal(double d) {FNumber1=d;}
+    double FIDMathImag() {return FNumber2;}
+    void setFIDMathImag(double d) {FNumber2=d;}
+    int FIDMathXIni() {return FXIni;}
+    int FIDMathXFin() {return FXFin;}
+    void setFIDMathXIni(int k) {FXIni=k;}
+    void setFIDMathXFin(int k) {FXFin=k;}
+    QString FIDMathDirName() {return FDirName;}
+    QString FIDMathFileName() {return FFileName;}
+    void setFIDMathDirName(QString qs) {FDirName=qs;}
+    void setFIDMathFileName(QString qs) {FFileName=qs;}
+    QString absoluteFileName() {return FDirName+"/"+FFileName;}
+
+
 
     bool process(TFID *fid);
     bool process(TFID_2D *fid_2d, int k);
@@ -38,25 +52,27 @@ public:
 
 public slots:
     void setFIDMathOperation(TFIDMathOperation k) {FFIDMathOperation=k;}
-    void setOperationWith(TOperationWith t) {FOperationWith=t;}
+    void setFIDMathOperationWith(TFIDMathOperationWith t) {FOperationWith=t;}
 
 private:
     TFIDMathOperation FFIDMathOperation;
-    TOperationWith FOperationWith;
+    TFIDMathOperationWith FOperationWith;
     double FNumber1,FNumber2;
     int FXIni,FXFin;
+    QString FDirName;
     QString FFileName;
     TFileType FFileType;
-    TFID_2D *afid2=nullptr;
-    bool loadFlag=true;
+//    TFID_2D *afid2=nullptr;
+    TFID_2D *afid2;
 
-    QString mathOperationString();
-    QString operationWithString();
+    TFileType fileType() {return FFileType;}
+    void setFileType(TFileType ft) {FFileType=ft;}
 
     bool loadFile();
 
     bool operationWithNumber(TFID *fid);
     bool operationWithFile(TFID *fid);
+    bool operationWithFile(TFID_2D *fid_2D);
     bool operationWith2DFile(TFID_2D *fid_2D);
    // bool operationWithBuffer(TFID *fid);
 };

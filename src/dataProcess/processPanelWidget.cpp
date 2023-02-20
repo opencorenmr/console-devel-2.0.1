@@ -411,6 +411,11 @@ void TProcessPanelWidget::setDevicePixelRatio(int r)
 
 void TProcessPanelWidget::createWidgets()
 {
+    splitter0=new QSplitter(Qt::Vertical);
+    splitter0->setHandleWidth(1);
+    splitter1 = new QSplitter(Qt::Horizontal);
+    splitter1->setHandleWidth(1);
+
     plotters = new TFIDPlotters;
     plotters->setFFTEnabled(false);
     plotters->setDevicePixelRatio(devicePixelRatio());
@@ -421,7 +426,8 @@ void TProcessPanelWidget::createWidgets()
     plotters->setFID2D(FID_2D);
 
     operationListWidget = new QListWidget;
-      operationListWidget->setFixedWidth(100);
+    operationListWidget->setMinimumWidth(100);
+      //operationListWidget->setFixedWidth(100);
       operationListWidget->addItems(QStringList()
                                     << "File"
                                     << "Image (eps)"
@@ -446,7 +452,7 @@ void TProcessPanelWidget::createWidgets()
       // View (plotter manipulation)
 
     commandTextEdit = new QPlainTextEdit;
-      commandTextEdit->setFixedHeight(100);
+      //commandTextEdit->setFixedHeight(100);
 
    // console = new Console;
     commandHistoryListWidget = new QListWidget;
@@ -518,11 +524,10 @@ void TProcessPanelWidget::createWidgets()
 
 void TProcessPanelWidget::createPanel()
 {
-    //QSplitter *splitter1=new QSplitter(Qt::Vertical);
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
-    setFixedWidth(400); setFixedHeight(400);
+//    setFixedWidth(400); setFixedHeight(400);
 
     stackedWidget->addWidget(processFileWidget);
     stackedWidget->addWidget(imageGenWidget);
@@ -543,13 +548,17 @@ void TProcessPanelWidget::createPanel()
     stackedWidget->addWidget(cartesianMapWidget);
     stackedWidget->addWidget(threeDrearrangementWidget);
 
-    QHBoxLayout *layout1 = new QHBoxLayout;
-    //layout1->addWidget(new QLabel(tr("Operation")));
-    layout1->addWidget(operationListWidget);
-    layout1->addWidget(stackedWidget);
 
-    mainLayout->addLayout(layout1);
-    mainLayout->addWidget(commandHistoryListWidget);
+//    QHBoxLayout *layout1 = new QHBoxLayout;
+    //layout1->addWidget(new QLabel(tr("Operation")));
+    splitter1->addWidget(operationListWidget);
+    splitter1->addWidget(stackedWidget);
+
+
+
+    splitter0->addWidget(splitter1);
+    splitter0->addWidget(commandHistoryListWidget);
+    mainLayout->addWidget(splitter0);
    // mainLayout->addWidget(commandTextEdit);
    // mainLayout->addWidget(console);
 
@@ -615,7 +624,7 @@ void TProcessPanelWidget::applyProcess()
           phaseWidget->createConnections();
           break;
         case TProcessElement::FFT:
-          transformWidget->emit vOffsetRequest(0.1);
+          transformWidget-> emit vOffsetRequest(0.1);
           break;
         case TProcessElement::IFFT:
           transformWidget->emit vOffsetRequest(0.5);

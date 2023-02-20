@@ -18,14 +18,17 @@ bool TProcessOperations::saveToFile(QString filename)
     QSettings *processSettings = new QSettings(filename, QSettings::IniFormat);
 
     processSettings->beginGroup("main");
+      processSettings->setValue("version_major",majorVersion());
+      processSettings->setValue("version_minor",minorVersion());
+      processSettings->setValue("version_patch",patchVersion());
       processSettings->setValue("numberOfOperations", processElements.size());
     processSettings->endGroup();
-    processSettings->sync();
 
     for(int index=0; index<processElements.size(); index++)
     {
       processSettings->beginGroup(QString::number(index));
       processSettings->setValue("type", processElements.at(index)->processType());
+      processSettings->setValue("type_str",processElements.at(index)->processTypeStr());
       processSettings->setValue("command", processElements.at(index)->command());
       processSettings->setValue("applyMode",processElements.at(index)->applyMode());
       // We only need to write applyIndex only when applyMode() is not zero (apply to all)
@@ -96,6 +99,46 @@ bool TProcessOperations::saveToFile(QString filename)
         case TProcessElement::FFT3D:
           processSettings->setValue("n1",processElements.at(index)->FFT3D_n1());
           processSettings->setValue("n2",processElements.at(index)->FFT3D_n2());
+          break;
+
+        case TProcessElement::Math:
+          if(processElements.at(index)->FIDMathOperationWith()==TFIDMath::Number)
+          {
+            processSettings->setValue("operation_with","number");
+            processSettings->setValue("operation",processElements.at(index)->FIDMathOperationStr());
+
+            switch(processElements.at(index)->FIDMathOperation())
+            {
+              case TFIDMath::Add:
+              case TFIDMath::Subtract:
+              case TFIDMath::Multiply:
+              case TFIDMath::Divide:
+                processSettings->setValue("real",processElements.at(index)->FIDMathReal());
+                processSettings->setValue("imag",processElements.at(index)->FIDMathImag());
+                break;
+              case TFIDMath::Offset:
+              case TFIDMath::PhaseOffset:
+                processSettings->setValue("xini",processElements.at(index)->FIDMathXIni());
+                processSettings->setValue("xfin",processElements.at(index)->FIDMathXFin());
+                break;
+              case TFIDMath::Normalize:
+              case TFIDMath::ReversePhase:
+              default:
+                break;
+
+            }// switch
+
+          }
+          else if(processElements.at(index)->FIDMathOperationWith()==TFIDMath::File)
+          // file
+          {
+              processSettings->setValue("operation_with","file");
+              processSettings->setValue("operation",processElements.at(index)->FIDMathOperationStr());
+              processSettings->setValue("directory",processElements.at(index)->FIDMathDirName());
+              processSettings->setValue("filename",processElements.at(index)->FIDMathFileName());
+          }
+
+
 
           break;
 
@@ -120,12 +163,15 @@ bool TProcessOperations::loadFromFile(QString filename)
     if(n==0) return false;
     while (!processElements.isEmpty()) processElements.removeLast();
 
-    int pType;
+//    int pType;
     for(int k=0; k<n; k++)
     {
-      settings.beginGroup(QString::number(k));
-        pType=settings.value("type",0).toInt();
-        switch(pType)
+        settings.beginGroup(QString::number(k));
+        TProcessElement pe;
+        pe.setProcessTypeStr(settings.value("type_str").toString());
+        switch(pe.processType())
+//        pType=settings.value("type",0).toInt();
+//        switch(pType)
         {
           case TProcessElement::CutAdd:
             processElements.append(new TAddCutPoints);
@@ -203,6 +249,49 @@ bool TProcessOperations::loadFromFile(QString filename)
             processElements.append(new TFFT3D);
             processElements.last()->FFT3D_setN1(settings.value("n1",0).toInt());
             processElements.last()->FFT3D_setN2(settings.value("n2",0).toInt());
+            break;
+
+          case TProcessElement::Math:
+            processElements.append(new TFIDMath);
+            processElements.last()->setFIDMathOperationWithStr(settings.value("operation_with","number").toString());
+            switch(processElements.last()->FIDMathOperationWith())
+            {
+              case TFIDMath::Number:
+                processElements.last()->setFIDMathOperationStr(settings.value("operation","add").toString());
+                switch(processElements.last()->FIDMathOperation())
+                {
+                  case TFIDMath::Add:
+                  case TFIDMath::Subtract:
+                  case TFIDMath::Multiply:
+                  case TFIDMath::Divide:
+                    processElements.last()->setFIDMathReal(settings.value("real").toDouble());
+                    processElements.last()->setFIDMathImag(settings.value("imag").toDouble());
+                    break;
+                  case TFIDMath::Offset:
+                  case TFIDMath::PhaseOffset:
+                    processElements.last()->setFIDMathXIni(settings.value("xini").toInt());
+                    processElements.last()->setFIDMathXFin(settings.value("xfin").toInt());
+                    break;
+                  case TFIDMath::Normalize:
+                  case TFIDMath::ReversePhase:
+                  default:
+                    break;
+                } // switch(processElements.last()->FIDMathOperation())
+
+                break;
+              case TFIDMath::File:
+                processElements.last()->setFIDMathOperationStr(settings.value("operation","add").toString());
+                processElements.last()->setFIDMathDirName(settings.value("directory").toString());
+                processElements.last()->setFIDMathFileName(settings.value("filename").toString());
+
+                break;
+              default:
+                break;
+            } // switch(processElements.last()->FIDMathOperationWith())
+
+            break;
+          default:
+
             break;
 
         }

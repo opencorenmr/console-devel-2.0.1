@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     processPanel->setDevicePixelRatio(qApp->devicePixelRatio());
     processPanel->setSettingDirPath(QDir::homePath());
     processPanel->setWindowFlags(Qt::Dialog);
+    processPanel->setMinimumSize(QSize(400,400));
 
     // A layout cannot be set on the MainWindow.
     // Accordingly a central widget is set.  (2014.1.17 Takeda)
@@ -72,6 +73,15 @@ void MainWindow::loadSettings()
 
     settings.beginGroup("ProcessPanel");
       this->move(settings.value("position",QPoint(0,0)).toPoint());
+      this->resize(settings.value("size",QSize(400,400)).toSize());
+    settings.endGroup();
+
+    settings.beginGroup("Splitter0");
+      processPanel->splitter0->restoreState(settings.value("splitterSize").toByteArray());
+    settings.endGroup();
+
+    settings.beginGroup("Splitter1");
+      processPanel->splitter1->restoreState(settings.value("splitterSize").toByteArray());
     settings.endGroup();
 
     settings.beginGroup("Plotter");
@@ -98,7 +108,20 @@ void MainWindow::saveSettings()
     #else
       settings.setValue("position", pos());
     #endif
+      settings.setValue("size", size());
     settings.endGroup();
+
+    settings.beginGroup("Splitter0");
+      settings.setValue("splitterSize", processPanel->splitter0->saveState());
+    settings.endGroup();
+
+    settings.beginGroup("Splitter1");
+      settings.setValue("splitterSize", processPanel->splitter1->saveState());
+    settings.endGroup();
+
+//    settings.beginGroup("OperationPanel");
+//      settings.setValue("height",processPanel->splitter0->height());
+//    settings.endGroup();
 
     settings.beginGroup("Plotter");
     #if defined(__linux__)
