@@ -64,7 +64,7 @@ void SExportAbsWidget::createPanel()
         gridLayout0->addWidget(SumlayersthicknessSpinBox,3,1,1,1);
         gridLayout0->addWidget(new QLabel(tr(" mode")),4,0,1,1);
         gridLayout0->addWidget(SumlayersmodeComboBox,4,1,1,1);
-        gridLayout0->addWidget(Sumlayers3DCheckBox,5,0,1,2);
+      //  gridLayout0->addWidget(Sumlayers3DCheckBox,5,0,1,2);
         gridLayout0->addWidget(exportAbsButton,6,0,1,2);
     groupBox0->setLayout(gridLayout0);
 
@@ -85,28 +85,59 @@ void SExportAbsWidget::createConnections()
 
 void SExportAbsWidget::exportAbs(){
 
-    if(!isAncestorDefined()) return;
-    if(ancestor()->FID_2D->FID.isEmpty()) return;
+    if(!isAncestorDefined())
+    {
+        QMessageBox::warning(this,tr("exportAbs error"),"Ancestor is not defined.");
+        return;
+    }
+    if(ancestor()->FID_2D->FID.isEmpty())
+    {
+        QMessageBox::warning(this,tr("exportAbs error"),"Data is empty.");
+        return;
+    }
 
     int fidsize = ancestor()->FID_2D->FID.size();
     int layernum = layersSpinBox->value();
+
+    // layernum = 1: slice 2D image
+    // In the case of layernum>1, we deal with a 3D image
+
     bool onlyRealFlag = onlyRealCheckBox->isChecked();
 
-    if(fidsize%layernum) return;
+    if(fidsize%layernum)
+    {
+        QMessageBox::warning(this,tr("exportAbs error"),
+                             "The size of the array data must be"
+                             "integral multiple of the number of layers"
+                             );
+        return;
+    }
 
     int thickness,edge,bundlenum;
-    if(SumlayersCheckBox->isChecked()){
+    if(SumlayersCheckBox->isChecked())
+    {
         thickness = SumlayersthicknessSpinBox->value();
-        if(thickness>layernum) return;
-        if(SumlayersmodeComboBox->currentIndex()) {
+        if(thickness>layernum)
+        {
+            QMessageBox::warning(this,tr("exportAbs error"),
+                                 "Thickness cannot be larger than number of layers.");
+            return;
+        }
+
+        if(SumlayersmodeComboBox->currentIndex()) // currentIndex != 0 ---> odd
+        {
             if((layernum+thickness)%2) return;
             bundlenum=(((layernum+thickness)/2-1)/thickness)*2+1;
-        }else{
+        }
+        else // currentIndex==0 ---> even
+        {
             if(layernum%2) return;
             bundlenum=((layernum/2-1)/thickness+1)*2;
         }
         edge = (layernum-(bundlenum-2)*thickness)/2;
-    }else{
+    }
+    else // no sum layers
+    {
         thickness = 1;
         edge = 1;
         bundlenum = layernum;

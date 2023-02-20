@@ -29,6 +29,7 @@ public:
     }
 
 
+
     enum TProcessType {CutAdd,
                        Apodization,
                        FFT,
@@ -40,8 +41,14 @@ public:
                        Transpose,
                        Flatten,
                        CartesianMap3D,
-                       FFT3D
+                       FFT3D,
+                       Math
                       };
+
+    enum TFIDMathOperation {Add,Subtract,Multiply,Divide,
+                            Normalize,Offset,PhaseOffset,
+                            ReversePhase, Invalid};
+    enum TFIDMathOperationWith {Number,File,Buffer};
 
     void stop() {QMutexLocker locker(&mutex); stopped=true; condition.wakeAll();}
 
@@ -139,6 +146,28 @@ public:
     virtual void FFT3D_setN2(int) {;}
     virtual int FFT3D_n1() {return 0;}
     virtual int FFT3D_n2() {return 0;}
+
+    //virtual functions for math
+    virtual TFIDMathOperationWith FIDMathOperationWith(){return TProcessElement::Number;}
+    virtual void setFIDMathOperationWith(TFIDMathOperationWith) {;}
+    virtual TFIDMathOperation FIDMathOperation() {return TProcessElement::Add;}
+    virtual void setFIDMathOperation(TFIDMathOperation) {;}
+    virtual QString FIDMathOperationStr() {return "";}
+    virtual void setFIDMathOperationStr(QString) {;}
+    virtual QString FIDMathOperationWithStr() {return "";}
+    virtual void setFIDMathOperationWithStr(QString) {;}
+    virtual double FIDMathReal() {return 0;}
+    virtual void setFIDMathReal(double) {;}
+    virtual double FIDMathImag() {return 0;}
+    virtual void setFIDMathImag(double) {;}
+    virtual int FIDMathXIni() {return 0;}
+    virtual int FIDMathXFin() {return 0;}
+    virtual void setFIDMathXIni(int) {;}
+    virtual void setFIDMathXFin(int) {;}
+    virtual QString FIDMathDirName() {return "";}
+    virtual QString FIDMathFileName() {return "";}
+    virtual void setFIDMathDirName(QString) {;}
+    virtual void setFIDMathFileName(QString) {;}
 
 
     QMutex mutex;
