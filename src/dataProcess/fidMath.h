@@ -17,6 +17,7 @@ public:
 //-------------------------------------------------------
     enum TFileType {sm2d,opd,smd};
     TFIDMath();
+    ~TFIDMath();
 
     TFIDMathOperation FIDMathOperation() {return FFIDMathOperation;}
     QString FIDMathOperationStr();
@@ -61,8 +62,8 @@ private:
     QString FDirName;
     QString FFileName;
     TFileType FFileType;
-    TFID_2D *afid2=nullptr;
-  //  bool loadFlag=true;
+//    TFID_2D *afid2=nullptr;
+    TFID_2D *afid2;
 
     TFileType fileType() {return FFileType;}
     void setFileType(TFileType ft) {FFileType=ft;}

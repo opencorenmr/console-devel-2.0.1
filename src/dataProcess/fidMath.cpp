@@ -6,6 +6,7 @@
 
 TFIDMath::TFIDMath()
 {
+    afid2 = new TFID_2D();
     setProcessType(TProcessType::Math);
   // default values
     // Never call virtual methods/functions in constructors or destructors
@@ -13,6 +14,11 @@ TFIDMath::TFIDMath()
     // (20 Feb 2023 KT)
     //setFIDMathOperation(TFIDMathOperation::Add);
     //setFIDMathOperationWith(TFIDMathOperationWith::Number);
+}
+
+TFIDMath::~TFIDMath()
+{
+    if (afid2 != nullptr) delete afid2;
 }
 
 QString TFIDMath::command()
@@ -74,7 +80,7 @@ void TFIDMath::setFIDMathOperationStr(QString qs)
   else if(0==QString::compare(qs,"offset",Qt::CaseInsensitive)) setFIDMathOperation(TFIDMathOperation::Offset);
   else if(0==QString::compare(qs,"phase_offset",Qt::CaseInsensitive)) setFIDMathOperation(TFIDMathOperation::PhaseOffset);
   else if(0==QString::compare(qs,"reverse_phase",Qt::CaseInsensitive)) setFIDMathOperation(TFIDMathOperation::ReversePhase);
-  else setFIDMathOperation(TFIDMathOperation::Invalid);
+  else setFIDMathOperation(TFIDMathOperation::InvalidMathOperation);
 }
 
 QString TFIDMath::FIDMathOperationStr()
@@ -249,18 +255,18 @@ bool TFIDMath::loadFile()
         return false;
     }
 
-    TFID_2D *helpfid_2D=new TFID_2D();
+//    TFID_2D *helpfid_2D=new TFID_2D();
 
     switch (fileType())
     {
       case TFIDMath::opd:
-        ok=helpfid_2D->ReadopFiles(absoluteFileName());
+        ok=afid2->ReadopFiles(absoluteFileName());
         break;
       case TFIDMath::sm2d:
-        ok=helpfid_2D->Readsm2Files(absoluteFileName());
+        ok=afid2->Readsm2Files(absoluteFileName());
         break;
       case TFIDMath::smd:
-        ok=helpfid_2D->ReadsmdFile(absoluteFileName());
+        ok=afid2->ReadsmdFile(absoluteFileName());
         break;
       default:
         ok=false;
@@ -274,12 +280,12 @@ bool TFIDMath::loadFile()
         errmsg += absoluteFileName();
         errmsg += ".";
         setErrorMessage(errmsg);
-        delete helpfid_2D;
+ //       delete helpfid_2D;
         return false;
     }
 
-    if(afid2!=nullptr)delete afid2;
-    afid2 = helpfid_2D;
+ //   if(afid2!=nullptr)delete afid2;
+ //   afid2 = helpfid_2D;
     return true;
 }
 

@@ -23,12 +23,12 @@ bool TProcessOperations::saveToFile(QString filename)
       processSettings->setValue("version_patch",patchVersion());
       processSettings->setValue("numberOfOperations", processElements.size());
     processSettings->endGroup();
-    processSettings->sync();
 
     for(int index=0; index<processElements.size(); index++)
     {
       processSettings->beginGroup(QString::number(index));
       processSettings->setValue("type", processElements.at(index)->processType());
+      processSettings->setValue("type_str",processElements.at(index)->processTypeStr());
       processSettings->setValue("command", processElements.at(index)->command());
       processSettings->setValue("applyMode",processElements.at(index)->applyMode());
       // We only need to write applyIndex only when applyMode() is not zero (apply to all)
@@ -163,12 +163,15 @@ bool TProcessOperations::loadFromFile(QString filename)
     if(n==0) return false;
     while (!processElements.isEmpty()) processElements.removeLast();
 
-    int pType;
+//    int pType;
     for(int k=0; k<n; k++)
     {
-      settings.beginGroup(QString::number(k));
-        pType=settings.value("type",0).toInt();
-        switch(pType)
+        settings.beginGroup(QString::number(k));
+        TProcessElement pe;
+        pe.setProcessTypeStr(settings.value("type_str").toString());
+        switch(pe.processType())
+//        pType=settings.value("type",0).toInt();
+//        switch(pType)
         {
           case TProcessElement::CutAdd:
             processElements.append(new TAddCutPoints);

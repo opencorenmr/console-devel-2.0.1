@@ -42,19 +42,23 @@ public:
                        Flatten,
                        CartesianMap3D,
                        FFT3D,
-                       Math
+                       Math,
+                       InvalidType
                       };
 
     enum TFIDMathOperation {Add,Subtract,Multiply,Divide,
                             Normalize,Offset,PhaseOffset,
-                            ReversePhase, Invalid};
+                            ReversePhase, InvalidMathOperation};
+
     enum TFIDMathOperationWith {Number,File,Buffer};
 
     void stop() {QMutexLocker locker(&mutex); stopped=true; condition.wakeAll();}
 
 
     TProcessType processType() {return FProcessType;}
+    QString processTypeStr();
     void setProcessType(TProcessType pt) {FProcessType=pt;}
+    void setProcessTypeStr(QString);
 
     enum TApplyMode {ApplyToAll, ApplyToOne, ApplyToOthers, ApplytoNone};
 
