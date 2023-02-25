@@ -1531,7 +1531,7 @@ bool TfpgaTerminal::initData()
 
     mutex.lock();
       nmrData->FID.clear();
-      nmrData->setAl(al2);
+      nmrData->setDefaultAl(al2);
 
       nmrData->setDW(ppg->receiverInfo.dw());
       for(int k=0; k<ppg->receiverInfo.nc(); k++)
@@ -1569,8 +1569,8 @@ bool TfpgaTerminal::initData()
 
      for(int k=0; k<fidPlotters.size();k++)
      {
-           if(fidPlotters[k]->plotter->xini > nmrData->al()-2) fidPlotters[k]->plotter->xini=0;
-           if(fidPlotters[k]->plotter->xfin > nmrData->al()-1) fidPlotters[k]->plotter->xfin=nmrData->al()-1;
+           if(fidPlotters[k]->plotter->xini > nmrData->defaultAl()-2) fidPlotters[k]->plotter->xini=0;
+           if(fidPlotters[k]->plotter->xfin > nmrData->defaultAl()-1) fidPlotters[k]->plotter->xfin=nmrData->defaultAl()-1;
            // 20200616: We now allow the plotters to draw data.
            fidPlotters[k]->plotter->fidSetted=true;
      }
@@ -1898,7 +1898,7 @@ void TfpgaTerminal::copyFID(TFID *f)
 
    //mutex.lock();
 
-   if(nmrData->al()!=f->al() &&
+   if(nmrData->defaultAl()!=f->al() &&
      (
       expSettings->acquisitionWidget->multipleAcquisitionMode!=TAcquisitionWidget::JoinData
       || expSettings->acquisitionWidget->multipleAcquisitionMode!=TAcquisitionWidget::JoinAverageData)

@@ -206,9 +206,9 @@ void KExportWidget::performExportCSVFile()
     QStringList ss;
     for(int i=0;i<ancestor()->FID_2D->FID.size();i++)
     {
-        for(int j=0;j<ancestor()->FID_2D->al();j++)
+        for(int j=0;j<ancestor()->FID_2D->defaultAl();j++)
         {
-            if(j!=ancestor()->FID_2D->al()-1)
+            if(j!=ancestor()->FID_2D->defaultAl()-1)
             {
                 ss.append(QString::number(ancestor()->FID_2D->FID.at(i)->real->sig.at(j)) + ",");
             }

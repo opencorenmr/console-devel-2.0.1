@@ -96,7 +96,7 @@ bool TAddCutPoints::process(TFID_2D *fid_2d)
 
     }
 
-    fid_2d->setAl(fid_2d->FID.at(0)->al());
+    fid_2d->setDefaultAl(fid_2d->FID.at(0)->al());
 
     return true;
 }
