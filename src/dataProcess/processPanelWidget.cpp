@@ -657,6 +657,7 @@ void TProcessPanelWidget::applyProcess()
         case TProcessElement::Transpose: break;
         case TProcessElement::ArraySum: break;
         case TProcessElement::Flatten: break;
+        case TProcessElement::Reshape: break;
 
         case TProcessElement::CartesianMap3D:
 

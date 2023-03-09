@@ -96,7 +96,8 @@ bool TAddCutPoints::process(TFID_2D *fid_2d)
 
     }
 
-    fid_2d->setDefaultAl(fid_2d->FID.at(0)->al());
+    //  commented out (2 Mar 2023 KT)
+    //  fid_2d->setDefaultAl(fid_2d->FID.at(0)->al());
 
     return true;
 }
