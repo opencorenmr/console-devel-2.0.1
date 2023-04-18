@@ -236,6 +236,17 @@ void TJobQueueWidget::onAddJobPushButtonClicked()
 
 }
 
+void TJobQueueWidget::removeJob(int k)
+{
+
+}
+
+void TJobQueueWidget::removeJob()
+{
+
+}
+
+
 void TJobQueueWidget::onRemoveJobPushButtonClicked()
 {
 //    qDebug() << "Job removed.";

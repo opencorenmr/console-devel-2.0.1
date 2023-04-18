@@ -1073,6 +1073,8 @@ void TfpgaTerminal::FTDIOpen()
 
       comRxThread.standBy();
       connect(&comRxThread,SIGNAL(commandRequest(QString)),this,SLOT(transferPPG(QString)));
+      connect(&comRxThread,SIGNAL(runJobRequest()),jobQueueWidget,SLOT(onRunJobPushButtonClicked()));
+      connect(&comRxThread,SIGNAL(queueJobRequest(QString)),jobQueueWidget,SLOT(addJob(QString)));
 
       terminalOpenCloseButtion->setText("Close");
 
