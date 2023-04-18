@@ -82,7 +82,8 @@ SOURCES += main.cpp\
     dataProcess/cartesianMap.cpp \
     dataProcess/cartesianMapWidget.cpp \
     dataProcess/cartesianMapWeight.cpp \
-    dataProcess/exportAbsWidget.cpp
+    dataProcess/exportAbsWidget.cpp \
+    dataProcess/reshape.cpp
 
 
 
@@ -158,7 +159,8 @@ HEADERS  += mainwindow.h \
     dataProcess/cartesianMap.h \
     dataProcess/cartesianMapWidget.h \
     dataProcess/cartesianMapWeight.h \
-    dataProcess/exportAbsWidget.h
+    dataProcess/exportAbsWidget.h \
+    dataProcess/reshape.h
 
 
 linux: HEADERS += gpib488console.h
