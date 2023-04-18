@@ -173,7 +173,7 @@ void TFIDMathWidget::onNumberOperationComboBoxActivated()
 void TFIDMathWidget::onApplyButtonClicked()
 {
     bool ok=true;
-    QFileInfo qfi;
+//    QFileInfo qfi;
 
     if(!isAncestorDefined())
     {
@@ -187,14 +187,14 @@ void TFIDMathWidget::onApplyButtonClicked()
     }
 
     double dr=0,di=0;
-    dr=number1LineEdit->text().toDouble(&ok);
-    di=number2LineEdit->text().toDouble(&ok);
+  //  dr=number1LineEdit->text().toDouble(&ok);
+  //  di=number2LineEdit->text().toDouble(&ok);
 
 
     switch(withComboBox->currentIndex())
     {
       case 0: // with number
-        FIDMath->setOperationWith(TFIDMath::Number);
+        FIDMath->setFIDMathOperationWith(TFIDMath::Number);
         switch(numberOperationComboBox->currentIndex())
         {
           case 0: // Add
@@ -203,8 +203,8 @@ void TFIDMathWidget::onApplyButtonClicked()
             di=number2LineEdit->text().toDouble(&ok);
             if(ok)
             {
-              FIDMath->setNumber1(dr);
-              FIDMath->setNumber2(di);
+              FIDMath->setFIDMathReal(dr);
+              FIDMath->setFIDMathImag(di);
             }
             break;
           case 1: // Subtract
@@ -213,8 +213,8 @@ void TFIDMathWidget::onApplyButtonClicked()
             di=number2LineEdit->text().toDouble(&ok);
             if(ok)
             {
-              FIDMath->setNumber1(dr);
-              FIDMath->setNumber2(di);
+              FIDMath->setFIDMathReal(dr);
+              FIDMath->setFIDMathImag(di);
             }
             break;
           case 2: // Multiply
@@ -223,8 +223,8 @@ void TFIDMathWidget::onApplyButtonClicked()
             di=number2LineEdit->text().toDouble(&ok);
             if(ok)
             {
-              FIDMath->setNumber1(dr);
-              FIDMath->setNumber2(di);
+              FIDMath->setFIDMathReal(dr);
+              FIDMath->setFIDMathImag(di);
             }
             break;
           case 3: // Divide
@@ -233,8 +233,8 @@ void TFIDMathWidget::onApplyButtonClicked()
             di=number2LineEdit->text().toDouble(&ok);
             if(ok)
             {
-              FIDMath->setNumber1(dr);
-              FIDMath->setNumber2(di);
+              FIDMath->setFIDMathReal(dr);
+              FIDMath->setFIDMathImag(di);
             }
             break;
           case 4: // Normalize
@@ -242,14 +242,14 @@ void TFIDMathWidget::onApplyButtonClicked()
             ok=true; // we do not use number
             break;
           case 5: // CorrectOffset
-            FIDMath->setFIDMathOperation(TFIDMath::CorrectOffset);
-            FIDMath->setXIni(xIniSpinBox->value());
-            FIDMath->setXFin(xFinSpinBox->value());
+            FIDMath->setFIDMathOperation(TFIDMath::Offset);
+            FIDMath->setFIDMathXIni(xIniSpinBox->value());
+            FIDMath->setFIDMathXFin(xFinSpinBox->value());
             break;
           case 6: // CorrectPhaseOffset
-            FIDMath->setFIDMathOperation(TFIDMath::CorrectPhaseOffset);
-            FIDMath->setXIni(xIniSpinBox->value());
-            FIDMath->setXFin(xFinSpinBox->value());
+            FIDMath->setFIDMathOperation(TFIDMath::PhaseOffset);
+            FIDMath->setFIDMathXIni(xIniSpinBox->value());
+            FIDMath->setFIDMathXFin(xFinSpinBox->value());
             break;
           case 7: // ReversePhase
             FIDMath->setFIDMathOperation(TFIDMath::ReversePhase);
@@ -268,41 +268,7 @@ void TFIDMathWidget::onApplyButtonClicked()
         break;
 
       case 1: // with file
-
-        FIDMath->setOperationWith(TFIDMath::File);
-        qfi.setFile(filePathLineEdit->text(),fileNameLineEdit->text());
-        if(!qfi.exists())
-        {
-            QMessageBox::warning(this,tr(""),"File does not exist.");
-            return;
-        }
-
-       // qDebug() << QString(Q_FUNC_INFO) << qfi.suffix();
-
-        if(0==QString::compare(qfi.suffix(),"sm2p",Qt::CaseInsensitive)
-            || 0==QString::compare(qfi.suffix(),"sm2d",Qt::CaseInsensitive))
-        {
-            FIDMath->setFileType(TFIDMath::sm2d);
-        }
-        else if (0==QString::compare(qfi.suffix(),"opp",Qt::CaseInsensitive)
-                 || 0==QString::compare(qfi.suffix(),"opd",Qt::CaseInsensitive))
-        {
-            FIDMath->setFileType(TFIDMath::opd);
-            // qDebug() << QString(Q_FUNC_INFO) << "opd";
-            // qDebug() << QString(Q_FUNC_INFO) << FIDMath->fileType();
-        }
-        else if (0==QString::compare(qfi.suffix(),"smd",Qt::CaseInsensitive))
-        {
-            FIDMath->setFileType(TFIDMath::smd);
-        }
-        else
-        {
-            QMessageBox::warning(this,tr(""),"Invalid file type.");
-            return;
-        }
-
-        FIDMath->setFileName(qfi.absoluteFilePath());
-
+        FIDMath->setFIDMathOperationWith(TFIDMath::File);
         switch(fileOperationComboBox->currentIndex())
         {
           case 0: // Add
@@ -320,8 +286,10 @@ void TFIDMathWidget::onApplyButtonClicked()
           default:
             QMessageBox::warning(this,tr(""),"Invalid operation");
             return;
-
         }
+        FIDMath->setFIDMathDirName(filePathLineEdit->text());
+        FIDMath->setFIDMathFileName(fileNameLineEdit->text());
+
         break;
 
       // case 2: // TODO: with buffer
@@ -334,7 +302,6 @@ void TFIDMathWidget::onApplyButtonClicked()
     } // switch
 
 
-
     if(!FIDMath->process(ancestor()->FID_2D))
     {
         QMessageBox::warning(this,tr("TFIDMath error"), FIDMath->errorMessage());
@@ -345,6 +312,7 @@ void TFIDMathWidget::onApplyButtonClicked()
     // TODO: Plotter update
     ancestor()->plotters->update();
 
+
     addOperation();
 
 }
@@ -354,7 +322,44 @@ void TFIDMathWidget::addOperation()
   if(!isAncestorDefined()) return;
   if(ancestor()->FID_2D->FID.isEmpty()) return;
   TFIDMath *fm = new TFIDMath;
-  fm=FIDMath;
+  //fm=FIDMath;
+  fm->setFIDMathOperationWith(FIDMath->FIDMathOperationWith());
+  if(fm->FIDMathOperationWith()==TFIDMath::Number)
+  {
+      fm->setFIDMathOperation(FIDMath->FIDMathOperation());
+      switch(fm->FIDMathOperation())
+      {
+        case TFIDMath::Add:
+        case TFIDMath::Subtract:
+        case TFIDMath::Multiply:
+        case TFIDMath::Divide:
+          fm->setFIDMathReal(FIDMath->FIDMathReal());
+          fm->setFIDMathImag(FIDMath->FIDMathImag());
+          break;
+        case TFIDMath::Normalize:
+
+          break;
+        case TFIDMath::Offset:
+        case TFIDMath::PhaseOffset:
+          fm->setFIDMathXIni(FIDMath->FIDMathXIni());
+          fm->setFIDMathXFin(FIDMath->FIDMathXFin());
+          break;
+
+        case TFIDMath::ReversePhase:
+
+          break;
+        default:
+          break;
+      }
+
+  }
+  else if(fm->FIDMathOperationWith()==TFIDMath::File)
+  {
+    // fm->setFileType(FIDMath->fileType());
+     fm->setFIDMathFileName(FIDMath->FIDMathFileName());
+     fm->setFIDMathDirName(FIDMath->FIDMathDirName());
+     fm->setFIDMathOperation(FIDMath->FIDMathOperation());
+  }
 
   ancestor()->processOperations->processElements.append(fm);
 

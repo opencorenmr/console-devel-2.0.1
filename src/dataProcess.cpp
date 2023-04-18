@@ -140,7 +140,7 @@ void TprocessTerminal::readFID()
     dataFilePathLabel->setText(dataFilePath);
 
     fp->plotter->xini=0;
-    fp->plotter->xfin=FID_2D->al()-1;
+    fp->plotter->xfin=FID_2D->defaultAl()-1;
     fp->plotter->setScale(1/(FID_2D->FID[0]->abs->absMax()));
 
 //    plotter->plotter->setFID(FID_2D->FID[0]);
@@ -155,7 +155,7 @@ void TprocessTerminal::readFID()
     PlotSettings pset;
 
     pset.minX=0;
-    pset.maxX=FID_2D->al();
+    pset.maxX=FID_2D->defaultAl();
     pset.minY=-FID_2D->FID.at(currentFIDIndex)->abs->max();
     pset.maxY=FID_2D->FID.at(currentFIDIndex)->abs->max();
 

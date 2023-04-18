@@ -16,6 +16,8 @@
 #include "phase.h"
 #include "replaceRealWithAbsolute.h"
 #include "cartesianMap.h"
+#include "fidMath.h"
+#include "reshape.h"
 
 class TProcessOperations : public QObject
 {
@@ -32,6 +34,12 @@ public:
     QString errorMessage() {return FErrorMessage;}
     void setErrorMessage(QString qs) {FErrorMessage=qs;}
 
+    int majorVersion() {return FMajorVersion;}
+    void setMajorVersion(int k) {FMajorVersion=k;}
+    int minorVersion() {return FMinorVersion;}
+    void setMinorVersion(int k) {FMinorVersion=k;}
+    int patchVersion() {return FPatchVersion;}
+    void setPatchVersion(int k) {FPatchVersion=k;}
 
 signals:
 
@@ -40,6 +48,9 @@ public slots:
 
 private:
 
+    int FMajorVersion;
+    int FMinorVersion;
+    int FPatchVersion;
     QString FErrorMessage;
 
 };

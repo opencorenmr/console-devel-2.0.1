@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QMessageBox>
 
 //#include "phaseWidget.h"
 //#include "phase.h"
@@ -11,6 +12,8 @@
 //TPhaseWidget::TPhaseWidget(QWidget *parent) : QWidget(parent)
 TPhaseWidget::TPhaseWidget() : TProcessBase()
 {
+    // We create process element.
+    phaseReverse = new TPhaseReverse;
     phaseRotation = new TPhaseRotation;
     //FFIDSetted=false;
 
@@ -30,7 +33,7 @@ void TPhaseWidget::setFID2D(TFID_2D *f)
 {
 //    FID_2D=f;
 //    FFIDSetted=true;
-    phasePivotSpinBox->setMaximum(f->al()-1);
+    phasePivotSpinBox->setMaximum(f->defaultAl()-1);
 
 }
 
@@ -55,10 +58,12 @@ void TPhaseWidget::createWidgets()
     phase1ResolutionComboBox->addItems(QStringList()<<"0.0005"<<"0.001"<<"0.005"<<"0.01"<<"0.05"<<"0.1"<<"1"<<"5");
     phase1ResolutionComboBox->setCurrentIndex(3);
 
-    applyPushButton=new QPushButton(tr("Save change"));
+    applyPushButton=new QPushButton(tr("Save phase"));
     applyPushButton->setEnabled(false);
     restorePushButton=new QPushButton(tr("Restore change"));
     restorePushButton->setEnabled(false);
+
+    phaseReversePushButton=new QPushButton("Reverse Phase");;
 }
 
 void TPhaseWidget::createPanel()
@@ -97,8 +102,9 @@ void TPhaseWidget::createPanel()
       mainLayout->addWidget(groupBox0);
       mainLayout->addWidget(groupBox1);
    //   mainLayout->addWidget(applyModeWidget);
-      mainLayout->addStretch();
       mainLayout->addLayout(hLayout1);
+      mainLayout->addStretch();
+      mainLayout->addWidget(phaseReversePushButton);
       setLayout(mainLayout);
 
 }
@@ -112,6 +118,7 @@ void TPhaseWidget::createConnections()
     connect(phasePivotSpinBox,SIGNAL(valueChanged(int)),this,SLOT(setPivot(int)));
     connect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(addOperation()));
     connect(phasePivotCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetPhasePivot()));
+    connect(phaseReversePushButton,SIGNAL(clicked(bool)),this,SLOT(onPhaseReversePushButtonClicked()));
 }
 
 void TPhaseWidget::breakConnections()
@@ -123,6 +130,7 @@ void TPhaseWidget::breakConnections()
     disconnect(phasePivotSpinBox,SIGNAL(valueChanged(int)),this,SLOT(setPivot(int)));
     disconnect(applyPushButton,SIGNAL(clicked(bool)),this,SLOT(addOperation()));
     disconnect(phasePivotCheckBox,SIGNAL(toggled(bool)),this,SLOT(clickSetPhasePivot()));
+    disconnect(phaseReversePushButton,SIGNAL(clicked(bool)),this,SLOT(onPhaseReversePushButtonClicked()));
 }
 
 
@@ -332,3 +340,61 @@ void TPhaseWidget::setResolution1()
 {
     phase1ValueDoubleSpinBox->setSingleStep(phase1ResolutionComboBox->currentText().toDouble());
 }
+
+void TPhaseWidget::onPhaseReversePushButtonClicked()
+{
+    if(!isAncestorDefined())
+    {
+        QMessageBox::warning(this,tr(""),"Ancestor is not defined.");
+        return;
+    }
+    if(ancestor()->FID_2D->FID.isEmpty())
+    {
+        QMessageBox::warning(this,tr(""),"Data is empty.");
+        return;
+    }
+
+    if (QMessageBox::No == QMessageBox::question(this, "Phase Reversal",
+                                 "May we reverse phase?",
+                                 QMessageBox::Yes|QMessageBox::No)) return;
+
+    if(!phaseReverse->process(ancestor()->FID_2D))
+    // in case of error...
+    {
+        QMessageBox::warning(this,tr(""), phaseReverse->errorMessage());
+        return;
+    }
+
+    // With success, we update the plotter
+    // and add the operation to the operation list.
+    ancestor()->plotters->update();
+    addPhaseReverseOperation();
+
+    return;
+}
+
+void TPhaseWidget::addPhaseReverseOperation()
+{
+    if(!isAncestorDefined()) return;
+    if(ancestor()->FID_2D->FID.isEmpty()) return;
+    TPhaseReverse *phRev = new TPhaseReverse; //qDebug() << phRot;
+    //if the type of the last operation is also phase reversal, ... shall we merge operations?
+    //if(!ancestor()->processOperations->processElements.isEmpty())
+    //{
+    //   if(ancestor()->processOperations->processElements.last()->processType()==TProcessElement::PhaseReverse)
+    //   {
+    //     do something...
+    //   }
+    //}
+    ancestor()->processOperations->processElements.append(phRev);
+    // common settings
+    ancestor()->updateProcessSettings();
+    // settings specific to phase rotation
+
+
+    //createSettings(ancestor()->processSettings,QString::number(ancestor()->processOperations->processElements.size()-1));
+
+    return;
+}
+
+

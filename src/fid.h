@@ -262,8 +262,13 @@ class TFID_2D
     void setNA(int na) {FNA=na; for(int j=0; j<FID.size(); j++) FID[j]->setNA(na);}
     int nd() {return FND;}
     void setND(int nd) {FND=nd; for(int j=0; j<FID.size(); j++) FID[j]->setND(nd);}
-    int al() {return FAL;}
-    void setAl(int al) {FAL=al; for(int j=0; j<FID.size(); j++) FID[j]->setAL(al);}
+    int defaultAl() {return FAL;}
+//    int al() {return FAL;}
+    void setDefaultAl(int al) {
+        FAL=al;
+        //for(int j=0; j<FID.size(); j++) FID[j]->setAL(al);
+    }
+//    void setAl(int al) {FAL=al; for(int j=0; j<FID.size(); j++) FID[j]->setAL(al);}
     double dw() {return FDW;}
     void setDW(double dw) {FDW=dw; for(int j=0; j<FID.size(); j++) FID[j]->setDW(dw);}
     double sf1() {return FSF1;}

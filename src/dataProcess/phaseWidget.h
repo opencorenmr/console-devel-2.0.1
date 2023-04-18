@@ -27,10 +27,12 @@ public:
    // bool fidSetted() {return FFIDSetted;}
 
     TPhaseRotation *phaseRotation;
+    TPhaseReverse *phaseReverse;
 
     QSpinBox *phasePivotSpinBox;
     QSpinBox *phaseOrderSpinBox;
     QCheckBox *phasePivotCheckBox;
+    QPushButton *phaseReversePushButton;
     QDoubleSpinBox *phase0ValueDoubleSpinBox,*phase1ValueDoubleSpinBox;
     QComboBox *phase0ResolutionComboBox,*phase1ResolutionComboBox;
 
@@ -47,6 +49,7 @@ public slots:
     void reset();
     void refresh();
     void addOperation();
+    void addPhaseReverseOperation();
 
 
     void setPivot(int p);
@@ -62,6 +65,7 @@ private slots:
     void setZero();
     void createSettings(QSettings *settings, QString section);
     void readSettings(QSettings *settings, QString section);
+    void onPhaseReversePushButtonClicked();
 
 private:
 

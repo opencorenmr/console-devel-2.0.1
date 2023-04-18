@@ -1,6 +1,103 @@
 #include "phase.h"
 #include "math.h"
 
+
+TPhaseReverse::TPhaseReverse()
+{
+   // qDebug() << "TPhaseReverse constructor";
+   setProcessType(TProcessType::PhaseReverse);
+}
+
+TPhaseReverse::~TPhaseReverse()
+{
+  // qDebug() << "TPhaseReverse destructor";
+}
+
+QStringList TPhaseReverse::processInformation() {return QStringList() << "process=phaseReverse";}
+QString TPhaseReverse::command()
+{
+    QString qs;
+    qs= "phase reverse";
+    return qs;
+}
+
+
+bool TPhaseReverse::process(TFID_2D *fid_2d)
+{
+    errorQ=false;
+    switch(applyMode())
+    {
+      default:
+      case ApplyToAll:
+
+        for(int c=0; c<fid_2d->FID.size(); c++)
+        {
+          errorQ=!process(fid_2d->FID[c]);
+          if(errorQ) break;
+        }
+        break;
+      case ApplyToOne:
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=true;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          errorQ=!process(fid_2d->FID[applyIndex()]);
+        }
+        break;
+      case ApplyToOthers:
+
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=true;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          for(int k=0; k<fid_2d->FID.size(); k++)
+          {
+            if(k!=applyIndex())
+            {
+              errorQ=!process(fid_2d->FID[k]);
+              if(errorQ) break;
+            }
+          } // k
+        }
+        break;
+    } // switch
+
+
+    return !errorQ;
+
+}
+
+bool TPhaseReverse::process(TFID_2D *fid_2d, int k)
+{
+    if(k<0 || k>fid_2d->FID.size()-1)
+    {
+        errorQ=true;
+        setErrorMessage(QString(Q_FUNC_INFO)+": index is out of range.");
+        return false;
+    }
+    else return process(fid_2d->FID[k]);
+}
+
+
+bool TPhaseReverse::process(TFID *fid)
+{
+    for(int k=0; k<fid->al(); k++)
+    {
+        fid->imag->sig[k]=-1.0*fid->imag->sig[k];
+    }
+    return true;
+}
+
+
+
+
+//------------------------------------------------------------
 TPhaseRotation::TPhaseRotation()
 {
   //qDebug() << "TPhaseRotation constructor.";

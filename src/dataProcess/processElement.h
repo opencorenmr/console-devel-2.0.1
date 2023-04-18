@@ -11,6 +11,10 @@
 
 #define TWOPI 6.28318530717958647692528676656
 
+#define RESHAPE_AL "reshape_al"
+#define RESHAPE_NOD "reshape_number_of_divisions"
+#define RESHAPE_INVALID "reshape_invalid"
+
 
 //class TProcessElement : public QObject
 class TProcessElement : public QThread
@@ -29,24 +33,41 @@ public:
     }
 
 
+
     enum TProcessType {CutAdd,
                        Apodization,
                        FFT,
                        IFFT,
                        Phase,
+                       PhaseReverse,
                        AxisStyle,
                        ArraySum,
                        Transpose,
                        Flatten,
+                       Reshape,
                        CartesianMap3D,
-                       FFT3D
+                       FFT3D,
+                       Math,
+                       InvalidType
                       };
+
+    enum TFIDMathOperation {Add,Subtract,Multiply,Divide,
+                            Normalize,Offset,PhaseOffset,
+                            ReversePhase, InvalidMathOperation};
+
+    enum TFIDMathOperationWith {Number,File,Buffer};
+
+    enum TReshapeOption {ReshapeAL,
+                         ReshapeNumberOfDivisions,
+                         ReshapeInvalid};
 
     void stop() {QMutexLocker locker(&mutex); stopped=true; condition.wakeAll();}
 
 
     TProcessType processType() {return FProcessType;}
+    QString processTypeStr();
     void setProcessType(TProcessType pt) {FProcessType=pt;}
+    void setProcessTypeStr(QString);
 
     enum TApplyMode {ApplyToAll, ApplyToOne, ApplyToOthers, ApplytoNone};
 
@@ -85,6 +106,16 @@ public:
     virtual void setWidth(double) {;}
     virtual bool inverse() {return false;}
     virtual void setInverse(bool) {;}
+
+    // virtual functions for reshape
+    virtual int reshapeAL() {return 0;}
+    virtual void setReshapeAL(int ) {return;}
+    virtual int reshapeNOfDivisions() {return 0;}
+    virtual void setReshapeNOfDivisions(int) {return;}
+    virtual TReshapeOption reshapeOption() {return TReshapeOption::ReshapeAL;}
+    virtual void setReshapeOption(TReshapeOption) {return;}
+    virtual QString reshapeOptionStr() {return "";}
+    virtual void setReshapeOptionStr(QString) {return;}
 
     // virtual functions for FFT, IFFT
     virtual bool Laplace() {return false;}
@@ -138,6 +169,28 @@ public:
     virtual void FFT3D_setN2(int) {;}
     virtual int FFT3D_n1() {return 0;}
     virtual int FFT3D_n2() {return 0;}
+
+    //virtual functions for math
+    virtual TFIDMathOperationWith FIDMathOperationWith(){return TProcessElement::Number;}
+    virtual void setFIDMathOperationWith(TFIDMathOperationWith) {;}
+    virtual TFIDMathOperation FIDMathOperation() {return TProcessElement::Add;}
+    virtual void setFIDMathOperation(TFIDMathOperation) {;}
+    virtual QString FIDMathOperationStr() {return "";}
+    virtual void setFIDMathOperationStr(QString) {;}
+    virtual QString FIDMathOperationWithStr() {return "";}
+    virtual void setFIDMathOperationWithStr(QString) {;}
+    virtual double FIDMathReal() {return 0;}
+    virtual void setFIDMathReal(double) {;}
+    virtual double FIDMathImag() {return 0;}
+    virtual void setFIDMathImag(double) {;}
+    virtual int FIDMathXIni() {return 0;}
+    virtual int FIDMathXFin() {return 0;}
+    virtual void setFIDMathXIni(int) {;}
+    virtual void setFIDMathXFin(int) {;}
+    virtual QString FIDMathDirName() {return "";}
+    virtual QString FIDMathFileName() {return "";}
+    virtual void setFIDMathDirName(QString) {;}
+    virtual void setFIDMathFileName(QString) {;}
 
 
     QMutex mutex;

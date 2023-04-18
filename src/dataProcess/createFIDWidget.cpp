@@ -178,7 +178,7 @@ void TCreateFIDWidget::createFIDFromAsci()
     // Then we set dw according to the dwDoubleSpinBox, and al.
     FID_2D->setDW(dwDoubleSpinBox->value());
     FID_2D->setSF1(sf1DoubleSpinBox->value());
-    FID_2D->setAl(al);
+    FID_2D->setDefaultAl(al);
 
     FID_2D->setCurrentFID(0);
 
