@@ -91,6 +91,14 @@ bool TProcessOperations::saveToFile(QString filename)
         case TProcessElement::ArraySum: break;
         case TProcessElement::Flatten: break;
 
+        case TProcessElement::Reshape:
+          processSettings->setValue("reshapeOption",processElements.at(index)->reshapeOptionStr());
+          if(processElements.at(index)->reshapeOption()==TProcessElement::ReshapeAL)
+              processSettings->setValue("al",processElements.at(index)->reshapeAL());
+          else if(processElements.at(index)->reshapeOption()==TProcessElement::ReshapeNumberOfDivisions)
+              processSettings->setValue("number_of_divisions",processElements.at(index)->reshapeNOfDivisions());
+          break;
+
         case TProcessElement::CartesianMap3D:
           processSettings->setValue("polarAngles",processElements.at(index)->cartesianMap3DPolarAnglesStr());
 
@@ -238,6 +246,15 @@ bool TProcessOperations::loadFromFile(QString filename)
 
           case TProcessElement::Flatten:
             processElements.append(new TFlatten);
+            break;
+
+          case TProcessElement::Reshape:
+            processElements.append(new TReshape);
+            processElements.last()->setReshapeOptionStr(settings.value("reshapeOption","").toString());
+            if(processElements.last()->reshapeOption()==TProcessElement::ReshapeAL)
+              processElements.last()->setReshapeAL(settings.value("al",1).toInt());
+            else if(processElements.last()->reshapeOption()==TProcessElement::ReshapeNumberOfDivisions)
+              processElements.last()->setReshapeNOfDivisions(settings.value("number_of_divisions",1).toInt());
             break;
 
           case TProcessElement::CartesianMap3D:

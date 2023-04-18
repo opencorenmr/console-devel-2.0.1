@@ -27,6 +27,7 @@ QString TProcessElement::processTypeStr()
       case TProcessType::ArraySum: qs="ArraySum"; break;
       case TProcessType::Transpose: qs="Transpose"; break;
       case TProcessType::Flatten: qs="Flatten"; break;
+      case TProcessType::Reshape: qs="Reshape"; break;
       case TProcessType::CartesianMap3D: qs="CartesianMap3D"; break;
       case TProcessType::FFT3D: qs="FFT3D"; break;
       case TProcessType::Math: qs="Math"; break;
@@ -48,6 +49,7 @@ void TProcessElement::setProcessTypeStr(QString qs)
     else if(0==QString::compare("ArraySum",qs,Qt::CaseInsensitive)) setProcessType(TProcessType::ArraySum);
     else if(0==QString::compare("Transpose",qs,Qt::CaseInsensitive)) setProcessType(TProcessType::Transpose);
     else if(0==QString::compare("Flatten",qs,Qt::CaseInsensitive)) setProcessType(TProcessType::Flatten);
+    else if(0==QString::compare("Reshape",qs,Qt::CaseInsensitive)) setProcessType(TProcessType::Reshape);
     else if(0==QString::compare("CartesianMap3D",qs,Qt::CaseInsensitive)) setProcessType(TProcessType::CartesianMap3D);
     else if(0==QString::compare("FFT3D",qs,Qt::CaseInsensitive)) setProcessType(TProcessType::FFT3D);
     else if(0==QString::compare("Math",qs,Qt::CaseInsensitive)) setProcessType(TProcessType::Math);

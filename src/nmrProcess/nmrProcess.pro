@@ -21,6 +21,7 @@ SOURCES += main.cpp\
     ../dataProcess/exportAbsWidget.cpp \
     ../dataProcess/interpolate.cpp \
     ../dataProcess/interpolateWidget.cpp \
+    ../dataProcess/reshape.cpp \
         mainwindow.cpp \
     ../fid.cpp \
     ../plotter.cpp \
@@ -72,6 +73,7 @@ HEADERS  += mainwindow.h \
     ../dataProcess/exportAbsWidget.h \
     ../dataProcess/interpolate.h \
     ../dataProcess/interpolateWidget.h \
+    ../dataProcess/reshape.h \
     ../fid.h \
     ../plotter.h \
     ../metricPrefix.h \

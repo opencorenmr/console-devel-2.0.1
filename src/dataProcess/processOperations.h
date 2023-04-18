@@ -17,6 +17,7 @@
 #include "replaceRealWithAbsolute.h"
 #include "cartesianMap.h"
 #include "fidMath.h"
+#include "reshape.h"
 
 class TProcessOperations : public QObject
 {

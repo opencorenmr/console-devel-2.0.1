@@ -264,7 +264,7 @@ void TAddCutPointsWidget::onPointsToComboBoxChanged()
         return;
     }
 
-    int al=ancestor()->FID_2D->al();
+    int al=ancestor()->FID_2D->defaultAl();
     int k=pointsToComboBox->currentIndex();
     int p=pow(2,k);
 

@@ -212,6 +212,7 @@ ComRxThread::ComRxThread(QObject *parent):QThread(parent)
     stopped=false;
     errorQ=false;
     path0=QDir::homePath()+"/.opencorenmr/cmd/cmd0";
+    path1=QDir::homePath()+"/.opencorenmr/cmd/jobs";
 //    qDebug() << QString(Q_FUNC_INFO)+ ": constructor";
 
 }
@@ -293,6 +294,14 @@ void ComRxThread::run()
         //  qDebug() << QString(Q_FUNC_INFO)+ ": i command received in" + path0;
           emit commandRequest("i");
       }
+      else if(0==source.compare("j",Qt::CaseInsensitive))
+      {
+          emit runJobRequest();
+      }
+      else if(0==source.compare("aj",Qt::CaseInsensitive))
+      {
+          addJob();
+      }
 
      file.close();
    //  msleep(100);
@@ -300,5 +309,32 @@ void ComRxThread::run()
     }
 
 //    qDebug() << QString(Q_FUNC_INFO) << ": ...";
+
+}
+
+void ComRxThread::addJob()
+{
+    QFile file(path1);
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text))
+    {
+       qDebug() << QString(Q_FUNC_INFO)+ ": Failed to open " + path1;
+       errorQ=true;
+       return;
+    }
+
+    QString qs;
+    qs.clear();
+
+    QTextStream in(&file);
+    qs=in.readAll().trimmed();
+    QStringList sl=qs.split('\n');
+
+    for(int k=0; k<sl.size(); k++)
+    {
+//        qDebug() << sl.at(k);
+      if(!sl.at(k).isEmpty())  emit queueJobRequest(sl.at(k));
+    }
+
+    file.close();
 
 }

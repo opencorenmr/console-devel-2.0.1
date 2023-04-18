@@ -123,10 +123,10 @@ void KPeakPickWidget::performPeakPick2D()
 
     if(!isAncestorDefined()) {return;}
     if(ancestor()->FID_2D->FID.isEmpty()) {return;}
-    if(ancestor()->FID_2D->FID.size()!=ancestor()->FID_2D->al()){return;}
+    if(ancestor()->FID_2D->FID.size()!=ancestor()->FID_2D->defaultAl()){return;}
 
     int tgSt = 0;
-    int tgEn = ancestor()->FID_2D->al();
+    int tgEn = ancestor()->FID_2D->defaultAl();
 
     bool ok;
     KPeakPick *peakPick = new KPeakPick;

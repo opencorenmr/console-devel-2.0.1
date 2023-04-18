@@ -102,6 +102,8 @@ public:
     bool error() {return errorQ;}
 
 signals:
+    void queueJobRequest(QString);
+    void runJobRequest();
     void commandRequest(QString);
     void gotChar(QChar);
     void gotPrompt(QChar);
@@ -114,8 +116,9 @@ protected:
     void run();
 
 private:
+    void addJob();
     bool errorQ;
-    QString path0;
+    QString path0,path1;
     QMutex mutex;
     QWaitCondition condition;
     bool volatile stopped;

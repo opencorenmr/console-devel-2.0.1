@@ -46,7 +46,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
 
     if(befMax<10e4){
         for(i=0;i<fid_2d->FID.size();i++){
-            for(j=0;j<fid_2d->al();j++){
+            for(j=0;j<fid_2d->defaultAl();j++){
                 fid_2d->FID[i]->real->sig[j] = fid_2d->FID[i]->real->sig[j] * 10e4;
             }
         }
@@ -60,7 +60,7 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
     QTextStream out(&file);
     out << "[Points]" << "\n";
     out << "t1 = " << QString::number(fid_2d->FID.size()) << "\n";
-    out << "t2 = " << QString::number(fid_2d->al()) << "\n";
+    out << "t2 = " << QString::number(fid_2d->defaultAl()) << "\n";
 
     out << "[Area]" << "\n";
     out << "F1 = " << QString::number(sf1) << "\n";
@@ -89,9 +89,9 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
     out << "[t1/f1]" << "\n";
     out << "Width   = " << QString::number(1.0e6 / fid_2d->dw()) <<"\n";
     out << "Larmour = " << QString::number(fid_2d->sf1()) <<"\n";
-    out << "Point   = " << QString::number(fid_2d->al()) << "\n";
-    out << "Todat   = " << QString::number(fid_2d->al()) << "\n";
-    out << "True    = " << QString::number(fid_2d->al()) << "\n";
+    out << "Point   = " << QString::number(fid_2d->defaultAl()) << "\n";
+    out << "Todat   = " << QString::number(fid_2d->defaultAl()) << "\n";
+    out << "True    = " << QString::number(fid_2d->defaultAl()) << "\n";
     out << "Reference value = 0.00000" << "\n";
     out << "Reference mark  = 0.00000" << "\n";
     out << "Reference point = 1" << "\n";
@@ -101,9 +101,9 @@ bool KExport2DP::process(TFID_2D *fid_2d, QString fn, int sf1, int ef1,
     out << "[t2/f2]" << "\n";
     out << "Width   = " << QString::number(1.0e6 / fid_2d->dw()) <<"\n";
     out << "Larmour = " << QString::number(fid_2d->sf1()) <<"\n";
-    out << "Point   = " << QString::number(fid_2d->al()) << "\n";
-    out << "Todat   = " << QString::number(fid_2d->al()) << "\n";
-    out << "True    = " << QString::number(fid_2d->al()) << "\n";
+    out << "Point   = " << QString::number(fid_2d->defaultAl()) << "\n";
+    out << "Todat   = " << QString::number(fid_2d->defaultAl()) << "\n";
+    out << "True    = " << QString::number(fid_2d->defaultAl()) << "\n";
     out << "Reference value = 0.00000" << "\n";
     out << "Reference mark  = 0.00000" << "\n";
     out << "Reference point = 1" << "\n";
@@ -136,7 +136,7 @@ bool KExport2DP::getMaxMinParameter(TFID_2D *fid_2d, double *max, double *min,
 
     for(i=0; i<fid_2d->FID.size(); i++)
     {
-        for(j=0; j<fid_2d->al(); j++)
+        for(j=0; j<fid_2d->defaultAl(); j++)
         {
             data = fid_2d->FID.at(i)->real->sig.at(j);
             if(data < mn) mn = data;
@@ -152,7 +152,7 @@ bool KExport2DP::getMaxMinParameter(TFID_2D *fid_2d, double *max, double *min,
             }
         }
     }
-    bs = bs / double(fid_2d->al() * fid_2d->al());
+    bs = bs / double(fid_2d->defaultAl() * fid_2d->defaultAl());
 
     *max = mx;
     *min = mn;

@@ -260,7 +260,7 @@ bool T2DProcessWidget::Readsm2FileforAdd(QString fn)
     if(!Readsm2pFileforAdd(sm2p)) return false;
     double org_dw=ancestor()->FID_2D->dw();
     double org_fsf1=ancestor()->FID_2D->sf1();
-    if(AL!=ancestor()->FID_2D->al()){
+    if(AL!=ancestor()->FID_2D->defaultAl()){
         ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
     }
     if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw)))){
@@ -291,7 +291,7 @@ bool T2DProcessWidget::ReadopFileforAdd(QString fn)
 
     double org_dw=ancestor()->FID_2D->dw();
     double org_fsf1=ancestor()->FID_2D->sf1();
-    if(AL!=ancestor()->FID_2D->al()){
+    if(AL!=ancestor()->FID_2D->defaultAl()){
         ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
     }
     if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw)))){

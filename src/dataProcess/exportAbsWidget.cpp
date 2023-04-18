@@ -185,7 +185,7 @@ void SExportAbsWidget::exportAbs(){
 
         double Sum = 0;
         for(int i=0;i<fidsize/layernum;i++){
-            for(int j=0;j<ancestor()->FID_2D->al();j++){
+            for(int j=0;j<ancestor()->FID_2D->defaultAl();j++){
                 Sum = 0;
                 for(int iSum=0;iSum<layernuminbundle;iSum++){
                     if (onlyRealFlag){
@@ -195,7 +195,7 @@ void SExportAbsWidget::exportAbs(){
                     }
                 }
                 out << Sum;
-                if(j!=ancestor()->FID_2D->al()-1){out << " ";}
+                if(j!=ancestor()->FID_2D->defaultAl()-1){out << " ";}
             }
             out << '\n'; // Qt::endl;
         }

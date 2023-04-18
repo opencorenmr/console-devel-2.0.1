@@ -362,7 +362,7 @@ TProcessPanelWidget::TProcessPanelWidget(QWidget *parent) : QWidget(parent)
     setSettingDirPath(QDir::homePath()+"/.opencorenmr");
 
     FID_2D = new TFID_2D;
-    FID_2D->setAl(2);
+    FID_2D->setDefaultAl(2);
     currentNMRData = new TFID_2D;
     processOperations=new TProcessOperations;
     processSettings=new QSettings;
@@ -657,6 +657,7 @@ void TProcessPanelWidget::applyProcess()
         case TProcessElement::Transpose: break;
         case TProcessElement::ArraySum: break;
         case TProcessElement::Flatten: break;
+        case TProcessElement::Reshape: break;
 
         case TProcessElement::CartesianMap3D:
 
@@ -711,7 +712,7 @@ void TProcessPanelWidget::initializePlotter()
     for(int k=0; k<plotters->FIDPlotters.size(); k++)
     {
         plotters->FIDPlotters[k]->plotter->xini=0;
-        plotters->FIDPlotters[k]->plotter->xfin=FID_2D->al()-1;
+        plotters->FIDPlotters[k]->plotter->xfin=FID_2D->defaultAl()-1;
         plotters->FIDPlotters[k]->plotter->setScale(1/FID_2D->FID[0]->abs->absMax());
         plotters->FIDPlotters[k]->FIDSelectSpinBox->setMinimum(1);
         plotters->FIDPlotters[k]->FIDSelectSpinBox->setMaximum(FID_2D->FID.size());
@@ -730,8 +731,8 @@ void TProcessPanelWidget::updatePlotter()
 //    qDebug() << QString(Q_FUNC_INFO) << FID_2D->al();
     for(int k=0; k<plotters->FIDPlotters.size(); k++)
     {
-        if(plotters->FIDPlotters[k]->plotter->xini>FID_2D->al()-1) plotters->FIDPlotters[k]->plotter->xini=0;
-        if(plotters->FIDPlotters[k]->plotter->xfin>FID_2D->al()-1) plotters->FIDPlotters[k]->plotter->xfin=FID_2D->al()-1;
+        if(plotters->FIDPlotters[k]->plotter->xini>FID_2D->defaultAl()-1) plotters->FIDPlotters[k]->plotter->xini=0;
+        if(plotters->FIDPlotters[k]->plotter->xfin>FID_2D->defaultAl()-1) plotters->FIDPlotters[k]->plotter->xfin=FID_2D->defaultAl()-1;
         //plotters->FIDPlotters[k]->plotter->setScale(1/FID_2D->FID[0]->abs->absMax());
 
         plotters->FIDPlotters[k]->FIDSelectSpinBox->setMinimum(1);
@@ -793,10 +794,10 @@ void TProcessPanelWidget::refresh()
     updatePlotter();
     if(!FID_2D->FID.isEmpty())
     {
-      phaseWidget->phasePivotSpinBox->setMaximum(FID_2D->al()-1);
+      phaseWidget->phasePivotSpinBox->setMaximum(FID_2D->defaultAl()-1);
       // mathwidget spinedit update?
-      FIDMathWidget->xIniSpinBox->setMaximum(FID_2D->al()-1);
-      FIDMathWidget->xFinSpinBox->setMaximum(FID_2D->al()-1);
+      FIDMathWidget->xIniSpinBox->setMaximum(FID_2D->defaultAl()-1);
+      FIDMathWidget->xFinSpinBox->setMaximum(FID_2D->defaultAl()-1);
     }
 
 }
