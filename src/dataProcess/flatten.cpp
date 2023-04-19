@@ -1,4 +1,5 @@
 #include "flatten.h"
+#include <cmath>
 
 TFlatten::TFlatten()
 {
