@@ -18,13 +18,13 @@
 #include "highlighter.h"
 //#include "dataProcess/processPanelWidget.h"
 
-#define VERSION_NUMBER 2
-#define VERSION_NUMBER2 0
-#define VERSION_NUMBER3 6
-#define BUILD_NUMBER 20230418
+#define VERSION_MAJOR 2
+#define VERSION_MINOR 0
+#define VERSION_PATCH 6
+#define BUILD_NUMBER 20230419
 #define RELEASE_YEAR 2023
-#define RELEASE_MONTH "April"
-#define RELEASE_DATE 18
+#define RELEASE_MONTH "Apr"
+#define RELEASE_DATE 19
 
 class TwelcomeWidget;
 

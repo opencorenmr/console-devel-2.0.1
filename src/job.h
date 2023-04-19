@@ -98,6 +98,9 @@ public slots:
     void onJobFinished();
     void onJobAborted();
 
+    void removeJob(int k);
+    void removeJob();
+
 private:
     QPushButton *addJobPushButton,*removeJobPushButton;
     QToolButton *upButton,*downButton;

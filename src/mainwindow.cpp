@@ -40,7 +40,9 @@ TwelcomeWidget::TwelcomeWidget(QWidget *parent) :
     topLayout1->addLayout(topLayout2);
     topLayout2->addStretch();
     topLayout2->addWidget(new QLabel(tr("Opencore NMR Ver ")
-                                     + QString::number(VERSION_NUMBER)
+                                     + QString::number(VERSION_MAJOR)
+                                     +"."+QString::number(VERSION_MINOR)
+                                     +"."+QString::number(VERSION_PATCH)
                                      + tr(", Build #")+QString::number(BUILD_NUMBER)
                                      + ", "
                                      + "written by Kazuyuki Takeda ("

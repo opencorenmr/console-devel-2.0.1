@@ -107,6 +107,28 @@ void TFIDPlotters::setBackgroundColor1(QColor col)
     for(int k=0; k<FIDPlotters.size();k++) FIDPlotters[k]->plotter->setBackgroundColor1(col);
 }
 //------------------------------------------------------------------------------
+void TFIDPlotters::setRealColor(QColor col)
+{
+    FRealColor=col;
+    for(int k=0; k<FIDPlotters.size();k++) FIDPlotters[k]->plotter->setRealColor(col);
+}
+void TFIDPlotters::setImagColor(QColor col)
+{
+    FImagColor=col;
+    for(int k=0; k<FIDPlotters.size();k++) FIDPlotters[k]->plotter->setImagColor(col);
+}
+void TFIDPlotters::setAbsColor(QColor col)
+{
+    FAbsColor=col;
+    for(int k=0; k<FIDPlotters.size();k++) FIDPlotters[k]->plotter->setAbsColor(col);
+}
+void TFIDPlotters::setPolarColor(QColor col)
+{
+    FPolarColor=col;
+    for(int k=0; k<FIDPlotters.size();k++) FIDPlotters[k]->plotter->setPolarColor(col);
+}
+
+//------------------------------------------------------------------------------
 void TFIDPlotters::addAndCopyPlotter(FIDPlotter *fp)
 {
     FIDPlotters.append(new FIDPlotter);
@@ -125,6 +147,11 @@ void TFIDPlotters::addAndCopyPlotter(FIDPlotter *fp)
     FIDPlotters[k]->plotter->xfin=fp->plotter->xfin;
     FIDPlotters[k]->plotter->setBackgroundColor0(backgroundColor0());
     FIDPlotters[k]->plotter->setBackgroundColor1(backgroundColor1());
+    FIDPlotters[k]->plotter->setRealColor(realColor());
+    FIDPlotters[k]->plotter->setImagColor(imagColor());
+    FIDPlotters[k]->plotter->setAbsColor(absColor());
+    FIDPlotters[k]->plotter->setPolarColor(polarColor());
+
 
     FIDPlotters[k]->plotterDetails->xFinSpinBox->setMaximum(FID_2D->defaultAl()-1);
     FIDPlotters[k]->plotterDetails->xIniSpinBox->setMaximum(FID_2D->defaultAl()-2);
@@ -993,10 +1020,6 @@ Plotter::Plotter(QWidget *parent) :
 
   setPenWidth(1);
 
-  // default background gradation color
-  setBackgroundColor0(QColor("midnightblue"));
-  setBackgroundColor1(QColor("black"));
-
   setVOffset(0);
   vCenter=0.0;
   plotOffset=0.0;
@@ -1009,6 +1032,17 @@ Plotter::Plotter(QWidget *parent) :
 
   plotItemOption << plotReal << plotImag << plotAbs;
   setWheelToHScroll(false);
+
+  // default background gradation color
+  setBackgroundColor0(QColor("midnightblue"));
+  setBackgroundColor1(QColor("black"));
+
+  // default colors
+  setRealColor(QColor("deeppink"));
+  setImagColor(QColor("lime"));
+  setAbsColor(QColor("yellow"));
+  setPolarColor(QColor("darkOrange"));
+
 
 }
 //------------------------------------------------------------------------------
@@ -1910,13 +1944,17 @@ void Plotter::drawFID(QPainter *painter)
 
     if(plotFormat()==CartesianPlot)
     {
-      if(plotItemOption.contains(plotImag)) drawHalfFID(fid->imag, painter, QColor("lime"));
-      if(plotItemOption.contains(plotReal)) drawHalfFID(fid->real, painter, QColor("deeppink"));
-      if(plotItemOption.contains(plotAbs)) drawHalfFID(fid->abs, painter, QColor("yellow"));
+//      if(plotItemOption.contains(plotImag)) drawHalfFID(fid->imag, painter, QColor("lime"));
+//      if(plotItemOption.contains(plotReal)) drawHalfFID(fid->real, painter, QColor("deeppink"));
+//      if(plotItemOption.contains(plotAbs)) drawHalfFID(fid->abs, painter, QColor("yellow"));
+      if(plotItemOption.contains(plotAbs)) drawHalfFID(fid->abs, painter, absColor());
+      if(plotItemOption.contains(plotReal)) drawHalfFID(fid->real, painter, imagColor());
+      if(plotItemOption.contains(plotImag)) drawHalfFID(fid->imag, painter, realColor());
     }
     else // PolarPlot
     {
-       drawPolarFID(painter, QColor("darkorange"));
+//       drawPolarFID(painter, QColor("darkorange"));
+       drawPolarFID(painter, polarColor());
     }
 
 }
