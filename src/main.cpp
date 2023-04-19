@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
     //loop.exec();
 
     MainWindow w;
-    w.setWindowTitle(QObject::tr("Opencore NMR ") + QString::number(VERSION_NUMBER)
-                     +"."+QString::number(VERSION_NUMBER2)
-                     +"."+QString::number(VERSION_NUMBER3)
+    w.setWindowTitle(QObject::tr("Opencore NMR ") + QString::number(VERSION_MAJOR)
+                     +"."+QString::number(VERSION_MINOR)
+                     +"."+QString::number(VERSION_PATCH)
                      + QObject::tr(" #") + QString::number(BUILD_NUMBER)
                      + QObject::tr(" (")
                      + QString::number(RELEASE_DATE) + QObject::tr(" ")

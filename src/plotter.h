@@ -172,6 +172,15 @@ public:
     void setBackgroundColor0(QColor col) {FBackgroundColor0=col;}
     void setBackgroundColor1(QColor col) {FBackgroundColor1=col;}
 
+    QColor realColor() {return FRealColor;}
+    QColor imagColor() {return FImagColor;}
+    QColor absColor() {return FAbsColor;}
+    QColor polarColor() {return FPolarColor;}
+    void setRealColor(QColor col) {FRealColor=col;}
+    void setImagColor(QColor col) {FImagColor=col;}
+    void setAbsColor(QColor col) {FAbsColor=col;}
+    void setPolarColor(QColor col) {FPolarColor=col;}
+
     bool wheelToHScroll() {return FWheelToHScroll;}
 
 signals:
@@ -222,6 +231,8 @@ protected:
 
 private:
     QColor FBackgroundColor0, FBackgroundColor1;
+    QColor FRealColor,FImagColor,FAbsColor;
+    QColor FPolarColor;
     TPlotFormat FplotFormat;
     void drawBitLines(QPainter *painter);
     void updateRubberBandRegion();
@@ -340,6 +351,16 @@ public:
     void setBackgroundColor0(QColor col);
     void setBackgroundColor1(QColor col);
 
+    QColor realColor() {return FRealColor;}
+    QColor imagColor() {return FImagColor;}
+    QColor absColor() {return FAbsColor;}
+    QColor polarColor() {return FPolarColor;}
+    void setRealColor(QColor col);
+    void setImagColor(QColor col);
+    void setAbsColor(QColor col);
+    void setPolarColor(QColor col);
+
+
 signals:
     //void splitPlotUpdated(int nOfPlotters);
     void numberOfPlottersUpdated(int nOfPlotters);
@@ -357,6 +378,8 @@ private:
     bool FisFFTEnabled;
     int FN;
     QColor FBackgroundColor0,FBackgroundColor1;
+    QColor FRealColor,FImagColor,FAbsColor;
+    QColor FPolarColor;
 
 };
 

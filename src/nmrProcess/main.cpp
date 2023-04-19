@@ -3,10 +3,10 @@
 
 #define VERSION_MAJOR 2
 #define VERSION_MINOR 0
-#define VERSION_PATCH 10
-#define BUILD_NUMBER 20230219
+#define VERSION_PATCH 11
+#define BUILD_NUMBER 20230419
 #define RELEASE_YEAR 2023
-#define RELEASE_MONTH "Feb"
+#define RELEASE_MONTH "Apr"
 #define RELEASE_DATE 19
 
 int main(int argc, char *argv[])
@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     MainWindow w;
-    w.setWindowTitle(QObject::tr("Opencore NMR Process ") + QString::number(VERSION_MAJOR)
+    w.setWindowTitle(QObject::tr("Opencore NMR Process ")
+                     + QString::number(VERSION_MAJOR)
                      +"."+QString::number(VERSION_MINOR)
                      +"."+QString::number(VERSION_PATCH)
                   //   + QObject::tr(" #") + QString::number(BUILD_NUMBER)

@@ -421,6 +421,11 @@ void TProcessPanelWidget::createWidgets()
     plotters->setDevicePixelRatio(devicePixelRatio());
     plotters->setBackgroundColor0(QColor("white"));
     plotters->setBackgroundColor1(QColor("skyblue"));
+    plotters->setRealColor(QColor("deeppink"));
+    plotters->setImagColor(QColor("darkgreen"));
+    plotters->setAbsColor(QColor("blue"));
+    plotters->setPolarColor(QColor("darkorange"));
+
 
     plotters->show();
     plotters->setFID2D(FID_2D);
