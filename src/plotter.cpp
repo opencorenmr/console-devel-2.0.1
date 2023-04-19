@@ -1948,8 +1948,8 @@ void Plotter::drawFID(QPainter *painter)
 //      if(plotItemOption.contains(plotReal)) drawHalfFID(fid->real, painter, QColor("deeppink"));
 //      if(plotItemOption.contains(plotAbs)) drawHalfFID(fid->abs, painter, QColor("yellow"));
       if(plotItemOption.contains(plotAbs)) drawHalfFID(fid->abs, painter, absColor());
-      if(plotItemOption.contains(plotReal)) drawHalfFID(fid->real, painter, imagColor());
-      if(plotItemOption.contains(plotImag)) drawHalfFID(fid->imag, painter, realColor());
+      if(plotItemOption.contains(plotImag)) drawHalfFID(fid->imag, painter, imagColor());
+      if(plotItemOption.contains(plotReal)) drawHalfFID(fid->real, painter, realColor());
     }
     else // PolarPlot
     {
