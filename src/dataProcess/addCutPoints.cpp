@@ -85,6 +85,55 @@ bool TAddCutPoints::process(TFID_2D *fid_2d, int k)
 
 bool TAddCutPoints::process(TFID_2D *fid_2d)
 {
+    errorQ=false;
+    switch(applyMode())
+    {
+      case ApplyToAll:
+
+        for(int c=0; c<fid_2d->FID.size(); c++)
+        {
+          errorQ=!process(fid_2d->FID[c]);
+          if(errorQ) break;
+        }
+        break;
+      case ApplyToOne:
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=false;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          errorQ=!process(fid_2d->FID[applyIndex()]);
+        }
+        break;
+      case ApplyToOthers:
+
+        if(applyIndex()<0 || applyIndex()>fid_2d->FID.size()-1)
+        {
+          errorQ=false;
+          setErrorMessage(QString(Q_FUNC_INFO) + ": Index out of range.");
+        }
+        else
+        {
+          for(int k=0; k<fid_2d->FID.size(); k++)
+          {
+            if(k!=applyIndex())
+            {
+              errorQ=!process(fid_2d->FID[k]);
+              if(errorQ) break;
+            }
+          } // k
+        }
+        break;
+    default:
+
+        errorQ=true;
+        setErrorMessage(QString(Q_FUNC_INFO) + ": Invalid operation.");
+        break;
+    } // switch
+    return !errorQ;
+/*
     bool ok=true;
     for(int k=0; k<fid_2d->FID.size(); k++)
     {
@@ -100,6 +149,7 @@ bool TAddCutPoints::process(TFID_2D *fid_2d)
     //  fid_2d->setDefaultAl(fid_2d->FID.at(0)->al());
 
     return true;
+    */
 }
 
 

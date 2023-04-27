@@ -39,6 +39,7 @@ public:
 
 
 signals:
+    void clearProcessRequest();
     void updateRequest();
 
 public slots:

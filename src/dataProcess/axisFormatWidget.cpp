@@ -372,7 +372,14 @@ void TAxisFormatWidget::init()
 
       if(!ancestor()->FID_2D->FID.isEmpty())
       {
-        setReferenceSpinBox->setMaximum(ancestor()->FID_2D->defaultAl()-1);
+          //  setReferenceSpinBox->setMaximum(ancestor()->FID_2D->defaultAl()-1);
+          //  2023.4.27: This causes a problem when you change the length of the FID
+          //  by, e.g., zero-filling the data.
+          //  Accordingly, we allow any integer value
+          //  by setting the maximum to be std::numeric_limits<int32_t>::max()
+          //  and the minimum to be std::numeric_limits<int32_t>::min()
+        setReferenceSpinBox->setMaximum(std::numeric_limits<int32_t>::max());
+        setReferenceSpinBox->setMinimum(std::numeric_limits<int32_t>::min());
         domainComboBox->setCurrentIndex(ancestor()->FID_2D->FID[ancestor()->FID_2D->currentFID()]->domain());
 
 //    qDebug() << QString(Q_FUNC_INFO) << "0";

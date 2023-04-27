@@ -28,7 +28,18 @@ void TProcessFileWidget::createWidgets()
     currentFileLineEdit = new QLineEdit;
     currentFileLineEdit->setReadOnly(true);
 
-    parameterPlainTextEdit = new QPlainTextEdit;
+    infoTabWidget = new QTabWidget;
+    infoTabWidget->setTabPosition(QTabWidget::North);
+      parameterPlainTextEdit = new QPlainTextEdit;
+      parameterPlainTextEdit->setReadOnly(true);
+      ppgPlainTextEdit = new QPlainTextEdit;
+      ppgPlainTextEdit->setReadOnly(true);
+      nmrjobPlainTextEdit = new QPlainTextEdit;
+      nmrjobPlainTextEdit->setReadOnly(true);
+    infoTabWidget->addTab(parameterPlainTextEdit,tr("Params"));
+    infoTabWidget->addTab(ppgPlainTextEdit,tr("ppg"));
+    infoTabWidget->addTab(nmrjobPlainTextEdit,tr("nmrjob"));
+
     exportDataButton = new QPushButton(tr("Export ASCII Data"));
     plotterIDSpinBox = new QSpinBox;
     plotterIDSpinBox->setMinimum(0);
@@ -49,7 +60,8 @@ void TProcessFileWidget::createPanel()
     gLayout1->addWidget(openAndProcessCheckBox,0,1,1,1);
     gLayout1->addWidget(saveDataButton,0,2,1,1);
     gLayout1->addWidget(currentFileLineEdit,1,0,1,3);
-    gLayout1->addWidget(parameterPlainTextEdit,2,0,1,3);
+    gLayout1->addWidget(infoTabWidget,2,0,1,3);
+//    gLayout1->addWidget(parameterPlainTextEdit,2,0,1,3);
     QGridLayout *gLayout2 = new QGridLayout;
     gLayout2->addWidget(openProcessButton,0,0,1,1);
     gLayout2->addWidget(openProcessAndApplyCheckBox,0,1,1,1);
@@ -275,7 +287,6 @@ void TProcessFileWidget::openFile()
     QString fileExt=QFileInfo(fileName).suffix();
 
 
-
     if(0==QString::compare(fileExt,"sm2p") || 0==QString::compare(fileExt,"sm2d"))
     {
       if(!FID_2D->Readsm2Files(fileName))
@@ -324,6 +335,22 @@ void TProcessFileWidget::openFile()
     parameterPlainTextEdit->setPlainText(FID_2D->parameters.join("\n")
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
+
+
+    QString nmrjobFilePath = QFileInfo(fileName).absolutePath()
+                           + "/"
+                           + QFileInfo(fileName).completeBaseName()+".nmrjob";
+
+    if(QFileInfo::exists(nmrjobFilePath))
+    {
+        QFile nj(nmrjobFilePath);
+        if(nj.open(QFile::ReadOnly | QFile::Text))
+        {
+          nmrjobPlainTextEdit->clear();
+          nmrjobPlainTextEdit->setPlainText(nj.readAll());
+        }
+    }
+
 
     fidSetted=true;
 
@@ -578,6 +605,7 @@ void TProcessPanelWidget::createConnections()
     connect(operationListWidget,SIGNAL(currentRowChanged(int)),stackedWidget,SLOT(setCurrentIndex(int)));
       operationListWidget->setCurrentRow(0);
 
+    connect(createFIDWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcess()));
     connect(processFileWidget,SIGNAL(clearProcessRequest()),this,SLOT(clearProcess()));
     connect(processFileWidget,SIGNAL(initializeRequest()),this,SLOT(initialize()));
     connect(processFileWidget->saveProcessButton,SIGNAL(clicked(bool)),this,SLOT(exportProcess()));
@@ -764,6 +792,7 @@ void TProcessPanelWidget::initialize()
     {
         initializePlotter();
         setIsFirstTime(false);
+        updatePlotter();
     }
     else
     {
@@ -796,7 +825,7 @@ void TProcessPanelWidget::initialize()
 
 void TProcessPanelWidget::refresh()
 {
-    updatePlotter();
+  //  updatePlotter();
     if(!FID_2D->FID.isEmpty())
     {
       phaseWidget->phasePivotSpinBox->setMaximum(FID_2D->defaultAl()-1);

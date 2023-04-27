@@ -137,6 +137,9 @@ public:
     QPushButton *openDataButton,*openAndProcessButton,*saveDataButton;
     QLineEdit *currentFileLineEdit;
     QPlainTextEdit *parameterPlainTextEdit;
+    QPlainTextEdit *nmrjobPlainTextEdit;
+    QPlainTextEdit *ppgPlainTextEdit;
+    QTabWidget *infoTabWidget;
     QPushButton *exportDataButton;
     QSpinBox *plotterIDSpinBox;
     QPushButton *saveProcessButton, *openProcessButton;

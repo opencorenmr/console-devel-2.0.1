@@ -1351,12 +1351,6 @@ void Plotter::keyPressEvent(QKeyEvent *event)
 
     switch(event->key())
     {
-        //case Qt::Key_Plus:
-        //    zoomIn();
-        //    break;
-        //case Qt::Key_Minus:
-        //    zoomOut();
-        //    break;
 
         case Qt::Key_Left:
           if(vCursorEnabled())
@@ -1395,8 +1389,11 @@ void Plotter::keyPressEvent(QKeyEvent *event)
             //zoomStack[curZoom].scroll(0,-1);
             //scale/=1.2;
             oxini=xini;oxfin=xfin;
-            xini=oxini-0.2*(oxfin-oxini);
-            xfin=oxfin+0.2*(oxfin-oxini);
+            dx=oxfin-oxini;
+            if (dx==0) dx=1;
+            xini=oxini-0.5*dx;
+            xfin=oxfin+round(0.5*dx);
+            // 27Apr2023: round is required to cover the case in which oxini=0 and oxfin=1
             if(xini<0) {xini=0;}
             if(xfin>fid->al()-1) {xfin=fid->al()-1;}
             refreshPixmap();
@@ -1405,8 +1402,9 @@ void Plotter::keyPressEvent(QKeyEvent *event)
             //zoomStack[curZoom].scroll(0,+1);
             //scale*=1.2;
             oxini=xini;oxfin=xfin;
-            xini=oxini+0.2*(oxfin-oxini);
-            xfin=oxfin-0.2*(oxfin-oxini);
+            dx=oxfin-oxini;
+            xini=oxini+0.25*dx;
+            xfin=oxfin-0.25*dx;
             if(xini>=xfin) {xini=oxini; xfin=oxfin;}
             refreshPixmap();
             break;
@@ -1491,9 +1489,9 @@ void Plotter::refreshPixmap()
 
     drawFrame(&painter);
     drawXTicks(&painter);
+    if(bitLineIsShown()) drawBitLines(&painter);
     drawFID(&painter);
 
-    if(bitLineIsShown()) drawBitLines(&painter);
 
     if(vCursorIsShown())
     {
@@ -1671,26 +1669,26 @@ void Plotter::drawBitLines(QPainter *painter)
    int qq=trunc(log2(q))-3;
    int y;
 
-   int c=qq; if(c<1) c=1;
+   int c=qq; if(c<1) c=0;
    y=vCenter-scale2*pow(2,c);
    while(y>0)
    {
       painter->drawLine(rect.left(),y,rect.right(),y);
       painter->drawText(rect.right()-50,round(y-16),50,14,
-                        Qt::AlignHCenter | Qt::AlignTop, QString::number(c)+" bit");
+                        Qt::AlignHCenter | Qt::AlignTop, QString::number(c+1)+" bit");
       ++c;
       y=vCenter-scale2*pow(2,c);
  //     --qq;
    } // while
 
 
-   c=qq; if(c<1) c=1;
+   c=qq; if(c<1) c=0;
    y=vCenter+scale2*pow(2,c);
    while(y<rect.height())
    {
        painter->drawLine(rect.left(),y,rect.right(),y);
        painter->drawText(rect.right()-50,round(y-14),50,14,
-                         Qt::AlignHCenter | Qt::AlignTop, QString::number(c)+" bit");
+                         Qt::AlignHCenter | Qt::AlignTop, QString::number(c+1)+" bit");
 
        ++c;
        y=vCenter+scale2*pow(2,c);
@@ -1975,7 +1973,7 @@ void Plotter::adjustScale()
 
     if(scaleSetting==DataScale)
     {
-        setScale(1/(fid->abs->absMax()));
+        setScale(0.98/(fid->abs->absMax()));
 //        qDebug() << "scale: " << scale();
     }
     else if (scaleSetting==ReceiverScale)
