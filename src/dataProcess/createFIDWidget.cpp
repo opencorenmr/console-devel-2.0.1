@@ -97,8 +97,16 @@ void TCreateFIDWidget::createConnections()
 
 void TCreateFIDWidget::onCreateFIDButtonClicked()
 {
-    if(createModeComboBox->currentIndex()==0) createFIDFromAsci();
-    else createFIDFromPropeties();
+    if(createModeComboBox->currentIndex()==0)
+    {
+        createFIDFromAsci();
+    }
+    else
+    {
+        createFIDFromPropeties();
+    }
+
+    emit clearProcessRequest();
 }
 
 void TCreateFIDWidget::createFIDFromAsci()

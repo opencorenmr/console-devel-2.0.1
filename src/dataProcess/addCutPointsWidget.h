@@ -43,7 +43,7 @@ signals:
 
 public slots:
     void initialize();
-    bool refresh();
+ //   bool refresh();
     void addOperation();
 
 

@@ -69,7 +69,8 @@ void TAddCutPointsWidget::createPanel()
       gridLayout0->addWidget(pointsToComboBox,4,1,1,2);
 
 
-      gridLayout0->addWidget(applyPushButton,5,0,1,3);
+      gridLayout0->addWidget(applyModeWidget,5,0,1,3);
+      gridLayout0->addWidget(applyPushButton,6,0,1,3);
 
     groupBox0->setLayout(gridLayout0);
 
@@ -264,9 +265,15 @@ void TAddCutPointsWidget::onPointsToComboBoxChanged()
         return;
     }
 
-    int al=ancestor()->FID_2D->defaultAl();
+//    int al=ancestor()->FID_2D->defaultAl();
+    int al=ancestor()->FID_2D->FID.at(0)->al();
+    // This is tentative.
+    // In future, al is going to be the length of the FID that is displayed in the plotter.
+    // 27 Apr 2023 KT
+
     int k=pointsToComboBox->currentIndex();
     int p=pow(2,k);
+    pointsToComboBox->setCurrentIndex(0);
 
     switch(operationSelectComboBox->currentIndex())
     {
@@ -464,12 +471,12 @@ void TAddCutPointsWidget::onApplyButtonClicked()
     addOperation();
 }
 
-bool TAddCutPointsWidget::refresh()
-{
-    onOperationSelectComboBoxChanged();
-    onHeadTailComboBoxChanged();
-    return performOperation();
-}
+//bool TAddCutPointsWidget::refresh()
+//{
+//    onOperationSelectComboBoxChanged();
+//    onHeadTailComboBoxChanged();
+//    return performOperation();
+//}
 
 void TAddCutPointsWidget::addOperation()
 {
@@ -494,6 +501,16 @@ void TAddCutPointsWidget::addOperation()
 bool TAddCutPointsWidget::performOperation()
 {
     //qDebug() << QString(Q_FUNC_INFO) << "1" << FID_2D->FID.at(0)->al();
+    if(applyModeWidget->currentPlotter() > ancestor()->plotters->FIDPlotters.size()-1)
+    {
+        QMessageBox::warning(this,"","plotter index out of range.");
+    }
+
+    addCutPoints->setApplyIndex(ancestor()->plotters
+                                   ->FIDPlotters.at(applyModeWidget->currentPlotter())
+                                   ->FIDSelectSpinBox->value()-1);
+
+    addCutPoints->setApplyMode(applyModeWidget->applyModeComboBox->currentIndex());
 
     if(!addCutPoints->process(ancestor()->FID_2D))
     {
