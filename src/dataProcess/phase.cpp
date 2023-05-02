@@ -153,8 +153,10 @@ QStringList TPhaseRotation::processInformation() {return QStringList() << "proce
 QString TPhaseRotation::command()
 {
     QString qs;
-    qs= "phase (0th order: " + QString::number(accumPhase0())
-            + ", 1st order: " + QString::number(accumPhase1())
+    qs= "phase (0th order: "  + QString::number(initialPhase0())
+                       + "to" + QString::number(accumPhase0())
+            + ", 1st order: " + QString::number(initialPhase1())
+                       + "to" + QString::number(accumPhase1())
             + ", pivot: " + QString::number(pivot())
             + ")";
 
@@ -233,8 +235,6 @@ bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
 
 bool TPhaseRotation::process(TFID *fid)
 {
- //   changePhase0To(phase0());
- //   changePhase1To(phase1());
 
     fid->rotate(phase0());
    // qDebug() << QString(Q_FUNC_INFO) << phase0();

@@ -150,6 +150,7 @@ public:
 
 
 signals:
+
     void initializeRequest();
     void applyProcessRequest();
     void clearProcessRequest();
