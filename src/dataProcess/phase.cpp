@@ -233,16 +233,25 @@ bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
 
 bool TPhaseRotation::process(TFID *fid)
 {
+ //   changePhase0To(phase0());
+ //   changePhase1To(phase1());
+
     fid->rotate(phase0());
    // qDebug() << QString(Q_FUNC_INFO) << phase0();
     if(phase1()==0.0) return true;
 
+    // Restriction on the possible (int) value for the pivot
+    // may not be necessary (2 May 2023 Takeda)
+    //   ---> comment out
+    /*
     if(pivot()<0 || pivot()>fid->al()-1)
     {
         errorQ=true;
         setErrorMessage(QString(Q_FUNC_INFO)+": Invalid pivot index.");
         return false;
     }
+
+    */
 
     double phi;
     double c;

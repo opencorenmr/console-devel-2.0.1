@@ -526,7 +526,8 @@ bool TAddCutPointsWidget::performOperation()
         ancestor()->plotters->FIDPlotters[k]->plotter->updatePlotRange(0,f);
     }
     //ancestor()->plotters->update();
-    ancestor()->refresh();
+    //ancestor()->refresh();
+    ancestor()->updatePlotter();
   //  qDebug() << QString(Q_FUNC_INFO) << "2";
 
     return true;

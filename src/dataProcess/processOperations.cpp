@@ -167,7 +167,6 @@ bool TProcessOperations::loadFromFile(QString filename)
     settings.beginGroup("main");
      int n=settings.value("numberOfOperations",0).toInt();
     settings.endGroup();
-
     if(n==0) return false;
     while (!processElements.isEmpty()) processElements.removeLast();
 

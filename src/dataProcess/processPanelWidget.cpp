@@ -117,14 +117,11 @@ void TProcessPanelWidget::importProcess()
         return;
     }
 
-
     updateProcessSettings();
-
     if(processFileWidget->openProcessAndApplyCheckBox->isChecked())
     {
         applyProcess();
     }
-
 }
 
 void TProcessPanelWidget::exportProcess()
@@ -706,8 +703,8 @@ void TProcessPanelWidget::applyProcess()
 
     }
 
-    refresh();
-
+//    refresh();
+    updatePlotter();
 }
 
 void TProcessPanelWidget::onVOffsetRequestReceived(double vo)
@@ -821,7 +818,7 @@ void TProcessPanelWidget::initialize()
 }
 
 
-
+/*
 
 void TProcessPanelWidget::refresh()
 {
@@ -835,6 +832,9 @@ void TProcessPanelWidget::refresh()
     }
 
 }
+*/
+
+
 
 //
 //-----------------------------------------------------------------------------
@@ -853,15 +853,12 @@ void TProcessPanelWidget::updateProcessSettings()
                     processOperations->processElements.at(k)->command()
                     );
     }
-
     processSettings->beginGroup("main");
       processSettings->setValue("numberOfOperations",processOperations->processElements.size());
     processSettings->endGroup();
     processSettings->sync();
-
     processSettings->beginGroup(QString::number(processOperations->processElements.size()-1));
       processSettings->setValue("operation",processOperations->processElements.last()->command());
     processSettings->endGroup();
     processSettings->sync();
-
 }
