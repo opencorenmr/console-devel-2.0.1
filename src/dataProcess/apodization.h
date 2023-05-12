@@ -13,6 +13,7 @@ public:
     ~TApodization();
 
     int apodizationType() {return FApodizationType;}
+    QString apodizationType_str();
     void setApodizationType(int at) {FApodizationType=at;}
   //  double timeConstant() {return FTimeConstant;}
   //  void setTimeConstant(double tc) {FTimeConstant=tc;}

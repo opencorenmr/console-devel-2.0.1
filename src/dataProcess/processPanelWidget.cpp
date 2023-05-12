@@ -117,6 +117,7 @@ void TProcessPanelWidget::importProcess()
         return;
     }
 
+
     updateProcessSettings();
     if(processFileWidget->openProcessAndApplyCheckBox->isChecked())
     {
@@ -647,12 +648,12 @@ void TProcessPanelWidget::applyProcess()
         return;
     }
 
-    if(isFirstTime())
-    {
-        initializePlotter();
-        setIsFirstTime(false);
-        updatePlotter();
-    }
+//    if(isFirstTime())
+//    {
+//        initializePlotter();
+//        setIsFirstTime(false);
+//        updatePlotter();
+//    }
 
     for(int k=0; k<processOperations->processElements.size(); k++)
     {
@@ -902,4 +903,5 @@ void TProcessPanelWidget::updateProcessSettings()
       processSettings->setValue("operation",processOperations->processElements.last()->command());
     processSettings->endGroup();
     processSettings->sync();
+
 }

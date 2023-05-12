@@ -314,6 +314,7 @@ bool TProcessOperations::loadFromFile(QString filename)
 
       settings.endGroup();
     } // k
+
     return true;
 }
 

@@ -456,6 +456,65 @@ bool TAddCutPoints::extrapolateTail(TFID *fid)
   return true;
 }
 
+QString TAddCutPoints::headTail_str()
+{
+  QString qs;
+  switch (headTail())
+  {
+    case Head:
+      qs="head";
+      qs+=" ";
+      qs+=QString::number(headPoints());
+      break;
+    case Tail:
+      qs="tail";
+      qs+=" ";
+      qs+=QString::number(tailPoints());
+      break;
+    case Both:
+      qs="both";
+      qs+=" ";
+      qs+=QString::number(headPoints());
+      qs+=" ";
+      qs+=QString::number(tailPoints());
+      break;
+    default:
+      qs="undefined";
+      break;
+  }
+
+  return qs;
+}
+
+QString TAddCutPoints::operation_str()
+{
+    QString qs;
+    switch (operation()) {
+    case operationUndefined:
+        qs="undefined";
+        break;
+    case Add:
+        qs="add";
+        break;
+    case Cut:
+        qs="cut";
+        break;
+    case Leave:
+        qs="leave";
+        break;
+    case ZeroFill:
+        qs="zero fill";
+        break;
+    case Extrapolate:
+        qs="extrapolate";
+        break;
+    default:
+        qs="undefined";
+        break;
+    }
+    return qs;
+}
+
 QStringList TAddCutPoints::processInformation()
 {
     QString qs;
@@ -481,4 +540,24 @@ QStringList TAddCutPoints::processInformation()
     }
     return QStringList() << "process=addcut(" << qs << ")";
 }
-QString TAddCutPoints::command() {return "addcut";}
+QString TAddCutPoints::command()
+{
+    QString qs;
+    qs="addcut";
+    qs+=": ";
+    qs+=operation_str();
+    qs+=" ";
+    qs+=headTail_str();
+    return qs;
+}
+
+
+/*
+ *
+          processSettings->setValue("operation", processElements.at(index)->operation());
+          processSettings->setValue("headTail", processElements.at(index)->headTail());
+          processSettings->setValue("headPoints", processElements.at(index)->headPoints());
+          processSettings->setValue("tailPoints", processElements.at(index)->tailPoints());
+
+ *
+ */

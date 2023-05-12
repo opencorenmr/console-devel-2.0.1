@@ -22,8 +22,10 @@ public:
     QString command();
 
     int headTail() {return FHeadTail;}
+    QString headTail_str();
     void setHeadTail(int ht) {FHeadTail=ht;}
     int operation() {return FOperation;}
+    QString operation_str();
     void setOperation(int op) {FOperation=op;}
     int headPoints() {return FHeadPoints;}
     int tailPoints() {return FTailPoints;}
