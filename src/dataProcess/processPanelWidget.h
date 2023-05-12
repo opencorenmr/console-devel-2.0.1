@@ -94,7 +94,7 @@ public:
 signals:
 
 public slots:
-    void refresh();
+//    void refresh();
     void initialize();
     void onFIDCreated();
     void applyProcess();
@@ -150,6 +150,7 @@ public:
 
 
 signals:
+
     void initializeRequest();
     void applyProcessRequest();
     void clearProcessRequest();

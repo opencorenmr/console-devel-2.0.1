@@ -153,8 +153,10 @@ QStringList TPhaseRotation::processInformation() {return QStringList() << "proce
 QString TPhaseRotation::command()
 {
     QString qs;
-    qs= "phase (0th order: " + QString::number(accumPhase0())
-            + ", 1st order: " + QString::number(accumPhase1())
+    qs= "phase (0th order: "  + QString::number(initialPhase0())
+                       + "to" + QString::number(accumPhase0())
+            + ", 1st order: " + QString::number(initialPhase1())
+                       + "to" + QString::number(accumPhase1())
             + ", pivot: " + QString::number(pivot())
             + ")";
 
@@ -233,16 +235,23 @@ bool TPhaseRotation::process(TFID_2D *fid_2d, int k)
 
 bool TPhaseRotation::process(TFID *fid)
 {
+
     fid->rotate(phase0());
    // qDebug() << QString(Q_FUNC_INFO) << phase0();
     if(phase1()==0.0) return true;
 
+    // Restriction on the possible (int) value for the pivot
+    // may not be necessary (2 May 2023 Takeda)
+    //   ---> comment out
+    /*
     if(pivot()<0 || pivot()>fid->al()-1)
     {
         errorQ=true;
         setErrorMessage(QString(Q_FUNC_INFO)+": Invalid pivot index.");
         return false;
     }
+
+    */
 
     double phi;
     double c;

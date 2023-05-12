@@ -119,12 +119,10 @@ void TProcessPanelWidget::importProcess()
 
 
     updateProcessSettings();
-
     if(processFileWidget->openProcessAndApplyCheckBox->isChecked())
     {
         applyProcess();
     }
-
 }
 
 void TProcessPanelWidget::exportProcess()
@@ -336,6 +334,8 @@ void TProcessFileWidget::openFile()
                                          +"\n"+
                                          FID_2D->comments.join("\n"));
 
+    nmrjobPlainTextEdit->clear();
+    ppgPlainTextEdit->clear();
 
     QString nmrjobFilePath = QFileInfo(fileName).absolutePath()
                            + "/"
@@ -346,15 +346,31 @@ void TProcessFileWidget::openFile()
         QFile nj(nmrjobFilePath);
         if(nj.open(QFile::ReadOnly | QFile::Text))
         {
-          nmrjobPlainTextEdit->clear();
           nmrjobPlainTextEdit->setPlainText(nj.readAll());
+          nj.close();
         }
+
+        QSettings settings(nmrjobFilePath, QSettings::IniFormat);
+        settings.beginGroup("File");
+          QString ppgFileName = QFileInfo(fileName).absolutePath()
+                  + "/"
+                  + settings.value("ppgFilename").toString();
+          QFile pg(ppgFileName);
+          if(pg.open(QFile::ReadOnly | QFile::Text))
+          {
+            ppgPlainTextEdit->setPlainText(pg.readAll());
+            pg.close();
+          }
+
+
+        settings.endGroup();
+
     }
 
 
     fidSetted=true;
 
-    emit initializeRequest();
+ //   emit initializeRequest();
 
     if(openAndProcessCheckBox->isChecked())
     {
@@ -362,6 +378,7 @@ void TProcessFileWidget::openFile()
     }
     else
     {
+       emit initializeRequest();
        emit clearProcessRequest();
     }
 
@@ -631,6 +648,13 @@ void TProcessPanelWidget::applyProcess()
         return;
     }
 
+//    if(isFirstTime())
+//    {
+//        initializePlotter();
+//        setIsFirstTime(false);
+//        updatePlotter();
+//    }
+
     for(int k=0; k<processOperations->processElements.size(); k++)
     {
         bool ok=processOperations->processElements[k]->process(FID_2D);
@@ -655,6 +679,18 @@ void TProcessPanelWidget::applyProcess()
           phaseWidget->phase1ValueDoubleSpinBox->setValue(processOperations->processElements.at(k)->accumPhase1());
           phaseWidget->phasePivotSpinBox->setValue(processOperations->processElements.at(k)->pivot());
           phaseWidget->createConnections();
+
+          // We set the values of the accumulated phase
+          // At this moment, the initial phase is set to the identical value.
+          phaseWidget->phaseRotation->setAccumPhase0(
+                      processOperations->processElements.at(k)->accumPhase0());
+          phaseWidget->phaseRotation->setInitialPhase0(
+                      phaseWidget->phaseRotation->accumPhase0());
+          phaseWidget->phaseRotation->setAccumPhase1(
+                      processOperations->processElements.at(k)->accumPhase1());
+          phaseWidget->phaseRotation->setInitialPhase1(
+                      phaseWidget->phaseRotation->accumPhase1());
+
           break;
         case TProcessElement::FFT:
           transformWidget-> emit vOffsetRequest(0.1);
@@ -706,8 +742,8 @@ void TProcessPanelWidget::applyProcess()
 
     }
 
-    refresh();
-
+//    refresh();
+    updatePlotter();
 }
 
 void TProcessPanelWidget::onVOffsetRequestReceived(double vo)
@@ -787,7 +823,9 @@ void TProcessPanelWidget::onFIDCreated()
 void TProcessPanelWidget::initialize()
 {
     exportWidget->setDataFilePath(processFileWidget->dataFilePath());
+    initializePlotter();
 
+/*
     if(isFirstTime())
     {
         initializePlotter();
@@ -798,6 +836,7 @@ void TProcessPanelWidget::initialize()
     {
         updatePlotter();
     }
+*/
 
     axisFormatWidget->domainComboBox->setCurrentIndex(0);
     axisFormatWidget->axisStyle->setDomain("time");
@@ -821,7 +860,7 @@ void TProcessPanelWidget::initialize()
 }
 
 
-
+/*
 
 void TProcessPanelWidget::refresh()
 {
@@ -835,6 +874,9 @@ void TProcessPanelWidget::refresh()
     }
 
 }
+*/
+
+
 
 //
 //-----------------------------------------------------------------------------
@@ -853,12 +895,10 @@ void TProcessPanelWidget::updateProcessSettings()
                     processOperations->processElements.at(k)->command()
                     );
     }
-
     processSettings->beginGroup("main");
       processSettings->setValue("numberOfOperations",processOperations->processElements.size());
     processSettings->endGroup();
     processSettings->sync();
-
     processSettings->beginGroup(QString::number(processOperations->processElements.size()-1));
       processSettings->setValue("operation",processOperations->processElements.last()->command());
     processSettings->endGroup();

@@ -270,16 +270,13 @@ void TPhaseWidget::clickSetPhasePivot()
 
 void TPhaseWidget::changePhase0To()
 {
-//    double diff=phase0ValueDoubleSpinBox->value()-previousPhase0Value;
-
+   // This is for debug
+   // double diff=phase0ValueDoubleSpinBox->value()-previousPhase0Value;
    // qDebug() << QString(Q_FUNC_INFO) << "prev. phase0: " << previousPhase0Value
    //          << "diff: " << diff;
 
-//    previousPhase0Value=phase0ValueDoubleSpinBox->value();
     phaseRotation->changePhase0To(phase0ValueDoubleSpinBox->value());
     phaseRotation->setPhase1(0);
-
-    //qDebug() << phaseRotation->phase0();
 
     performOperation();
     if(isAncestorDefined()) ancestor()->plotters->update();
@@ -289,7 +286,6 @@ void TPhaseWidget::changePhase0To()
       applyPushButton->setEnabled(false);
     else
       applyPushButton->setEnabled(true);
-//    emit updatePlottersRequest();
 }
 
 void TPhaseWidget::changePhase1To()
@@ -328,7 +324,6 @@ void TPhaseWidget::changePhaseTo()
     performOperation();
 
     if(isAncestorDefined()) ancestor()->plotters->update();
-//    emit updatePlottersRequest();
 }
 
 void TPhaseWidget::setResolution0()

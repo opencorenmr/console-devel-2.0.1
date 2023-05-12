@@ -174,7 +174,8 @@ void TAxisFormatWidget::setUnit()
      }
 
      ancestor()->FID_2D->setXAxisLabel(axisLabelLineEdit->text());
-     ancestor()->refresh();
+     ancestor()->updatePlotter();
+     //ancestor()->refresh();
 
 }
 

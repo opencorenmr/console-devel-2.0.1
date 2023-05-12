@@ -15,9 +15,37 @@ TApodization::~TApodization()
 
 }
 
+QString TApodization::apodizationType_str()
+{
+    QString qs;
+    switch(apodizationType())
+    {
+      case Gaussian:
+        qs="gaussian";
+        break;
+    case Exponential:
+      qs="exponential";
+      break;
+    case Sinc:
+      qs="sinc";
+      break;
+    default:
+      qs="undefined";
+      break;
+    }
+
+    return qs;
+}
+
 QString TApodization::command()
 {
-  return "apodization";
+    QString qs;
+    qs="apodization: ";
+    qs += apodizationType_str();
+    if(inverse()) {qs += " (inv)";}
+    qs += " ";
+    qs += QString::number(width());
+    return qs;
 }
 
 QStringList TApodization::processInformation()
