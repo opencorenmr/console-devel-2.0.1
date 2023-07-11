@@ -168,6 +168,9 @@ bool TAddCutPoints::cutHead(TFID *fid)
   }
 
   double newIniX=fid->xValue(headPoints());
+//  double newIniX=fid->xValue(headPoints())
+//          *TMetricPrefix::Decimal(fid->prefix());
+//  qDebug() << QString(Q_FUNC_INFO) << " newIniX: " << newIniX;
 
   fid->real->sig.remove(0,headPoints());
   fid->imag->sig.remove(0,headPoints());
