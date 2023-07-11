@@ -16,6 +16,7 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDebug>
+#include <QSet>
 
 KExportWidget::KExportWidget()
 {
@@ -31,6 +32,20 @@ void KExportWidget::createWidgets()
     //exportOpFileButton = new QPushButton(tr("export .opp & .opd"));
     //exportSm2FileButton = new QPushButton(tr("export .sm2p & .sm2d"));
     //exportCSVButton = new QPushButton(tr("export .csv"));
+
+    arrayOptionComboBox = new QComboBox();
+    arrayOptionComboBox->addItems(QStringList() << "Separate file"
+                                                << "Single file, no separator"
+                                                << "Single file, blank-line separator");
+
+    xCheckBox = new QCheckBox(tr("x data"));
+    xCheckBox->setChecked(true);
+    inPhaseCheckBox = new QCheckBox(tr("in-phase data"));
+    inPhaseCheckBox->setChecked(true);
+    quadratureCheckBox = new QCheckBox(tr("quadrature data"));
+    quadratureCheckBox->setChecked(true);
+    absoluteCheckBox = new QCheckBox(tr("absolute data"));
+    absoluteCheckBox->setChecked(true);
 
     exportAsciiButton = new QPushButton(tr("Export"));
     separatorCombobox= new QComboBox();
@@ -60,7 +75,15 @@ void KExportWidget::createPanel()
         QGridLayout *gridLayout00 = new QGridLayout;
         gridLayout00->addWidget(new QLabel("Separator"));
         gridLayout00->addWidget(separatorCombobox,0,1,1,1);
-        gridLayout00->addWidget(exportAsciiButton,1,0,1,2);
+        gridLayout00->addWidget(new QLabel("Arrayed data"),1,0,1,1);
+        gridLayout00->addWidget(arrayOptionComboBox,1,1,1,1);
+
+        gridLayout00->addWidget(xCheckBox,2,0,1,1);
+        gridLayout00->addWidget(inPhaseCheckBox,2,1,1,1);
+        gridLayout00->addWidget(quadratureCheckBox,3,1,1,1);
+        gridLayout00->addWidget(absoluteCheckBox,4,1,1,1);
+
+        gridLayout00->addWidget(exportAsciiButton,5,0,1,2);
     groupBox00->setLayout(gridLayout00);
 
 //    QGroupBox *groupBox0 = new QGroupBox(tr("export for ImageJ"));
@@ -114,46 +137,173 @@ void KExportWidget::performExportAscii()
     if(ancestor()->FID_2D->FID.isEmpty()) {return;}
 
    // qDebug() << QString(Q_FUNC_INFO) << dataFilePath();
+    QSet<QString> dset;
+    dset.clear();
+    if(xCheckBox->isChecked()) dset << "x";
+    if(inPhaseCheckBox->isChecked()) dset << "i";
+    if(quadratureCheckBox->isChecked()) dset << "q";
+    if(absoluteCheckBox->isChecked()) dset << "a";
+
+
+    if(dset.size()==0)
+    {
+        QMessageBox::warning(this,tr(""),
+                    QString(Q_FUNC_INFO)+ "Please select (check) at least one item.");
+
+        return;
+    }
+
 
     QString path="~/";
     if(QDir(dataFilePath()).exists()) path=dataFilePath()+'/';
     QString fileName=QFileDialog::getSaveFileName(this,tr("Save"),path);
     if(fileName.isEmpty()) {return;}
 
-    QString sep;
 
-    if(separatorCombobox->currentIndex()==0) {sep=" ";}
-    else if(separatorCombobox->currentIndex()==1) {sep=",";}
-    else sep=" ";
+    QString sep,sep1,sep2,sep3;
+
+    if(separatorCombobox->currentIndex()==0) {sep=" ";sep1=" "; sep2=" "; sep3=" ";}
+    else if(separatorCombobox->currentIndex()==1) {sep=",";sep1=",";sep2=",";sep3=",";}
+    else {sep=" "; sep1=" "; sep2=" "; sep3=" ";}
+
+    if(dset.contains("a")) sep3="";
+    else if(dset.contains("q")) sep2="";
+    else if(dset.contains("i")) sep1="";
+    else sep="";
+
+
 
     QMutex mutex;
     QMutexLocker locker(&mutex);
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+
+
+    if(arrayOptionComboBox->currentIndex()!=0 || ancestor()->FID_2D->FID.size()==1) // single file
     {
-        QMessageBox::warning(this,tr(""),
-                    QString(Q_FUNC_INFO)+ ": Failed to open " + fileName);
-        return;
+      QFile file(fileName);
+      if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+      {
+         QMessageBox::warning(this,tr(""),
+                     QString(Q_FUNC_INFO)+ ": Failed to open " + fileName);
+         return;
+      }
+      QTextStream out(&file);
+
+      for(int j=0; j<ancestor()->FID_2D->FID.size(); j++)
+      {
+        for(int k=0; k<ancestor()->FID_2D->FID.at(j)->al(); k++)
+        {
+          if(dset.contains("x"))
+          {
+              out << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12);
+              out << sep;
+          }
+          if(dset.contains("i"))
+          {
+              out << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12);
+              out << sep1;
+          }
+          if(dset.contains("q"))
+          {
+              out << QString::number(ancestor()->FID_2D->FID.at(j)->imag->sig.at(k),'g',12);
+              out << sep2;
+          }
+          if(dset.contains("a"))
+          {
+              out << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12);
+              out << sep3;
+          }
+          out << "\n";
+
+    //      out << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12) << sep
+    //          << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12) << sep
+    //          << QString::number(ancestor()->FID_2D->FID.at(j)->imag->sig.at(k),'g',12) << sep
+    //          << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12)
+    //          << "\n";
+        } // k
+        if(j<ancestor()->FID_2D->FID.size()-1)
+        {
+          if(arrayOptionComboBox->currentIndex()==2) // blank-line separator
+          {
+              out << "\n";
+          }
+        }
+      } // j
+      file.close();
+    }
+    else // separate file for arrayed data
+    {
+        QFileInfo finfo=QFileInfo(fileName);
+        QDir dir=finfo.dir();
+        QString dirName=dir.absolutePath();
+        QString completeBaseName=finfo.completeBaseName();
+        QString suffix=finfo.suffix();
+
+        int a=ancestor()->FID_2D->FID.size()-1;
+        int maxDigit=QString::number(a,10).length();
+
+        for(int j=0; j<ancestor()->FID_2D->FID.size(); j++)
+        {
+          int currentDigit=QString::number(j).length();
+          int extraDigit=maxDigit-currentDigit;
+          QString z;
+          for(int k=0; k<extraDigit; k++) z+='0';
+          z+=QString::number(j);
+
+          QString fileName2=dirName+'/'+completeBaseName+'_'+z+'.'+suffix;
+          QFile file2(fileName2);
+
+          if (!file2.open(QIODevice::WriteOnly | QIODevice::Text))
+          {
+             QMessageBox::warning(this,tr(""),
+                         QString(Q_FUNC_INFO)+ ": Failed to open " + fileName2);
+             return;
+          }
+          QTextStream out2(&file2);
+
+          dset.clear();
+          if(xCheckBox->isChecked()) dset << "x";
+          if(inPhaseCheckBox->isChecked()) dset << "i";
+          if(quadratureCheckBox->isChecked()) dset << "q";
+          if(absoluteCheckBox->isChecked()) dset << "a";
+
+          for(int k=0; k<ancestor()->FID_2D->FID.at(j)->al(); k++)
+          {
+              if(dset.contains("x"))
+              {
+                  out2 << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12);
+                  out2 << sep;
+              }
+              if(dset.contains("i"))
+              {
+                  out2 << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12);
+                  out2 << sep1;
+              }
+              if(dset.contains("q"))
+              {
+                  out2 << QString::number(ancestor()->FID_2D->FID.at(j)->imag->sig.at(k),'g',12);
+                  out2 << sep2;
+              }
+              if(dset.contains("a"))
+              {
+                  out2 << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12);
+                  out2 << sep3;
+              }
+              out2 << "\n";
+
+
+       //    out2 << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12) << sep
+       //         << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12) << sep
+       //         << QString::number(ancestor()->FID_2D->FID.at(j)->imag->sig.at(k),'g',12) << sep
+       //         << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12)
+       //         << "\n";
+          } // k
+
+          file2.close();
+        } // j
     }
 
-    QTextStream out(&file);
-
-    for(int j=0; j<ancestor()->FID_2D->FID.size(); j++)
-    {
-    for(int k=0; k<ancestor()->FID_2D->FID.at(j)->al(); k++)
-    {
-    out << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12) << sep
-        << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12) << sep
-        << QString::number(ancestor()->FID_2D->FID.at(j)->imag->sig.at(k),'g',12) << sep
-        << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12)
-        << "\n";
-    } // k
-    } // j
-    file.close();
     return;
-
-
 }
 
 void KExportWidget::performExportOpFile()
