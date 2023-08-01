@@ -263,15 +263,15 @@ class TFID_2D
     int nd() {return FND;}
     void setND(int nd) {FND=nd; for(int j=0; j<FID.size(); j++) FID[j]->setND(nd);}
     int defaultAl() {
-      if(!FID.isEmpty()) return FID.at(0)->al();
-      else return 0;
-  //      return FAL;
+//      if(!FID.isEmpty()) return FID.at(0)->al();
+//      else return 0;
+      return FAL;
 
     }
 //    int al() {return FAL;}
     void setDefaultAl(int al) {
         FAL=al;
-        if(!FID.isEmpty()) {FID[0]->setAL(al);}
+//        if(!FID.isEmpty()) {FID[0]->setAL(al);}
     }
 //    void setAl(int al) {FAL=al; for(int j=0; j<FID.size(); j++) FID[j]->setAL(al);}
     double dw() {return FDW;}
