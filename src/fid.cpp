@@ -103,6 +103,8 @@ bool TFID_2D::ReadsmdFile(QString fn)
         errorMessage="sf1=xxx is missing.";  file.close(); return false;
     }
 
+//    qDebug() << defaultAl() << dw() << sf1() ;
+
     FID.clear();
     FID.append(new TFID(defaultAl()));
     FID.last()->setDW(dw());

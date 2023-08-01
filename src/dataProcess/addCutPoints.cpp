@@ -167,11 +167,11 @@ bool TAddCutPoints::cutHead(TFID *fid)
       return false;
   }
 
-  double newIniX=fid->xValue(headPoints());
+//  double newIniX=fid->xValue(headPoints());
 //  double newIniX=fid->xValue(headPoints())
-//          *TMetricPrefix::Decimal(fid->prefix());
-//  qDebug() << QString(Q_FUNC_INFO) << " newIniX: " << newIniX;
+//          *TMetricPrefix::Decimal(fid->plotPrefix());
 
+  double newIniX=fid->xInitialValue()+headPoints()*fid->dx();
   fid->real->sig.remove(0,headPoints());
   fid->imag->sig.remove(0,headPoints());
   fid->abs->sig.remove(0,headPoints());
@@ -263,7 +263,7 @@ bool TAddCutPoints::leaveTail(TFID *fid)
         return false;
     }
 
-    double newIniX=fid->xValue(headPoints());
+    double newIniX=fid->xInitialValue()+(fid->al()-tailPoints())*fid->dx();
 
     fid->real->sig.remove(0,fid->al()-tailPoints());
     fid->imag->sig.remove(0,fid->al()-tailPoints());
