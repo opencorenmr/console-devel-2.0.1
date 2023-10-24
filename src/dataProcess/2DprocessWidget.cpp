@@ -413,7 +413,7 @@ bool T2DProcessWidget::Readsm2dFileforAdd(QString fn){
     QFileInfo fInfo;
     fInfo.setFile(file);
     int nByte=fInfo.size();
-    int n=nByte/(2*AL*sizeof(double));
+    int n=nByte/(2*AL*sizeof(float));
 
     QDataStream in(&file);
     in.setFloatingPointPrecision(QDataStream::SinglePrecision);
