@@ -419,7 +419,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
         return false;
     }
 
-    if(afid2->defaultAl()!=fid->al())
+    if(afid2->defaultAL()!=fid->al())
     {
         errorQ=true;
         setErrorMessage("Math operation of two data with different data length is not allowed.");
@@ -458,7 +458,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
         fid->updateAbs();
         break;
       case TFIDMathOperation::Divide:
-        for(int k=0; k<afid2->defaultAl(); k++)
+        for(int k=0; k<afid2->defaultAL(); k++)
         {
            if(fabs(afid2->FID.first()->abs->sig.at(k))<DBL_EPSILON)
            {
@@ -467,7 +467,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
                return false;
            }
         }
-        for(int k=0; k<afid2->defaultAl(); k++)
+        for(int k=0; k<afid2->defaultAL(); k++)
         {
             re1=fid->real->sig.at(k);
             im1=fid->imag->sig.at(k);
@@ -493,7 +493,7 @@ bool TFIDMath::operationWithFile(TFID *fid)
 
 bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
 {
-    if(afid2->defaultAl()!=fid_2D->defaultAl())
+    if(afid2->defaultAL()!=fid_2D->defaultAL())
     {
         errorQ=true;
         setErrorMessage("Math operation of two data with different data length is not allowed.");
@@ -506,7 +506,7 @@ bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
     {
       case TFIDMathOperation::Add:
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                 fid_2D->FID[l]->real->sig[k]+=afid2->FID.at(l)->real->sig.at(k);
                 fid_2D->FID[l]->imag->sig[k]+=afid2->FID.at(l)->imag->sig.at(k);
@@ -516,7 +516,7 @@ bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
         break;
       case TFIDMathOperation::Subtract:
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                 fid_2D->FID[l]->real->sig[k]-=afid2->FID.at(l)->real->sig.at(k);
                 fid_2D->FID[l]->imag->sig[k]-=afid2->FID.at(l)->imag->sig.at(k);
@@ -526,7 +526,7 @@ bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
         break;
       case TFIDMathOperation::Multiply:
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                re1=fid_2D->FID.at(l)->real->sig.at(k);
                im1=fid_2D->FID.at(l)->imag->sig.at(k);
@@ -540,7 +540,7 @@ bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
         break;
       case TFIDMathOperation::Divide:
         for(int l=0; l<afid2->FID.size(); l++){
-            for(int k=0; k<afid2->defaultAl(); k++)
+            for(int k=0; k<afid2->defaultAL(); k++)
             {
                if(fabs(afid2->FID.at(l)->abs->sig.at(k))<DBL_EPSILON)
                {
@@ -552,7 +552,7 @@ bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
             }
         }
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                 re1=fid_2D->FID.at(l)->real->sig.at(k);
                 im1=fid_2D->FID.at(l)->imag->sig.at(k);
@@ -580,7 +580,7 @@ bool TFIDMath::operationWith2DFile(TFID_2D *fid_2D)
 
 bool TFIDMath::operationWithFile(TFID_2D *fid_2D)
 {
-    if(afid2->defaultAl()!=fid_2D->defaultAl())
+    if(afid2->defaultAL()!=fid_2D->defaultAL())
     {
         errorQ=true;
         setErrorMessage("Math operation of two data with different data length is not allowed.");
@@ -593,7 +593,7 @@ bool TFIDMath::operationWithFile(TFID_2D *fid_2D)
     {
       case TFIDMathOperation::Add:
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                 fid_2D->FID[l]->real->sig[k]+=afid2->FID.at(0)->real->sig.at(k);
                 fid_2D->FID[l]->imag->sig[k]+=afid2->FID.at(0)->imag->sig.at(k);
@@ -603,7 +603,7 @@ bool TFIDMath::operationWithFile(TFID_2D *fid_2D)
         break;
       case TFIDMathOperation::Subtract:
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                 fid_2D->FID[l]->real->sig[k]-=afid2->FID.at(0)->real->sig.at(k);
                 fid_2D->FID[l]->imag->sig[k]-=afid2->FID.at(0)->imag->sig.at(k);
@@ -613,7 +613,7 @@ bool TFIDMath::operationWithFile(TFID_2D *fid_2D)
         break;
       case TFIDMathOperation::Multiply:
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                re1=fid_2D->FID.at(l)->real->sig.at(k);
                im1=fid_2D->FID.at(l)->imag->sig.at(k);
@@ -627,7 +627,7 @@ bool TFIDMath::operationWithFile(TFID_2D *fid_2D)
         break;
       case TFIDMathOperation::Divide:
 //        for(int l=0; l<afid2->FID.size(); l++){
-            for(int k=0; k<afid2->defaultAl(); k++)
+            for(int k=0; k<afid2->defaultAL(); k++)
             {
                if(fabs(afid2->FID.at(0)->abs->sig.at(k))<DBL_EPSILON)
                {
@@ -638,7 +638,7 @@ bool TFIDMath::operationWithFile(TFID_2D *fid_2D)
             }
 //        }
         for(int l=0; l<fid_2D->FID.size(); l++){
-            for(int k=0; k<fid_2D->defaultAl(); k++)
+            for(int k=0; k<fid_2D->defaultAL(); k++)
             {
                 re1=fid_2D->FID.at(l)->real->sig.at(k);
                 im1=fid_2D->FID.at(l)->imag->sig.at(k);

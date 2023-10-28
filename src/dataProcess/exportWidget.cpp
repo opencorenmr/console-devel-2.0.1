@@ -1,7 +1,6 @@
 #include "exportWidget.h"
 #include "processPanelWidget.h"
 #include "export2dp.h"
-#include "fidDomain.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -36,21 +35,25 @@ void KExportWidget::createWidgets()
     arrayOptionComboBox = new QComboBox();
     arrayOptionComboBox->addItems(QStringList() << "Separate file"
                                                 << "Single file, no separator"
-                                                << "Single file, blank-line separator");
+                                                << "Single file, line-break separator");
 
-    xCheckBox = new QCheckBox(tr("x data"));
+    xCheckBox = new QCheckBox(tr("x value"));
     xCheckBox->setChecked(true);
-    inPhaseCheckBox = new QCheckBox(tr("in-phase data"));
+    inPhaseCheckBox = new QCheckBox(tr("in-phase"));
     inPhaseCheckBox->setChecked(true);
-    quadratureCheckBox = new QCheckBox(tr("quadrature data"));
+    quadratureCheckBox = new QCheckBox(tr("quadrature"));
     quadratureCheckBox->setChecked(true);
-    absoluteCheckBox = new QCheckBox(tr("absolute data"));
+    absoluteCheckBox = new QCheckBox(tr("absolute"));
     absoluteCheckBox->setChecked(true);
 
     exportAsciiButton = new QPushButton(tr("Export"));
-    separatorCombobox= new QComboBox();
-    separatorCombobox->addItems(QStringList()<<"[space]"<<",");
-    separatorCombobox->setCurrentIndex(0);
+    itemSeparatorComboBox= new QComboBox();
+    itemSeparatorComboBox->addItems(QStringList()<<"[space]"<<",");
+    itemSeparatorComboBox->setCurrentIndex(0);
+
+    dataSeparatorComboBox = new QComboBox;
+    dataSeparatorComboBox->addItems(QStringList()<<"[line break]"<<"[space]"<<",");
+    dataSeparatorComboBox->setCurrentText(0);
 
     export2DButton = new QPushButton(tr("Export .2dp and .2dd for takeNMR"));
 
@@ -73,17 +76,21 @@ void KExportWidget::createPanel()
 
     QGroupBox *groupBox00 = new QGroupBox(tr("export ascii"));
         QGridLayout *gridLayout00 = new QGridLayout;
-        gridLayout00->addWidget(new QLabel("Separator"));
-        gridLayout00->addWidget(separatorCombobox,0,1,1,1);
-        gridLayout00->addWidget(new QLabel("Arrayed data"),1,0,1,1);
-        gridLayout00->addWidget(arrayOptionComboBox,1,1,1,1);
+        gridLayout00->addWidget(new QLabel("Items"),0,0,1,1);
+        gridLayout00->addWidget(xCheckBox,0,1,1,1);
+        gridLayout00->addWidget(inPhaseCheckBox,0,2,1,1);
+        gridLayout00->addWidget(quadratureCheckBox,1,1,1,1);
+        gridLayout00->addWidget(absoluteCheckBox,1,2,1,1);
 
-        gridLayout00->addWidget(xCheckBox,2,0,1,1);
-        gridLayout00->addWidget(inPhaseCheckBox,2,1,1,1);
-        gridLayout00->addWidget(quadratureCheckBox,3,1,1,1);
-        gridLayout00->addWidget(absoluteCheckBox,4,1,1,1);
+        gridLayout00->addWidget(new QLabel("Item Separator"),2,0,1,1);
+        gridLayout00->addWidget(itemSeparatorComboBox,2,1,1,2);
+        gridLayout00->addWidget(new QLabel("Point Separator"),3,0,1,1);
+        gridLayout00->addWidget(dataSeparatorComboBox,3,1,1,2);
+        gridLayout00->addWidget(new QLabel("Array Separator"),4,0,1,1);
+        gridLayout00->addWidget(arrayOptionComboBox,4,1,1,2);
 
-        gridLayout00->addWidget(exportAsciiButton,5,0,1,2);
+
+        gridLayout00->addWidget(exportAsciiButton,5,0,1,3);
     groupBox00->setLayout(gridLayout00);
 
 //    QGroupBox *groupBox0 = new QGroupBox(tr("export for ImageJ"));
@@ -162,8 +169,8 @@ void KExportWidget::performExportAscii()
 
     QString sep,sep1,sep2,sep3;
 
-    if(separatorCombobox->currentIndex()==0) {sep=" ";sep1=" "; sep2=" "; sep3=" ";}
-    else if(separatorCombobox->currentIndex()==1) {sep=",";sep1=",";sep2=",";sep3=",";}
+    if(itemSeparatorComboBox->currentIndex()==0) {sep=" ";sep1=" "; sep2=" "; sep3=" ";}
+    else if(itemSeparatorComboBox->currentIndex()==1) {sep=",";sep1=",";sep2=",";sep3=",";}
     else {sep=" "; sep1=" "; sep2=" "; sep3=" ";}
 
     if(dset.contains("a")) sep3="";
@@ -172,6 +179,10 @@ void KExportWidget::performExportAscii()
     else sep="";
 
 
+    QString dSep=" "; // default
+    if(dataSeparatorComboBox->currentIndex()==0) {dSep="\n";}
+    else if(dataSeparatorComboBox->currentIndex()==1) {dSep=" ";}
+    else if(dataSeparatorComboBox->currentIndex()==2) {dSep=",";}
 
     QMutex mutex;
     QMutexLocker locker(&mutex);
@@ -213,7 +224,7 @@ void KExportWidget::performExportAscii()
               out << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12);
               out << sep3;
           }
-          out << "\n";
+          out << dSep;
 
     //      out << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12) << sep
     //          << QString::number(ancestor()->FID_2D->FID.at(j)->real->sig.at(k),'g',12) << sep
@@ -289,7 +300,7 @@ void KExportWidget::performExportAscii()
                   out2 << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12);
                   out2 << sep3;
               }
-              out2 << "\n";
+              out2 << dSep;
 
 
        //    out2 << QString::number(ancestor()->FID_2D->FID.at(j)->xValue(k),'g',12) << sep
@@ -356,9 +367,9 @@ void KExportWidget::performExportCSVFile()
     QStringList ss;
     for(int i=0;i<ancestor()->FID_2D->FID.size();i++)
     {
-        for(int j=0;j<ancestor()->FID_2D->defaultAl();j++)
+        for(int j=0;j<ancestor()->FID_2D->defaultAL();j++)
         {
-            if(j!=ancestor()->FID_2D->defaultAl()-1)
+            if(j!=ancestor()->FID_2D->defaultAL()-1)
             {
                 ss.append(QString::number(ancestor()->FID_2D->FID.at(i)->real->sig.at(j)) + ",");
             }

@@ -33,7 +33,7 @@ void TPhaseWidget::setFID2D(TFID_2D *f)
 {
 //    FID_2D=f;
 //    FFIDSetted=true;
-    phasePivotSpinBox->setMaximum(f->defaultAl()-1);
+    phasePivotSpinBox->setMaximum(f->defaultAL()-1);
 
 }
 

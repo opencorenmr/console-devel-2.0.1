@@ -260,7 +260,7 @@ bool T2DProcessWidget::Readsm2FileforAdd(QString fn)
     if(!Readsm2pFileforAdd(sm2p)) return false;
     double org_dw=ancestor()->FID_2D->dw();
     double org_fsf1=ancestor()->FID_2D->sf1();
-    if(AL!=ancestor()->FID_2D->defaultAl()){
+    if(AL!=ancestor()->FID_2D->defaultAL()){
         ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
     }
     if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw)))){
@@ -269,7 +269,7 @@ bool T2DProcessWidget::Readsm2FileforAdd(QString fn)
     if(fabs(FSF1-org_fsf1)>DBL_EPSILON*fmax(1, fmax(fabs(FSF1), fabs(org_fsf1)))){
         ancestor()->FID_2D->errorMessage="sf1=xxx is different."; return false;
     }
-    qDebug() << "read OK";
+//    qDebug() << "read OK";
 
 
     if(!Readsm2dFileforAdd(sm2d)) return false;
@@ -291,7 +291,7 @@ bool T2DProcessWidget::ReadopFileforAdd(QString fn)
 
     double org_dw=ancestor()->FID_2D->dw();
     double org_fsf1=ancestor()->FID_2D->sf1();
-    if(AL!=ancestor()->FID_2D->defaultAl()){
+    if(AL!=ancestor()->FID_2D->defaultAL()){
         ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
     }
     if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw)))){
@@ -334,19 +334,19 @@ bool T2DProcessWidget::Readsm2pFileforAdd(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            AL=source.mid(6).toInt(&ok);
+            AL=source.midRef(6).toInt(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            DW=source.mid(3).toDouble(&ok);
+            DW=source.midRef(3).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.mid(4).toDouble(&ok);
+            FSF1=source.midRef(4).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
 
@@ -380,22 +380,37 @@ bool T2DProcessWidget::ReadoppFileforAdd(QString fn){
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            AL=source.mid(6).toInt(&ok);
+            AL=source.midRef(6).toInt(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            DW=source.mid(3).toDouble(&ok);
+            DW=source.midRef(3).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.mid(4).toDouble(&ok);
+            FSF1=source.midRef(4).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
 
+    }
+
+    file.close();
+
+    if(!pointDefined)
+    {
+        ancestor()->FID_2D->errorMessage="point=xxx is missing."; return false;
+    }
+    if(!dwDefined)
+    {
+        ancestor()->FID_2D->errorMessage="dw=xxx is missing."; return false;
+    }
+    if(!sf1Defined)
+    {
+        ancestor()->FID_2D->errorMessage="sf1=xxx is missing."; return false;
     }
 
     return true;
@@ -427,13 +442,16 @@ bool T2DProcessWidget::Readsm2dFileforAdd(QString fn){
         ancestor()->FID_2D->FID[ancestor()->FID_2D->FID.size()-1]->setDW(DW);
         for(int m=0; m<AL; m++) in >> ancestor()->FID_2D->FID[k]->real->sig[m] >> ancestor()->FID_2D->FID[k]->imag->sig[m];
         ancestor()->FID_2D->FID[k]->updateAbs();
-        ancestor()->FID_2D->FID[k]->setCustomXAxis(ancestor()->FID_2D->isXAxisCustom());
-        ancestor()->FID_2D->FID[k]->setXInitialValue(ancestor()->FID_2D->xInitialValue());
-        ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->dx());
-        ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->xAxisLabel());
-        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->xAxisUnitSymbol());
-        ancestor()->FID_2D->FID[k]->setPrefix(ancestor()->FID_2D->prefix());
-        ancestor()->FID_2D->FID[k]->setPlotPrefix(ancestor()->FID_2D->plotPrefix());
+        ancestor()->FID_2D->FID[k]->setCustomXAxis(ancestor()->FID_2D->FID.first()->isXAxisCustom());
+        ancestor()->FID_2D->FID[k]->setXInitialValue(ancestor()->FID_2D->FID.first()->xInitialValue());
+     //   qDebug() << "Xini " << ancestor()->FID_2D->xInitialValue();
+//        ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->dx());
+        ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->FID.first()->dx());
+     //   qDebug()<< "dx " << ancestor()->FID_2D->dx();
+        ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->FID.first()->xAxisLabel());
+        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->FID.first()->xAxisUnitSymbol());
+        ancestor()->FID_2D->FID[k]->setPrefix(ancestor()->FID_2D->FID.first()->prefix());
+        ancestor()->FID_2D->FID[k]->setPlotPrefix(ancestor()->FID_2D->FID.first()->plotPrefix());
 
         ancestor()->FID_2D->FID[k]->setDomain(TFID::TimeDomain);
 
@@ -473,13 +491,13 @@ bool T2DProcessWidget::ReadopdFileforAdd(QString fn){
         ancestor()->FID_2D->FID[ancestor()->FID_2D->FID.size()-1]->setDW(DW);
         for(int m=0; m<AL; m++) in >> ancestor()->FID_2D->FID[k]->real->sig[m] >> ancestor()->FID_2D->FID[k]->imag->sig[m];
         ancestor()->FID_2D->FID[k]->updateAbs();
-        ancestor()->FID_2D->FID[k]->setCustomXAxis(ancestor()->FID_2D->isXAxisCustom());
-        ancestor()->FID_2D->FID[k]->setXInitialValue(ancestor()->FID_2D->xInitialValue());
-        ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->dx());
-        ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->xAxisLabel());
-        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->xAxisUnitSymbol());
-        ancestor()->FID_2D->FID[k]->setPrefix(ancestor()->FID_2D->prefix());
-        ancestor()->FID_2D->FID[k]->setPlotPrefix(ancestor()->FID_2D->plotPrefix());
+        ancestor()->FID_2D->FID[k]->setCustomXAxis(ancestor()->FID_2D->FID.first()->isXAxisCustom());
+        ancestor()->FID_2D->FID[k]->setXInitialValue(ancestor()->FID_2D->FID.first()->xInitialValue());
+        ancestor()->FID_2D->FID[k]->setDx(ancestor()->FID_2D->FID.first()->dx());
+        ancestor()->FID_2D->FID[k]->setXAxisLabel(ancestor()->FID_2D->FID.first()->xAxisLabel());
+        ancestor()->FID_2D->FID[k]->setXAxisUnitSymbol(ancestor()->FID_2D->FID.first()->xAxisUnitSymbol());
+        ancestor()->FID_2D->FID[k]->setPrefix(ancestor()->FID_2D->FID.first()->prefix());
+        ancestor()->FID_2D->FID[k]->setPlotPrefix(ancestor()->FID_2D->FID.first()->plotPrefix());
 
         ancestor()->FID_2D->FID[k]->setDomain(TFID::TimeDomain);
 

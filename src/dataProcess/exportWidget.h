@@ -9,7 +9,6 @@
 #include <QCheckBox>
 
 #include "processBase.h"
-#include "fidDomain.h"
 
 class KExportWidget : public TProcessBase
 {
@@ -32,7 +31,8 @@ public:
     QCheckBox *absoluteCheckBox;
 
     QPushButton *exportAsciiButton;
-    QComboBox *separatorCombobox;
+    QComboBox *itemSeparatorComboBox;
+    QComboBox *dataSeparatorComboBox;
 
     QPushButton *export2DButton;
 

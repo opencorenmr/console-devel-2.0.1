@@ -69,21 +69,21 @@ bool TFID_2D::ReadsmdFile(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            int i=source.mid(6).toInt(&ok);
+            int i=source.midRef(6).toInt(&ok);
             if(!ok) {errorMessage="Invalid expression for point="; file.close(); return false;}
-            setDefaultAl(i);
+            setDefaultAL(i);
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            double d=source.mid(3).toDouble(&ok);
+            double d=source.midRef(3).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for dw="; file.close(); return false;}
             setDW(d);
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            double s=source.mid(4).toDouble(&ok);
+            double s=source.midRef(4).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for sf1="; file.close(); return false;}
             setSF1(s);
         }
@@ -106,17 +106,17 @@ bool TFID_2D::ReadsmdFile(QString fn)
 //    qDebug() << defaultAl() << dw() << sf1() ;
 
     FID.clear();
-    FID.append(new TFID(defaultAl()));
+    FID.append(new TFID(defaultAL()));
     FID.last()->setDW(dw());
     FID.last()->setSF1(sf1());
 
     QString line;
     QStringList sl;
-    for(int k=0; k<defaultAl(); k++)
+    for(int k=0; k<defaultAL(); k++)
     {
         if(in.atEnd())
         {
-            errorMessage="Data is shorter than " + QString::number(defaultAl());
+            errorMessage="Data is shorter than " + QString::number(defaultAL());
             file.close(); return false;
         }
 
@@ -183,19 +183,19 @@ bool TFID_2D::ReadopaFile(QString fn)
     QString line;
     QStringList sl;
 
-    FID.append(new TFID(defaultAl()));
+    FID.append(new TFID(defaultAL()));
     FID[FID.size()-1]->setSF1(sf1());
     FID[FID.size()-1]->setDW(dw());
 
     int k=0;
 
-    while(k<defaultAl())
+    while(k<defaultAL())
     {
 //    for(int k=0; k<al(); k++)
 //    {
         if(in.atEnd())
         {
-            errorMessage="Data is shorter than " + QString::number(defaultAl());
+            errorMessage="Data is shorter than " + QString::number(defaultAL());
             file.close(); return false;
         }
 
@@ -290,7 +290,8 @@ bool TFID_2D::Readsm2Files(QString fn)
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
 
-    if(!Readsm2pFile(sm2p)) return false;
+//    if(!Readsm2pFile(sm2p)) return false;
+    if(!ReadoppFile(sm2p)) return false;
     if(!Readsm2dFile(sm2d)) return false;
 
     return true;
@@ -320,7 +321,8 @@ bool TFID_2D::Writesm2Files(QString fn, QIODevice::OpenModeFlag flag)
     QString sm2p = path+base+".sm2p";
     QString sm2d = path+base+".sm2d";
 
-    if(!Writesm2pFile(sm2p)) return false;
+//    if(!Writesm2pFile(sm2p)) return false;
+    if(!WriteoppFile(sm2p)) return false;
     if(!Writesm2dFile(sm2d,flag)) return false;
 
     return true;
@@ -356,19 +358,19 @@ bool TFID_2D::ReadoppFile(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            FAL=source.mid(6).toInt(&ok);
+            setDefaultAL(source.midRef(6).toInt(&ok));
             if(!ok) {errorMessage="Invalid expression for point="; file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            FDW=source.mid(3).toDouble(&ok);
+            FDW=source.midRef(3).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for dw="; file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.mid(4).toDouble(&ok);
+            FSF1=source.midRef(4).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for sf1="; file.close(); return false;}
         }
 
@@ -451,19 +453,19 @@ bool TFID_2D::Readsm2pFile(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            FAL=source.mid(6).toInt(&ok);
+            setDefaultAL(source.midRef(6).toInt(&ok));
             if(!ok) {errorMessage="Invalid expression for point="; file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            FDW=source.mid(3).toDouble(&ok);
+            FDW=source.midRef(3).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for dw="; file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.mid(4).toDouble(&ok);
+            FSF1=source.midRef(4).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for sf1="; file.close(); return false;}
         }
 
@@ -549,7 +551,7 @@ bool TFID_2D::WriteoppFile(QString fn)
     }
 
     QTextStream out(&file);
-    out << "point=" << QString::number(defaultAl()) << "\n";
+    out << "point=" << QString::number(defaultAL()) << "\n";
     out << "dw=" << QString::number(dw(),'g',12) << "\n";
     out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
     out << "#\n";
@@ -575,7 +577,7 @@ bool TFID_2D::Writesm2pFile(QString fn)
     }
 
     QTextStream out(&file);
-    out << "point=" << QString::number(defaultAl()) << "\n";
+    out << "point=" << QString::number(defaultAL()) << "\n";
     out << "dw=" << QString::number(dw(),'g',12) << "\n";
     out << "sf1=" << QString::number(sf1(),'g',12) << "\n";
     out << "#\n";
@@ -667,7 +669,7 @@ bool TFID_2D::ReadjdfFile(QString fn)
     in.skipRawData(1712);
     unsigned int po;
     in >> po;
-    setDefaultAl(po);
+    setDefaultAL(po);
     // qDebug() << al();
 
     // 1968 - 1716 = 252
@@ -680,7 +682,7 @@ bool TFID_2D::ReadjdfFile(QString fn)
     // 2608 - 1976 = 632
     in.skipRawData(632);
     in >> d;
-    setDW(1e6*d/defaultAl());
+    setDW(1e6*d/defaultAL());
     // qDebug() << QString(Q_FUNC_INFO) << dw();
 
 
@@ -690,11 +692,11 @@ bool TFID_2D::ReadjdfFile(QString fn)
 
     for(int k=0; k<1; k++)
     {
-        FID.append(new TFID(defaultAl()));
+        FID.append(new TFID(defaultAL()));
         FID[FID.size()-1]->setSF1(sf1());
         FID[FID.size()-1]->setDW(dw());
-        for(int m=0; m<defaultAl(); m++) in >> FID[k]->imag->sig[m];
-        for(int m=0; m<defaultAl(); m++) in >> FID[k]->real->sig[m];
+        for(int m=0; m<defaultAL(); m++) in >> FID[k]->imag->sig[m];
+        for(int m=0; m<defaultAL(); m++) in >> FID[k]->real->sig[m];
         FID[k]->updateAbs();
         FID[k]->setCustomXAxis(isXAxisCustom());
         FID[k]->setXInitialValue(xInitialValue());
@@ -730,7 +732,7 @@ bool TFID_2D::ReadopdFile(QString fn)
     QFileInfo fInfo;
     fInfo.setFile(file);
     int nByte=fInfo.size();
-    int n=nByte/(2*FAL*sizeof(double));
+    int n=nByte/(2*defaultAL()*sizeof(double));
 
     QDataStream in(&file);
     in.setFloatingPointPrecision(QDataStream::DoublePrecision);
@@ -740,14 +742,14 @@ bool TFID_2D::ReadopdFile(QString fn)
 
     for(int k=0; k<n; k++)
     {
-        FID.append(new TFID(FAL));
+        FID.append(new TFID(defaultAL()));
         FID[FID.size()-1]->setSF1(sf1());
         FID[FID.size()-1]->setDW(FDW);
-        for(int m=0; m<FAL; m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
+        for(int m=0; m<defaultAL(); m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
         FID[k]->updateAbs();
         FID[k]->setCustomXAxis(isXAxisCustom());
         FID[k]->setXInitialValue(xInitialValue());
-        FID[k]->setDx(dx());
+        FID[k]->setDx(dx()); // qDebug()<< QString(Q_FUNC_INFO) << "dx(): " << dx();
         FID[k]->setXAxisLabel(xAxisLabel());
         FID[k]->setXAxisUnitSymbol(xAxisUnitSymbol());
         FID[k]->setPrefix(prefix());
@@ -778,21 +780,49 @@ bool TFID_2D::Readsm2dFile(QString fn)
     QFileInfo fInfo;
     fInfo.setFile(file);
     int nByte=fInfo.size();
-    int n=nByte/(2*FAL*sizeof(float));
+    int n=nByte/(2*defaultAL()*sizeof(float));
 
     QDataStream in(&file);
     in.setFloatingPointPrecision(QDataStream::SinglePrecision);
     in.setByteOrder(QDataStream::LittleEndian);
 
+
+
     FID.clear();
 
     for(int k=0; k<n; k++)
     {
-        FID.append(new TFID(FAL));
+        FID.append(new TFID(defaultAL()));
+        FID[FID.size()-1]->setSF1(sf1());
+        FID[FID.size()-1]->setDW(FDW);
+        for(int m=0; m<defaultAL(); m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
+        FID[k]->updateAbs();
+        FID[k]->setCustomXAxis(isXAxisCustom());
+        FID[k]->setXInitialValue(xInitialValue());
+        FID[k]->setDx(dx());
+        FID[k]->setXAxisLabel(xAxisLabel());
+        FID[k]->setXAxisUnitSymbol(xAxisUnitSymbol());
+        FID[k]->setPrefix(prefix());
+        FID[k]->setPlotPrefix(plotPrefix());
+
+        FID[k]->setDomain(TFID::TimeDomain);
+
+        FID[k]->setEmpty(false);
+    } // k
+
+
+
+/***
+
+    FID.clear();
+
+    for(int k=0; k<n; k++)
+    {
+        FID.append(new TFID(defaultAL()));
         FID.at(FID.size()-1)->setDW(FDW);
         FID[FID.size()-1]->setSF1(sf1());
 
-        for(int m=0; m<FAL; m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
+        for(int m=0; m<defaultAL(); m++) in >> FID[k]->real->sig[m] >> FID[k]->imag->sig[m];
         FID[k]->updateAbs();
         FID[k]->setEmpty(false);
 
@@ -806,6 +836,8 @@ bool TFID_2D::Readsm2dFile(QString fn)
 
 
     } // k
+
+***/
 
     file.close();
     setCurrentFID(0);
