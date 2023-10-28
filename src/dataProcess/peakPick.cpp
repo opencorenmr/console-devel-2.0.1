@@ -112,7 +112,7 @@ bool KPeakPick::peakPickProcess2D(TFID_2D *fid_2d, double tgPeak, int tgSt, int 
 
     for(j=1; j<fid_2d->FID.size()-1; j++)
     {
-        for(i=1; i<fid_2d->defaultAl()-1; i++)
+        for(i=1; i<fid_2d->defaultAL()-1; i++)
         {
             value = fid_2d->FID.at(j)->real->sig.at(i);
             if(max < value){max = value;}

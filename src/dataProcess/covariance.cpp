@@ -29,7 +29,7 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
   double real1, real2, imag1, imag2, re=0.0, im=0.0;
   int i, j, k, n_al, n_ind;
 
-  n_al = fid_2d->defaultAl(); //number of points DIRECT FID
+  n_al = fid_2d->defaultAL(); //number of points DIRECT FID
   n_ind = fid_2d->FID.size(); //number of INDIRECT FID
 
   double avr[n_al], avi[n_al];

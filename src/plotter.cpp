@@ -153,8 +153,8 @@ void TFIDPlotters::addAndCopyPlotter(FIDPlotter *fp)
     FIDPlotters[k]->plotter->setPolarColor(polarColor());
 
 
-    FIDPlotters[k]->plotterDetails->xFinSpinBox->setMaximum(FID_2D->defaultAl()-1);
-    FIDPlotters[k]->plotterDetails->xIniSpinBox->setMaximum(FID_2D->defaultAl()-2);
+    FIDPlotters[k]->plotterDetails->xFinSpinBox->setMaximum(FID_2D->defaultAL()-1);
+    FIDPlotters[k]->plotterDetails->xIniSpinBox->setMaximum(FID_2D->defaultAL()-2);
 
     if(fp->fid2d->FID.size()>0)
     {
