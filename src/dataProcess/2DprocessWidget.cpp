@@ -227,14 +227,15 @@ void T2DProcessWidget::performAppendData()
     //-----read and add opp or sm2p to FID--------------
     if(0==QString::compare(fileExt,"sm2p") || 0==QString::compare(fileExt,"sm2d")){
       if(!Readsm2FileforAdd(fileName)){return;}
+    }
+    else if(0==QString::compare(fileExt,"opp") || 0==QString::compare(fileExt,"opd"))
+    {
 
-    } else if(0==QString::compare(fileExt,"opp") || 0==QString::compare(fileExt,"opd")){
       if(!ReadopFileforAdd(fileName)){return;}
 
     } else {
         QMessageBox::warning(this,tr(""), "." + fileExt + " is not supported."); return;
     }
-
 
     //-----plotter update----------------
     for(int k=0; k<ancestor()->plotters->FIDPlotters.size(); k++)
@@ -279,7 +280,6 @@ bool T2DProcessWidget::Readsm2FileforAdd(QString fn)
 
 bool T2DProcessWidget::ReadopFileforAdd(QString fn)
 {
-
     QFileInfo fi;
     fi.setFile(fn);
     QString base = fi.completeBaseName();
@@ -289,18 +289,23 @@ bool T2DProcessWidget::ReadopFileforAdd(QString fn)
 
     if(!ReadoppFileforAdd(opp)) return false;
 
-    double org_dw=ancestor()->FID_2D->dw();
-    double org_fsf1=ancestor()->FID_2D->sf1();
-    if(AL!=ancestor()->FID_2D->defaultAL()){
-        ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
-    }
-    if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw)))){
-        ancestor()->FID_2D->errorMessage="dw=xxx is different."; return false;
-    }
-    if(fabs(FSF1-org_fsf1)>DBL_EPSILON*fmax(1, fmax(fabs(FSF1), fabs(org_fsf1)))){
-        ancestor()->FID_2D->errorMessage="sf1=xxx is different."; return false;
+//    double org_dw=ancestor()->FID_2D->dw();
+//    double org_fsf1=ancestor()->FID_2D->sf1();
+    if(AL!=ancestor()->FID_2D->defaultAL())
+    {
+    ancestor()->FID_2D->errorMessage="point=xxx is different."; return false;
     }
 
+/*
+    if(fabs(DW-org_dw)>DBL_EPSILON*fmax(1, fmax(fabs(DW), fabs(org_dw))))
+    {
+        ancestor()->FID_2D->errorMessage="dw=xxx is different."; return false;
+    }
+    if(fabs(FSF1-org_fsf1)>DBL_EPSILON*fmax(1, fmax(fabs(FSF1), fabs(org_fsf1))))
+    {
+        ancestor()->FID_2D->errorMessage="sf1=xxx is different."; return false;
+    }
+*/
 
     if(!ReadopdFileforAdd(opd)) return false;
 
