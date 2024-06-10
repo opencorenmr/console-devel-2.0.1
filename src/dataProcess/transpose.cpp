@@ -49,6 +49,8 @@ bool TTranspose::process(TFID_2D *fid_2d)
     // We set the current FID to be the first one.
     fid_2d->setCurrentFID(0);
 
+    fid_2d->setDefaultAL(fid_2d->FID.first()->al());
+
     delete helpFID2D;
     return true;
 }

@@ -94,6 +94,10 @@ bool TAddCutPoints::process(TFID_2D *fid_2d)
         {
           errorQ=!process(fid_2d->FID[c]);
           if(errorQ) break;
+          else
+          {
+              fid_2d->setDefaultAL(fid_2d->FID.at(0)->al());
+          }
         }
         break;
       case ApplyToOne:
