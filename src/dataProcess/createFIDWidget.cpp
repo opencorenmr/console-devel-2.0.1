@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QMessageBox>
+#include <QRegularExpression>
 
 #include "createFIDWidget.h"
 
@@ -121,9 +122,10 @@ void TCreateFIDWidget::createFIDFromAsci()
     bool ok;
 
     sl1=plainTextEdit->toPlainText().split('\n');
+    static QRegularExpression rex("\\s+");
     for(int k=0; k<sl1.size(); k++)
     {
-       sl2=sl1.at(k).trimmed().split(QRegExp("\\s+"));
+       sl2=sl1.at(k).trimmed().split(rex);
        if(sl2.size()==1)
        {
            re=sl2.at(0).toDouble(&ok);

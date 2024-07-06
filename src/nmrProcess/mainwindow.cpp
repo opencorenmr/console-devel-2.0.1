@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle(tr("Opencore NMR Process Control Panel"));
 
     QHBoxLayout *layout1 = new QHBoxLayout(plotterWidget);
-    layout1->setMargin(0);
+    layout1->setContentsMargins(0,0,0,0);
     layout1->addWidget(processPanel->plotters);
 
 //    processPanel->show();

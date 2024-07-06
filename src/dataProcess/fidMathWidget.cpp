@@ -76,7 +76,7 @@ void TFIDMathWidget::createLayout()
         gLayout1->addWidget(numberOperationComboBox,0,1,1,1);
           QWidget *widget3 = new QWidget;
           QGridLayout *gLayout3 = new QGridLayout(widget3);
-          gLayout3->setMargin(0);
+          gLayout3->setContentsMargins(0,0,0,0);
           gLayout3->addWidget(new QLabel(tr("Real")),0,0,1,1);
           gLayout3->addWidget(number1LineEdit,0,1,1,1);
           gLayout3->addWidget(new QLabel(tr("Imag")),0,2,1,1);
@@ -84,7 +84,7 @@ void TFIDMathWidget::createLayout()
 
           QWidget *widget4 = new QWidget;
           QGridLayout *gLayout4 = new QGridLayout(widget4);
-          gLayout4->setMargin(0);
+          gLayout4->setContentsMargins(0,0,0,0);
           gLayout4->addWidget(new QLabel("Use the average of points"),0,0,1,4);
           gLayout4->addWidget(new QLabel(tr("From")),1,0,1,1);
           gLayout4->addWidget(xIniSpinBox,1,1,1,1);
@@ -101,7 +101,7 @@ void TFIDMathWidget::createLayout()
 
       QWidget *widget2 = new QWidget;
       QGridLayout *gLayout2 = new QGridLayout(widget2);
-        gLayout2->setMargin(0);
+        gLayout2->setContentsMargins(0,0,0,0);
         gLayout2->addWidget(fileSelectPushButton,0,0,1,1);
         gLayout2->addWidget(new QLabel(tr("Path")),1,0,1,1);
         gLayout2->addWidget(filePathLineEdit,1,1,1,2);

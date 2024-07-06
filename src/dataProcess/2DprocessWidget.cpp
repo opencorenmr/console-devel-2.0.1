@@ -4,7 +4,7 @@
 #include "flatten.h"
 #include "transpose.h"
 #include "hyperComplex.h"
-#include "slow2dft.h"
+//#include "slow2dft.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -339,19 +339,19 @@ bool T2DProcessWidget::Readsm2pFileforAdd(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            AL=source.midRef(6).toInt(&ok);
+            AL=source.remove(0,6).toInt(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            DW=source.midRef(3).toDouble(&ok);
+            DW=source.remove(0,3).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.midRef(4).toDouble(&ok);
+            FSF1=source.remove(0,4).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
 
@@ -385,19 +385,19 @@ bool T2DProcessWidget::ReadoppFileforAdd(QString fn){
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            AL=source.midRef(6).toInt(&ok);
+            AL=source.remove(0,6).toInt(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            DW=source.midRef(3).toDouble(&ok);
+            DW=source.remove(0,3).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.midRef(4).toDouble(&ok);
+            FSF1=source.remove(0,4).toDouble(&ok);
             if(!ok) {file.close(); return false;}
         }
 

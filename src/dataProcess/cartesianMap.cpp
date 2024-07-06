@@ -2,7 +2,7 @@
 //#include "fft.h"
 #include <QVector3D>
 #include <float.h>
-
+#include <QRegularExpression>
 
 TCartesianMap3D::TCartesianMap3D()
 {
@@ -58,7 +58,7 @@ bool TCartesianMap3D::setOrigPolarAngles(QString qs)
     sl1=qs.split('\n');
     for(int k=0; k<sl1.size(); k++)
     {
-        sl2=sl1.at(k).trimmed().split(QRegExp("\\s+"));
+        sl2=sl1.at(k).trimmed().split(QRegularExpression("\\s+"));
         if(sl2.size()!=2)
         {
             setErrorMessage("Invalid polar-angle data.");
@@ -114,7 +114,7 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
           coslop = QVector3D::dotProduct(op,ol);
           if(coslop<coskop)
           {
-              closerIndices.swap(l,l+1);
+              closerIndices.swapItemsAt(l,l+1);
           }
           else
           {

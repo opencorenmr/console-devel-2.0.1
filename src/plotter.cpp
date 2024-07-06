@@ -44,7 +44,7 @@ TFIDPlotters::TFIDPlotters(QWidget *parent): QWidget(parent)
     FN=1;
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->addWidget(plotSplitters[0]);
     setLayout(mainLayout);
 }
@@ -189,7 +189,7 @@ void TFIDPlotters::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode splitMo
        //newWindow->show();
 
        QVBoxLayout *mainLayout = new QVBoxLayout;
-       mainLayout->setMargin(0);
+       mainLayout->setContentsMargins(0,0,0,0);
        mainLayout->setSpacing(0);
 
        plotSplitters.append(new QSplitter);
@@ -368,7 +368,7 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
     QWidget *widget1 = new QWidget;
     QVBoxLayout *vLayout1 = new QVBoxLayout(widget1);
     //vLayout1->setSpacing(0);
-    vLayout1->setMargin(0);
+    vLayout1->setContentsMargins(0,0,0,0);
     vLayout1->addWidget(new QLabel(tr("Position")));
     vLayout1->addWidget(xPosLineEdit);
     //vLayout1->addWidget(xPosSpinBox);
@@ -387,7 +387,7 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
 
     QWidget *widget2 = new QWidget;
     QVBoxLayout *vLayout2 = new QVBoxLayout(widget2);
-    vLayout2->setMargin(0);
+    vLayout2->setContentsMargins(0,0,0,0);
     vLayout2->addWidget(new QLabel("Initial X"));
     vLayout2->addWidget(xIniSpinBox);
       QHBoxLayout *hLayout1=new QHBoxLayout;
@@ -418,7 +418,7 @@ plotterDetailsWidget::plotterDetailsWidget(QWidget *parent): QWidget(parent)
     connect(xFinValLineEdit,SIGNAL(returnPressed()),this,SLOT(onXFinValLineEditReturnPressed()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-//    mainLayout->setMargin(0);
+//    mainLayout->setContentsMargins(0,0,0,0);
 //    mainLayout->setSpacing(0);
     mainLayout->addWidget(detailsComboBox);
     mainLayout->addLayout(stackedLayout);
@@ -536,7 +536,7 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
 
     QWidget *widget1 = new QWidget;
     QHBoxLayout *hLayout = new QHBoxLayout(widget1);
-    hLayout->setMargin(0);
+    hLayout->setContentsMargins(0,0,0,0);
     hLayout->setSpacing(0);
 
     hLayout->addWidget(toolBar);
@@ -548,7 +548,7 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
 
     QWidget *widget2 = new QWidget;
     QHBoxLayout *hLayout2 = new QHBoxLayout(widget2);
-    hLayout2->setMargin(0);
+    hLayout2->setContentsMargins(0,0,0,0);
     hLayout2->setSpacing(0);
     hLayout2->addWidget(toolBar2);
     hLayout2->addWidget(plotterDetails); plotterDetails->hide();
@@ -556,7 +556,7 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     //hLayout2->addWidget(processPanelWidget); processPanelWidget->hide();
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(widget1);
     mainLayout->addWidget(widget2);
@@ -580,8 +580,8 @@ FIDPlotter::FIDPlotter(QWidget *parent): QWidget(parent)
     connect(processCheckBox,SIGNAL(toggled(bool)),this,SLOT(update()));
    // connect(phase0SpinBox,SIGNAL(valueChanged(int)),this,SLOT(update()));
 
-    new QShortcut(QKeySequence(Qt::CTRL+Qt::Key_0), this, SLOT(xFullRangePlot()));
-    new QShortcut(QKeySequence(Qt::CTRL+Qt::Key_E), this, SLOT(exportAscii()));
+    new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_0), this, SLOT(xFullRangePlot()));
+    new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_E), this, SLOT(exportAscii()));
 
 }
 //------------------------------------------------------------------------------
@@ -1419,17 +1419,17 @@ void Plotter::wheelEvent(QWheelEvent *event)
 {
     if(!fidSetted) return;
 
-    if(event->orientation()==Qt::Horizontal ||
-       (event->orientation()==Qt::Vertical && wheelToHScroll()==true)
-            )
+//    if(event->orientation()==Qt::Horizontal ||
+//        (event->orientation()==Qt::Vertical && wheelToHScroll()==true)
+    if(abs(event->angleDelta().x()) > abs(event->angleDelta().y()))
     {
 
 #if defined(__APPLE__)
-        double dx=-(event->delta());
+        double dx=-(event->angleDelta().x());
 #elif defined(_WIN32)
-        double dx=-(event->delta()/20.0);
+        double dx=-(event->angleDelta().x()/20.0);
 #elif defined(__linux__)
-        double dx=-(event->delta()/20.0);
+        double dx=-(event->angleDelta().x()/20.0);
 #endif
 
 
@@ -1440,16 +1440,37 @@ void Plotter::wheelEvent(QWheelEvent *event)
           xini+=dx;xfin+=dx;
       }
       refreshPixmap();
+
     }
-    else if(event->orientation()==Qt::Vertical && scaleSetting==ManualScale)
+    else if(event->angleDelta().y() && wheelToHScroll()==true)
+    {
+#if defined(__APPLE__)
+      double dx=-(event->angleDelta().y());
+#elif defined(_WIN32)
+      double dx=-(event->angleDelta().y()/20.0);
+#elif defined(__linux__)
+      double dx=-(event->angleDelta().y()/20.0);
+#endif
+
+      if(xini+dx<0) {xfin=xfin-xini; xini=0;}
+      else if(xfin+dx>fid->al()-1) {xini=fid->al()-1-(xfin-xini); xfin=fid->al()-1;}
+      else
+      {
+          xini+=dx;xfin+=dx;
+      }
+      refreshPixmap();
+      return;
+
+    }
+    if(event->angleDelta().y()!=0 && scaleSetting==ManualScale)
     {
 
 #if defined(__APPLE__)
-        double dy=pow(1.005,-1.0*event->delta());
+      double dy=pow(1.005,-1.0*event->angleDelta().y());
 #elif defined(_WIN32)
-        double dy=pow(1.005,-1.0*event->delta()/20.0);
+      double dy=pow(1.005,-1.0*event->angleDelta().y()/20.0);
 #elif defined(__linux__)
-        double dy=pow(1.005,-1.0*event->delta()/20.0);
+      double dy=pow(1.005,-1.0*event->angleDelta().y()/20.0);
 #endif
 
         setScale(scale()*dy);
@@ -1485,7 +1506,7 @@ void Plotter::refreshPixmap()
     pixmap.fill(QColor("aliceblue"));
 
     QPainter painter(&pixmap);
-    painter.initFrom(this);
+//    painter.initFrom(this);
 
     drawFrame(&painter);
     drawXTicks(&painter);

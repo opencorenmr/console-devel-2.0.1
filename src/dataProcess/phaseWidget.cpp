@@ -69,7 +69,7 @@ void TPhaseWidget::createWidgets()
 void TPhaseWidget::createPanel()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
-   // mainLayout->setMargin(0);
+   // mainLayout->setContentsMargins(0,0,0,0);
 
     QGroupBox *groupBox0=new QGroupBox(tr("0th Order"));
 

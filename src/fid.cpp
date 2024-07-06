@@ -69,21 +69,24 @@ bool TFID_2D::ReadsmdFile(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            int i=source.midRef(6).toInt(&ok);
+//            int i=source.midRef(6).toInt(&ok);
+            int i=source.remove(0,6).toInt(&ok);
             if(!ok) {errorMessage="Invalid expression for point="; file.close(); return false;}
             setDefaultAL(i);
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            double d=source.midRef(3).toDouble(&ok);
+//            double d=source.midRef(3).toDouble(&ok);
+            double d=source.remove(0,3).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for dw="; file.close(); return false;}
             setDW(d);
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            double s=source.midRef(4).toDouble(&ok);
+//            double s=source.midRef(4).toDouble(&ok);
+            double s=source.remove(0,4).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for sf1="; file.close(); return false;}
             setSF1(s);
         }
@@ -358,19 +361,22 @@ bool TFID_2D::ReadoppFile(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            setDefaultAL(source.midRef(6).toInt(&ok));
+//            setDefaultAL(source.midRef(6).toInt(&ok));
+            setDefaultAL(source.remove(0,6).toInt(&ok));
             if(!ok) {errorMessage="Invalid expression for point="; file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            FDW=source.midRef(3).toDouble(&ok);
+//            FDW=source.midRef(3).toDouble(&ok);
+            FDW=source.remove(0,3).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for dw="; file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.midRef(4).toDouble(&ok);
+//            FSF1=source.midRef(4).toDouble(&ok);
+            FSF1=source.remove(0,4).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for sf1="; file.close(); return false;}
         }
 
@@ -453,19 +459,19 @@ bool TFID_2D::Readsm2pFile(QString fn)
         if(source.startsWith("point=",Qt::CaseInsensitive))
         {
             pointDefined=true;
-            setDefaultAL(source.midRef(6).toInt(&ok));
+            setDefaultAL(source.remove(0,6).toInt(&ok));
             if(!ok) {errorMessage="Invalid expression for point="; file.close(); return false;}
         }
         if(source.startsWith("dw=",Qt::CaseInsensitive))
         {
             dwDefined=true;
-            FDW=source.midRef(3).toDouble(&ok);
+            FDW=source.remove(0,3).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for dw="; file.close(); return false;}
         }
         if(source.startsWith("sf1=",Qt::CaseInsensitive))
         {
             sf1Defined=true;
-            FSF1=source.midRef(4).toDouble(&ok);
+            FSF1=source.remove(0,4).toDouble(&ok);
             if(!ok) {errorMessage="Invalid expression for sf1="; file.close(); return false;}
         }
 
