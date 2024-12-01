@@ -232,7 +232,7 @@ void KExportWidget::performExportAscii()
     //          << QString::number(ancestor()->FID_2D->FID.at(j)->abs->sig.at(k),'g',12)
     //          << "\n";
         } // k
-        if(j<ancestor()->FID_2D->FID.size()-1)
+        if(j<ancestor()->FID_2D->FID.size())
         {
           if(arrayOptionComboBox->currentIndex()==2) // blank-line separator
           {
