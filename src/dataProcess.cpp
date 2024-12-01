@@ -32,7 +32,7 @@ TprocessTerminal::TprocessTerminal(QWidget *parent):
     fp->plotter->setBackgroundColor0(QColor("white"));
     fp->plotter->setBackgroundColor1(QColor("white"));
     QGridLayout *processLayout = new QGridLayout;
-    processLayout->setMargin(0);
+    processLayout->setContentsMargins(0,0,0,0);
     processLayout->setSpacing(0);
 
       QHBoxLayout *hLayout = new QHBoxLayout;

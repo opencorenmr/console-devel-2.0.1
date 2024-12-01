@@ -15,7 +15,7 @@
 
 //class TXAxisOptionWidget;
 
-
+/*
 class TYAxisOptionWidget : public QWidget
 {
     Q_OBJECT
@@ -32,6 +32,7 @@ private:
 
 
 };
+*/
 
 class TXAxisOptionWidget : public QWidget
 {

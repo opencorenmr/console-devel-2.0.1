@@ -55,7 +55,7 @@ public:
         invFFTButton = new QPushButton(tr("iFFT"));
 
         QVBoxLayout *mainLayout = new QVBoxLayout;
-        mainLayout->setMargin(0);
+        mainLayout->setContentsMargins(0,0,0,0);
         mainLayout->setSpacing(0);
         mainLayout->addWidget(new QLabel(tr("Fourier Transformation")));
         mainLayout->addWidget(FFTButton);

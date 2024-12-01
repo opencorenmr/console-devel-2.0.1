@@ -351,7 +351,7 @@ MainWindow::MainWindow(QWidget *parent)
       leftMenuWidget->setPalette(pal);
 
     QVBoxLayout *leftMenuWidgetLayout = new QVBoxLayout(leftMenuWidget);
-    leftMenuWidgetLayout->setMargin(0);
+    leftMenuWidgetLayout->setContentsMargins(0,0,0,0);
 
     leftMenuWidgetLayout->addWidget(leftToolBar);
     leftMenuWidgetLayout->addStretch(1);
@@ -398,7 +398,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QHBoxLayout *layout = new QHBoxLayout(centralWidget);
     layout->setSpacing(0);
-    layout->setMargin(0);
+    layout->setContentsMargins(0,0,0,0);
     layout->setContentsMargins(2,2,2,2);
     layout->addWidget(leftMenuWidget,1);
     layout->addLayout(stackedLayout,20);

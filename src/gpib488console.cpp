@@ -34,7 +34,7 @@ TGPIB488Console::TGPIB488Console(QWidget *parent) : QWidget(parent)
     hLayout->addStretch();
     hLayout->addWidget(openGPIBPushButton);
     QVBoxLayout *vLayout = new QVBoxLayout;
-    //vLayout->setMargin(0);
+    //vLayout->setContentsMargins(0,0,0,0);
     vLayout->addLayout(hLayout);
     vLayout->addWidget(console);
     vLayout->addWidget(writeOnArrayCheckBox);

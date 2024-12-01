@@ -119,7 +119,7 @@ void TvariableTable::addRow()
     item3->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
     item3->setFlags(item3->flags() & ~Qt::ItemIsEditable);
     setItem(row,3,item3);
-    setColumnWidth(3,5*QFontMetrics(font()).width(QChar('M')));
+    setColumnWidth(3,5*QFontMetrics(font()).averageCharWidth());
 
     QTableWidgetItem *item4 = new QTableWidgetItem;
     item4->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);

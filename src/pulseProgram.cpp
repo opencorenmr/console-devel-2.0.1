@@ -786,7 +786,7 @@ bool TpulseProgram::p_function()
     bool e=processPreambleCommand2();
     if (!e) {return false;}
 
-    argument.remove(QRegExp("\\s+"));  // Important! We remove any space (or tab) characters.
+    argument.remove(QRegularExpression("\\s+"));  // Important! We remove any space (or tab) characters.
     userDefinedFunctions.append(varName + "=" + argument);
     preambleInfo.append("function: " + varName + "=" + argument );
 
@@ -4692,7 +4692,7 @@ bool TpulseProgram::genAcqPhaseCycle(QStringList *sl)
     lSet += gates.Items.at(ACQ_PHASE_CS_Index)->output();
             gates.Items.at(FxPhaseModeIndex)->setValue(2);   // mode=2
     lSet += gates.Items.at(FxPhaseModeIndex)->output();
-            gates.Items.at(FxPhaseListLengthIndex)->setValue(acqPhaseList.size());
+            gates.Items.at(FxPhaseListLengthIndex)->setValue((int) acqPhaseList.size());
     lSet += gates.Items.at(FxPhaseListLengthIndex)->output();
     line=0;
     for(int q=0; q<BITLENGTH; q++) if (lSet.contains(q)) line = (line | (one64 << q));
@@ -5570,7 +5570,7 @@ bool TpulseProgram::evalArg(QString &str)
     bool ok=true;
     int pos=0;
     QString s=str;
-    s.remove(QRegExp("\\s+"));
+    s.remove(QRegularExpression("\\s+"));
     s.append(QChar::Null);
     double d=evalArgExpression(s,pos,ok);
     if(!ok) return false;

@@ -37,18 +37,18 @@ void TToggleParams::createWidgets()
 void TToggleParams::createPanel()
 {
 
-    QHBoxLayout *hLayout1 = new QHBoxLayout; hLayout1->setMargin(0);
-    QHBoxLayout *hLayout2 = new QHBoxLayout; hLayout2->setMargin(0);
-    QVBoxLayout *vLayout1 = new QVBoxLayout; vLayout1->setMargin(0);
-    QGridLayout *gLayout1 = new QGridLayout; gLayout1->setMargin(0);
-    QGridLayout *gLayout2 = new QGridLayout; gLayout2->setMargin(0);
+    QHBoxLayout *hLayout1 = new QHBoxLayout; hLayout1->setContentsMargins(0,0,0,0);
+    QHBoxLayout *hLayout2 = new QHBoxLayout; hLayout2->setContentsMargins(0,0,0,0);
+    QVBoxLayout *vLayout1 = new QVBoxLayout; vLayout1->setContentsMargins(0,0,0,0);
+    QGridLayout *gLayout1 = new QGridLayout; gLayout1->setContentsMargins(0,0,0,0);
+    QGridLayout *gLayout2 = new QGridLayout; gLayout2->setContentsMargins(0,0,0,0);
 
 
     hLayout1->addLayout(gLayout1);
     hLayout2->addLayout(gLayout2);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->addLayout(hLayout1);
     mainLayout->addLayout(hLayout2);
     setLayout(mainLayout);

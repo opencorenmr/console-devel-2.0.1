@@ -190,7 +190,7 @@ void TExpSettings::createWidgets()
 {
     fileWidget = new QWidget;
     QHBoxLayout *fileLayout = new QHBoxLayout(fileWidget);
-    fileLayout->setMargin(0);
+    fileLayout->setContentsMargins(0,0,0,0);
     fileLayout->setSpacing(0);
     QWidget *fileManageWidget = new QWidget;
       pathLineEdit = new QLineEdit;
@@ -293,7 +293,7 @@ void TExpSettings::createWidgets()
 void TExpSettings::createPanel()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->setSpacing(0);
     optionTab->setTabPosition(QTabWidget::North);
     optionTab->addTab(fileWidget,tr("File"));

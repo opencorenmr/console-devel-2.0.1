@@ -1,6 +1,14 @@
 #include "intToHex.h"
 
 
+/*
+*
+*
+In Qt6, the following intToHex does not seem to work for negative integers.
+It seems QString::number works differently.
+
+*
+
 QString intToHex(int i, int digits)
 {
     QString s=QString::number(i, 16);
@@ -12,6 +20,7 @@ QString intToHex(int i, int digits)
 
 
 }
+*/
 
 QString myHex(quint64 n, int digits)
 {

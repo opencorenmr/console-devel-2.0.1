@@ -258,7 +258,7 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
       buildNumberLabel = new QLabel(tr(""));
   //  openOnStartupCheckBox = new QCheckBox(tr("Open on startup"));
        QVBoxLayout *openCloseLayout = new QVBoxLayout;
-       //openCloseLayout->setMargin(0);
+       //openCloseLayout->setContentsMargins(0,0,0,0);
        //openCloseLayout->addStretch();
        openCloseLayout->addLayout(layout10);
        openCloseLayout->addWidget(buildNumberLabel);
@@ -324,14 +324,14 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
 
 
         QVBoxLayout *FPGAStatusLayout = new QVBoxLayout(FPGAStatusWidget);
-        FPGAStatusLayout->setMargin(0);
+        FPGAStatusLayout->setContentsMargins(0,0,0,0);
         FPGAStatusLayout->setSpacing(0);
         FPGAStatusLayout->addWidget(FPGAStatusTextEdit);
 //        FPGAStatusLayout->addLayout(openCloseLayout);
         FPGAStatusLayout->addWidget(spectrometerGroupBox);
 
           QVBoxLayout *consoleLayout = new QVBoxLayout(consoleWidget);
-          consoleLayout->setMargin(0);
+          consoleLayout->setContentsMargins(0,0,0,0);
           consoleLayout->setSpacing(0);
 
 
@@ -344,7 +344,7 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
 
           QWidget *pWidget = new QWidget;
           QHBoxLayout *pLayout = new QHBoxLayout(pWidget);
-          pLayout->setMargin(0);
+          pLayout->setContentsMargins(0,0,0,0);
           pLayout->addWidget(plotSplitters[0]);
 
           QSplitter *pSplitter = new QSplitter(Qt::Horizontal);
@@ -363,7 +363,7 @@ TfpgaTerminal::TfpgaTerminal(QWidget *parent) :
       widget2->setPalette(pal);
 
       QVBoxLayout *mainLayout = new QVBoxLayout;
-      mainLayout->setMargin(0);
+      mainLayout->setContentsMargins(0,0,0,0);
       mainLayout->addWidget(pSplitter,0);
       setLayout(mainLayout);
 
@@ -536,7 +536,7 @@ void TfpgaTerminal::splitPlot(FIDPlotter *fp, TFIDPlotters::PlotSplitMode sMode)
                     this,SLOT(deletePlotWindow(TPlotWindow*)));
 
        QVBoxLayout *mainLayout = new QVBoxLayout;
-       mainLayout->setMargin(0);
+       mainLayout->setContentsMargins(0,0,0,0);
        mainLayout->setSpacing(0);
 
        plotSplitters.append(new QSplitter);

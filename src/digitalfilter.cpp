@@ -136,7 +136,9 @@ QString TdigitalFilter::HexCoeff(int k)
 
  //qDebug() << "frequencyResponse: " << frequencyResponse(0.0);
 
-    return intToHex(i,digits);
+//    qDebug() << i << ": " << intToHex(i,digits) << " " << myHex(i,digits);
+//    return intToHex(i,digits);
+    return myHex(i,digits);
 
 //    QString s=QString::number(i, 16);
 //    while(s.length()<digits) s='0'+s;

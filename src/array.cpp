@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QStackedLayout>
+#include <QRegularExpression>
 #include <QPlainTextEdit>
 #include <QLineEdit>
 #include <QTableWidget>
@@ -43,15 +44,16 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     autoRepeatSpinBox->setMinimum(2);
     autoRepeatSpinBox->setEnabled(false);
 
-    QGridLayout *leftLayout = new QGridLayout; leftLayout->setMargin(0);
-    QVBoxLayout *rightLayout = new QVBoxLayout; rightLayout->setMargin(0);
+    QGridLayout *leftLayout = new QGridLayout; leftLayout->setContentsMargins(0,0,0,0);
+    QVBoxLayout *rightLayout = new QVBoxLayout; rightLayout->setContentsMargins(0,0,0,0);
     QWidget *widget0 = new QWidget;
-    QStackedLayout *leftStackedLayout = new QStackedLayout; leftStackedLayout->setMargin(0);
+    QStackedLayout *leftStackedLayout = new QStackedLayout; leftStackedLayout->setContentsMargins(0,0,0,0);
 
     widget0->setLayout(leftStackedLayout);
 
     QVBoxLayout *linearArrayLayout = new QVBoxLayout;
-    linearArrayLayout->setMargin(10); linearArrayLayout->setSpacing(0);
+    //linearArrayLayout->setMargin(10);
+    linearArrayLayout->setSpacing(0);
 
    // linearArrayLayout->addWidget(new QLabel(tr("Variable")));
    // linearArrayLayout->addWidget(arrayVariableComboBox);
@@ -78,7 +80,8 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
   //    linearArrayLayout->addWidget(new QLabel(tr("Order")));
   //    linearArrayLayout->addWidget(arrayDimensionComboBox);
 
-    QGridLayout *randomArrayLayout = new QGridLayout; randomArrayLayout->setMargin(5);
+    QGridLayout *randomArrayLayout = new QGridLayout;
+      //randomArrayLayout->setMargin(5);
       randomArrayTextEdit = new QPlainTextEdit;
       randomArrayLayout->addWidget(randomArrayTextEdit,0,0,1,1);
 
@@ -121,7 +124,7 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
 
     QWidget *widget4=new QWidget;
     QHBoxLayout *bl2=new QHBoxLayout(widget4);
-    bl2->setMargin(0);
+    bl2->setContentsMargins(0,0,0,0);
     bl2->addWidget(requestButton);
     bl2->addWidget(arrayCheckBox);
 
@@ -130,7 +133,7 @@ TArrayWidget::TArrayWidget(QWidget *parent) :
     rightLayout->addWidget(messageTextEdit,1);
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
-    mainLayout->setMargin(5);
+   // mainLayout->setMargin(5);
     mainLayout->addLayout(leftLayout,2);
     mainLayout->addLayout(rightLayout,4);
     setLayout(mainLayout);
@@ -373,7 +376,7 @@ bool TArrayWidget::setRandomArray(TVariable *variable)
     variable->setArrayMode(TVariable::RandomArray);
 
     QString s=randomArrayTextEdit->toPlainText().trimmed();
-    QStringList sl=s.split(QRegExp("\\s+"));
+    QStringList sl=s.split(QRegularExpression("\\s+"));
 
     if(!variable->setRandomArrayValues(sl))
     {

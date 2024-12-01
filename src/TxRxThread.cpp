@@ -177,7 +177,7 @@ void USBRxThread::run()
 
       ftStatus=FT_Read(deviceHandle(), pcBufRead, 1, &dwBytesRead);
       ch=ch.fromLatin1(pcBufRead[0]);
-      if(ch!='*' && ch!='#' && ch!='%' && ch!=0x0D)  sentence.append(ch);
+      if(ch!='*' && ch!='#' && ch!='%' && ch!=QChar(0x0D))  sentence.append(ch);
       emit gotChar(ch);
 
     //  if(ch=='*') {emit gotPrompt(ch); emit readyPrompt();qDebug()<<"sentence: " << sentence;sentence.clear();}

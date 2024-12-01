@@ -50,29 +50,29 @@ QStringList TreceiverInfo::receiverCommands()
 QString TreceiverCommand::updateND(int nd)
 {
   if(nd<0) nd=0;
-  return "set ND " + intToHex(nd,8);
+  return "set ND " + myHex(nd,8);
 }
 //----------------------------------------------------------------------------
 QString TreceiverCommand::updateAR(int ar)
 {
-  return "set AR " + intToHex(ar,8);
+  return "set AR " + myHex(ar,8);
 }
 //----------------------------------------------------------------------------
 QString TreceiverCommand::updateDO(int i)
 {
-   return "set DO " + intToHex(i,8);
+   return "set DO " + myHex(i,8);
 }
 //----------------------------------------------------------------------------
 QString TreceiverCommand::updateNA(int na)
 {
   if(na<=0) na=1;
-  return "set NA " + intToHex(na,8);
+  return "set NA " + myHex(na,8);
 }
 //----------------------------------------------------------------------------
 QString TreceiverCommand::updateAL(int al)
 {
   if(al<1) al=1;
-  return "set AL " + intToHex(al-1,8);
+  return "set AL " + myHex(al-1,8);
       // Do not forget to subtract 1, because the FPGA counts from 0 to 2^2-1.
 }
 //----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ QString TreceiverCommand::updateDW(double dw, double samplingRateinMHz)
 {
     //  int a=round(1000000*dw/0.025); // 0.025us=1/40MHz
     int a=round(dw*0.5*samplingRateinMHz);
-    return "set DW " + intToHex(a,8);
+    return "set DW " + myHex(a,8);
 
 }
 //----------------------------------------------------------------------------
@@ -99,12 +99,12 @@ QString TreceiverCommand::updateAF(TDSPOption::QDOption qd, TDSPOption::digitalF
   else if (qd==TDSPOption::QD_Off && df==TDSPOption::FIR_Off) a=1;
   else a=0;
 
-  return "set AF " + intToHex(a,8);
+  return "set AF " + myHex(a,8);
 }
 //----------------------------------------------------------------------------
 QString TreceiverCommand::updateST(int st)
 {
-  return "set ST " + intToHex(st,8);
+  return "set ST " + myHex(st,8);
 }
 //----------------------------------------------------------------------------
 QString TreceiverCommand::updateCO(double dw)

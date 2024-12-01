@@ -30,8 +30,8 @@ int CodeEditor::lineNumberAreaWidth()
     }
 
     int space;
-    if (digits<=3) { space = 3 + fontMetrics().width(QLatin1Char('9')) * 3; }
-    else {space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;}
+    if (digits<=3) { space = 3 + fontMetrics().averageCharWidth() * 3; }
+    else {space = 3 + fontMetrics().averageCharWidth() * digits;}
 
     return space;
 }

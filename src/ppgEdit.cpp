@@ -107,7 +107,7 @@ TppgEdit::TppgEdit(QWidget *parent) :
   QWidget *widget0 = new QWidget;
   widget0->setFixedWidth(100);
   layout0 =new QVBoxLayout(widget0);
-    layout0->setMargin(0);
+    layout0->setContentsMargins(0,0,0,0);
     layout0->setSpacing(4);
     layout0->addWidget(ppgGroupBox);
     layout0->addWidget(expGroupBox);
@@ -117,7 +117,7 @@ TppgEdit::TppgEdit(QWidget *parent) :
 
   QWidget *widget1 = new QWidget;
   layout1 =new QVBoxLayout(widget1);
-    layout1->setMargin(0);
+    layout1->setContentsMargins(0,0,0,0);
     layout1->setSpacing(4);
 
 
@@ -143,7 +143,7 @@ TppgEdit::TppgEdit(QWidget *parent) :
   ppgCompilerMainSplitter->setStretchFactor(0,1);
 
   QHBoxLayout *ppgEditLayout = new QHBoxLayout;
-  ppgEditLayout->setMargin(0);
+  ppgEditLayout->setContentsMargins(0,0,0,0);
   ppgEditLayout->addWidget(ppgCompilerMainSplitter,0);
   setLayout(ppgEditLayout);
 
