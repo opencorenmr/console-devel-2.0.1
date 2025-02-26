@@ -33,6 +33,8 @@ public:
     QCheckBox *startClickSetCheckBox;
     QCheckBox *endClickSetCheckBox;
 
+    QComboBox *selectComponentCombobox;
+
     QPushButton *processArrayButton;
     QPushButton *saveButton;
 
