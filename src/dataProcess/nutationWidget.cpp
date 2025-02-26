@@ -45,6 +45,12 @@ void KNutationWidget::createWidgets()
     resultTextEdit = new QPlainTextEdit;
     saveButton = new QPushButton(tr("Save"));
     saveButton->setFixedSize(QSize(80,80));
+
+    // 20250226
+    selectComponentCombobox = new QComboBox();
+    selectComponentCombobox->addItems(QStringList() << "In-phase" << "Quadrature" << "Absolute");
+    selectComponentCombobox->setCurrentIndex(0);
+
 }
 
 void KNutationWidget::createPanel()
@@ -55,27 +61,31 @@ void KNutationWidget::createPanel()
    // QGroupBox *groupBox0 = new QGroupBox(tr("Analyze"));
 
       QGridLayout *gridLayout0 = new QGridLayout;
-      gridLayout0->addWidget(new QLabel(tr("Point/Area")),0,0,1,1);
-      gridLayout0->addWidget(styleComboBox,0,1,1,1);
 
-      gridLayout0->addWidget(fromAtLabel,1,0,1,1);
-      gridLayout0->addWidget(startPointSpinBox,1,1,1,1);
-      gridLayout0->addWidget(startClickSetCheckBox,1,2,1,1);
-      gridLayout0->addWidget(toLabel,2,0,1,1);
-      gridLayout0->addWidget(endPointSpinBox,2,1,1,1);
-      gridLayout0->addWidget(endClickSetCheckBox,2,2,1,1);
+      gridLayout0->addWidget(new QLabel(tr("Component")),0,0,1,1);
+      gridLayout0->addWidget(selectComponentCombobox,0,1,1,1);
 
-      gridLayout0->addWidget(new QLabel(tr("initial")),3,0,1,1);
-      gridLayout0->addWidget(arrayInitLineEdit,3,1,1,1);
-      gridLayout0->addWidget(new QLabel(tr("delta")),4,0,1,1);
-      gridLayout0->addWidget(arrayDeltaLineEdit,4,1,1,1);
+      gridLayout0->addWidget(new QLabel(tr("Point/Area")),1,0,1,1);
+      gridLayout0->addWidget(styleComboBox,1,1,1,1);
+
+      gridLayout0->addWidget(fromAtLabel,2,0,1,1);
+      gridLayout0->addWidget(startPointSpinBox,2,1,1,1);
+      gridLayout0->addWidget(startClickSetCheckBox,2,2,1,1);
+      gridLayout0->addWidget(toLabel,3,0,1,1);
+      gridLayout0->addWidget(endPointSpinBox,3,1,1,1);
+      gridLayout0->addWidget(endClickSetCheckBox,3,2,1,1);
+
+      gridLayout0->addWidget(new QLabel(tr("initial")),4,0,1,1);
+      gridLayout0->addWidget(arrayInitLineEdit,4,1,1,1);
+      gridLayout0->addWidget(new QLabel(tr("delta")),5,0,1,1);
+      gridLayout0->addWidget(arrayDeltaLineEdit,5,1,1,1);
 
 
 
 
-      gridLayout0->addWidget(processArrayButton,3,2,2,1);
-      gridLayout0->addWidget(resultTextEdit,5,0,3,2);
-      gridLayout0->addWidget(saveButton,6,2,2,1);
+      gridLayout0->addWidget(processArrayButton,4,2,2,1);
+      gridLayout0->addWidget(resultTextEdit,6,0,3,2);
+      gridLayout0->addWidget(saveButton,7,2,2,1);
 
    // groupBox0->setLayout(gridLayout0);
 
@@ -120,6 +130,8 @@ void KNutationWidget::onSaveButtonClicked()
 
 void KNutationWidget::processArray()
 {
+    double height;
+
     if(!isAncestorDefined()) return;
     if(ancestor()->FID_2D->FID.isEmpty()) return;
 
@@ -158,9 +170,27 @@ void KNutationWidget::processArray()
     if(styleComboBox->currentIndex()==0)
     {
         for(int k=0;k<fidsize;k++){
+
+            switch(selectComponentCombobox->currentIndex())
+            {
+              case 0:
+                 height=ancestor()->FID_2D->FID.at(k)->real->sig.at(start);
+                 break;
+              case 1:
+                height=ancestor()->FID_2D->FID.at(k)->imag->sig.at(start);
+                break;
+              case 2:
+                height=ancestor()->FID_2D->FID.at(k)->abs->sig.at(start);
+                break;
+              default:
+                 height=0;
+              break;
+            } // switch
+
             resultTextEdit->appendPlainText(
              QString::number(init+delta*k) + " "
-               + QString::number(ancestor()->FID_2D->FID.at(k)->real->sig.at(start))
+                  + QString::number(height)
+              // + QString::number(ancestor()->FID_2D->FID.at(k)->real->sig.at(start))
 
                         );
 //            out << QString::number(init+delta*k) << " "
@@ -174,7 +204,23 @@ void KNutationWidget::processArray()
         for(int k=0;k<fidsize;k++){
             calc=0;
             for(int j=start;j<end+1;j++){
-                calc += ancestor()->FID_2D->FID.at(k)->real->sig.at(j);
+                switch(selectComponentCombobox->currentIndex())
+                {
+                  case 0:
+                     height=ancestor()->FID_2D->FID.at(k)->real->sig.at(j);
+                     break;
+                  case 1:
+                    height=ancestor()->FID_2D->FID.at(k)->imag->sig.at(j);
+                    break;
+                  case 2:
+                    height=ancestor()->FID_2D->FID.at(k)->abs->sig.at(j);
+                    break;
+                  default:
+                     height=0;
+                  break;
+                } // switch
+//                calc += ancestor()->FID_2D->FID.at(k)->real->sig.at(j);
+                calc += height;
             }
             resultTextEdit->appendPlainText(
                QString::number(init+delta*k) + " "
