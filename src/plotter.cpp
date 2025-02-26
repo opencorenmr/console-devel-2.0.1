@@ -153,8 +153,8 @@ void TFIDPlotters::addAndCopyPlotter(FIDPlotter *fp)
     FIDPlotters[k]->plotter->setPolarColor(polarColor());
 
 
-    FIDPlotters[k]->plotterDetails->xFinSpinBox->setMaximum(FID_2D->defaultAl()-1);
-    FIDPlotters[k]->plotterDetails->xIniSpinBox->setMaximum(FID_2D->defaultAl()-2);
+    FIDPlotters[k]->plotterDetails->xFinSpinBox->setMaximum(FID_2D->defaultAL()-1);
+    FIDPlotters[k]->plotterDetails->xIniSpinBox->setMaximum(FID_2D->defaultAL()-2);
 
     if(fp->fid2d->FID.size()>0)
     {
@@ -1597,7 +1597,9 @@ void Plotter::drawXTicks(QPainter *painter)
 // qDebug() << QString(Q_FUNC_INFO) << xini << xfin
 //          << x1 << x2 << "tick: " << tick;
 
+//    qDebug() << QString(Q_FUNC_INFO) << fid->xInitialValue();
     double xIniVal = fid->xInitialValue()/TMetricPrefix::Decimal(fid->plotPrefix());
+//    qDebug() << QString(Q_FUNC_INFO) << xIniVal;
 
 //    xIniVal = ((int)(xIniVal/tick))*tick;
     xIniVal = static_cast<int>(xIniVal/tick)*tick;

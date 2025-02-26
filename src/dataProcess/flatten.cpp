@@ -48,7 +48,7 @@ bool TFlatten::process(TFID_2D *fid_2d)
     // we call setAL in order to let TFID update its private member FAL.
     fid_2d->FID[0]->setAL(fid_2d->FID[0]->real->sig.size());
 
-    fid_2d->setDefaultAl(fid_2d->FID.at(0)->al());
+    fid_2d->setDefaultAL(fid_2d->FID.at(0)->al());
 
     while(fid_2d->FID.size()>1) fid_2d->FID.removeLast();
    // fid_2d->FID.first()->updateAbs();

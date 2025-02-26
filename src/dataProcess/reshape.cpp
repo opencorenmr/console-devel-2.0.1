@@ -94,8 +94,8 @@ bool TReshape::process(TFID_2D *fid_2d)
         return false;
     }
 
-    fid_2d->setDefaultAl(reshapeAL());
-    fid_2d->FID[0]->setAL(fid_2d->defaultAl());
+    fid_2d->setDefaultAL(reshapeAL());
+    fid_2d->FID[0]->setAL(fid_2d->defaultAL());
     while(fid_2d->FID.size()>1) fid_2d->FID.removeLast();
 
     c=0;

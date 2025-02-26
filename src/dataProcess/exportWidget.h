@@ -6,9 +6,9 @@
 #include <QComboBox>
 #include <QPlainTextEdit>
 #include <QLineEdit>
+#include <QCheckBox>
 
 #include "processBase.h"
-#include "fidDomain.h"
 
 class KExportWidget : public TProcessBase
 {
@@ -24,12 +24,18 @@ public:
     //QPushButton *exportSm2FileButton;
     //QPushButton *exportCSVButton;
 
+    QComboBox *arrayOptionComboBox;
+    QCheckBox *xCheckBox;
+    QCheckBox *inPhaseCheckBox;
+    QCheckBox *quadratureCheckBox;
+    QCheckBox *absoluteCheckBox;
+
     QPushButton *exportAsciiButton;
-    QComboBox *separatorCombobox;
+    QComboBox *itemSeparatorComboBox;
+    QComboBox *dataSeparatorComboBox;
 
     QPushButton *export2DButton;
 
-//    QPushButton *exportAbsButton;
 
     QLineEdit *startf1LineEdit;
     QLineEdit *endf1LineEdit;

@@ -50,7 +50,7 @@ bool KSVD::process(TFID_2D *fid_2d)
 bool KSVD::svdProcess(TFID_2D *fid_2d)
 {
     int fidsize = fid_2d->FID.size();
-    int fidal = fid_2d->defaultAl();
+    int fidal = fid_2d->defaultAL();
     int p;// q, r;
     char jobu = 'A', jobvt = 'A';
     double alpha = 1.0, beta = 0.0;
