@@ -7,6 +7,22 @@
 
 #define halfSamplingRate 40.0 // (80 MHz/2)
 
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int myGCD(int a, int b){
+    if(a%b == 0){
+        return b;
+    }else{
+        return myGCD(b, a%b);
+    }
+}
+
+int myLCM(int a, int b){
+    return a*b / myGCD(a, b);
+}
 //-----------------------------------------------------------------------------
 QString TcompiledPPG::comArgLineWord(TcompiledPPG *tc)
 {
@@ -200,7 +216,8 @@ TpulseProgram::TpulseProgram(int channels) {
 
   specialFunctionNames << "sin" << "cos" << "sinc" << "exp" << "tan" << "atan"
                        << "tanh" << "atan2" << "cosh" << "sinh"
-                       << "log" << "log10" << "sech" << "acos" << "asin" << "round";
+                       << "log" << "log10" << "sech" << "acos" << "asin" << "round"
+                       << "gcd" << "lcm";
 
 
   reservedWords << preambleCommands << asyncPPGCommands << specialFunctionNames
@@ -5677,7 +5694,7 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
             if(0==QString::compare(token,functions.at(k),Qt::CaseInsensitive)) fIndex=k;
 
         int f2Index=-1;
-        QStringList functions2=QStringList() << "atan2" << "pow";
+        QStringList functions2=QStringList() << "atan2" << "pow" << "gcd" << "lcm";
         for(int k=0; k<functions2.size(); k++)
             if(0==QString::compare(token,functions2.at(k),Qt::CaseInsensitive)) f2Index=k;
 
@@ -5733,6 +5750,13 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
                 switch(f2Index) {
                   case 0: result = atan2(a,b); break;
                   case 1: result = pow(a,b); break;
+                  case 2: result = myGCD(round(a),round(b));
+                    qDebug() << "gcd("<< a << "," << b << ")=" << result;
+                    break;
+                  case 3: result = myLCM(round(a),round(b));
+                    qDebug() << "lcm("<< a << "," << b << ")=" << result;
+
+                    break;
                 default:
                     errorMessage=QString(Q_FUNC_INFO) + ": unknown function"; ok=false; return 0;
 
