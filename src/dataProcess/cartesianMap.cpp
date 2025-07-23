@@ -114,7 +114,11 @@ bool TCartesianMap3D::findPointsABC(TPolarAngle p)
           coslop = QVector3D::dotProduct(op,ol);
           if(coslop<coskop)
           {
-              closerIndices.swap(l,l+1);
+#if QT_VERSION>=6
+              closerIndices.swapItemsAt(l,l+1);
+#elif QT_VERSIOM<6
+                closerIndices.swap(l,l+1);
+#endif
           }
           else
           {
