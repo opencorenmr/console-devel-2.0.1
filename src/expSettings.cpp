@@ -563,6 +563,17 @@ void TExpSettings::readJob(QString fileName)
     emit transferRequest(ppg->updatedPPG);
 
 
+    // 20250829: separateDataStorage update (bug fix!)
+    if(acquisitionWidget->inFPGAAccumCheckBox->isChecked())
+    {
+        acquisitionWidget->separateDataStorageCheckBox->setChecked(false);
+    }
+    if(acquisitionWidget->separateDataStorageCheckBox->isChecked())
+    {
+        acquisitionWidget->setSeparateDataStorageOption();
+        emit transferRequest(ppg->updatedPPG);
+    }
+
     emit setJobRequest();
 
     if(xAxisOptionWidget->customAxisRadioButton->isChecked()) xAxisOptionWidget->onApplyButtonClicked();
