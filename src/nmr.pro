@@ -182,7 +182,7 @@ win32: RC_ICONS = images/opencoreNMR.ico
 linux: INCLUDEPATH += /usr/local/include/gpib /usr/local/include
 linux: LIBS += -L/usr/local/lib -lftd2xx -lgpib
 
-linux: LIBS += -L/usr/local/lib -llapack -llapacke -lblas -lcblas -lgfortran -lm
+linux: LIBS += -L/usr/local/lib -llapack -llapacke -lrefblas -lcblas -lgfortran -lm
 
 win32: LIBS += -L"c:\lib" -llapack -llapacke -lblas -lcblas -lm
 win32: INCLUDEPATH += c:/lib

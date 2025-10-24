@@ -115,7 +115,7 @@ bool KSVD::svdProcess(TFID_2D *fid_2d)
 
     //-----singular value decomposition of general complex matrix------
     //qDebug() << "SVD calculating.....";
-    zgesvd_(&jobu, &jobvt, &m, &n, a, &lda, s, u, &ldu, vt, &ldvt, work, &lwork, rwork, &info);
+    zgesvd_(&jobu, &jobvt, &m, &n, a, &lda, s, u, &ldu, vt, &ldvt, work, &lwork, rwork, &info,1,1);
 
     delete a;
     delete u;
