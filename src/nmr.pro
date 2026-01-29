@@ -171,6 +171,7 @@ mac: ICON = images/opencoreNMR.icns
 mac:INCLUDEPATH += /usr/local/include
 mac:LIBS += -L/usr/local/lib -lftd2xx
 mac: LIBS += -framework Accelerate
+#mac:LIBS += -L/usr/local/lib -llapacke -lrefblas -lcblas
 
 win32: LIBS += -L"c:\lib" -lftd2xx #-lgpib488
 win32: INCLUDEPATH += c:\lib
