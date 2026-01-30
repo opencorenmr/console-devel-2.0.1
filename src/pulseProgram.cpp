@@ -217,6 +217,7 @@ TpulseProgram::TpulseProgram(int channels) {
   specialFunctionNames << "sin" << "cos" << "sinc" << "exp" << "tan" << "atan"
                        << "tanh" << "atan2" << "cosh" << "sinh"
                        << "log" << "log10" << "sech" << "acos" << "asin" << "round"
+                       << "ceil" << "floor"
                        << "gcd" << "lcm";
 
 
@@ -900,7 +901,7 @@ bool TpulseProgram::p_time() {
   if(!ok) {error=true; errorMessage=QString(Q_FUNC_INFO)+": Invalid number."; return false;}
 
   variables.append(new TVariable(varName,TVariable::timeVariable,QVariant(d),uni));
-  d=variables.at(variables.size()-1)->value().toDouble();
+ // d=variables.at(variables.size()-1)->value().toDouble();
  // if(d<MIN_TIME_VALUE || d>MAX_TIME_VALUE)
  //   {error=true; errorMessage=QString(Q_FUNC_INFO)+": Out of range."; return false;}
 
@@ -1905,7 +1906,8 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
   //DONE: move to processGate
   // ppgLines.currentLine.replace(QChar('#'),QString::number(k));
 
-        int index0,index1,index2; parenthesisClosed=false;
+        int index0,index1,index2;
+        // parenthesisClosed=false;  (commented out as it is not read below, 20260129)
 
         while(ppgLines.currentLine.count("table",Qt::CaseInsensitive)>0)
         {
@@ -2089,13 +2091,14 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
 
       QString s1;
  //   quint64 line;
-      int nl;
+      int nl=5;
 
       //  check if containsAD9858 is true or not.   -> set noflinespercommand
       if(containsAD9858)
       {
         // In the header file, we have defined: #define CLK_COUNT_AD9858_COMMAND 6
         int minCount=(CLK_COUNT_AD9858_COMMAND+5)*4;
+              // (6+4)*4+4 = (6+5)*4=44  (comment by KT on 20260129)
         //        if(i64<25)
         if(i64<quint64(minCount))
         {
@@ -2103,7 +2106,6 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
                                          + " clock counts are required for frequency setting.";
             return false;
         }
-        nl=5;
 
         for(int cl=0; cl<nl; cl++)
         {
@@ -2120,7 +2122,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
             else
             {
                 compiledPPG[currentCH].append(new TcompiledPPG(com_OUT,s1,lineSet+AD9858Buffer.at(cl)));
-                if (cl==0) NOfLinesPerCommand[currentCH]->append(5);
+                if (cl==0) NOfLinesPerCommand[currentCH]->append(nl);
                 else NOfLinesPerCommand[currentCH]->append(0);
             }
           }
@@ -2129,7 +2131,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
       } // containAD9858
       else
       {
-        nl=1;
+       // nl=1;
         s1=myHex(i64-4,10);        
 
         if(!errorCheckOnly)
@@ -4781,7 +4783,7 @@ bool TpulseProgram::genAcqPhaseCycle(QStringList *sl)
     sl->append(myHex(address,3)+"=00 0000000000 0000000000000000");
     address++;
     sl->append("g");
-    address=0;
+   // address=0;
 
     return true;
 }
@@ -5407,7 +5409,7 @@ bool TpulseProgram::updateVariable()
     updatedPPG.clear();
     for(int ch=0; ch<channels(); ch++) compiledPPG[ch].clear();
     for(int k=0; k<asyncPPG.size(); k++) asyncPPG[k]->whereIs.clear();
-    ok=processMainPPG();
+    ok=processMainPPG(); if(!ok) return false;
     ok=processAsyncPPG();
     updateReceiverInfo();
 
@@ -5452,133 +5454,6 @@ bool TpulseProgram::updateVariable()
     return ok; // ok should be true
 
 }
-//-----------------------------------------------------------------------------
-QVariant TpulseProgram::evalExpression(const QString &str, int &pos) const
-{
-    QVariant result=evalTerm(str,pos);
-    while(pos<str.size())
-    {
-        QChar op=str[pos];
-        if(op != '+' && op != '-') return result;
-        ++pos;
-
-        QVariant term=evalTerm(str,pos);
-        if(result.type()==QVariant::Double && term.type()==QVariant::Double)
-        {
-            if(op=='+') result=result.toDouble()+term.toDouble();
-            else result=result.toDouble()-term.toDouble();
-        }
-        else
-        {
-            result=QVariant::Invalid;
-        }
-    } // while
-    return result;
-}
-//-----------------------------------------------------------------------------
-QVariant TpulseProgram::evalTerm(const QString &str, int &pos) const
-{
-    QVariant result=evalFactor(str,pos);
-    while(pos<str.size())
-    {
-        QChar op=str[pos];
-        if(op!='*' && op!='/') return result;
-        ++pos;
-
-        QVariant factor=evalFactor(str,pos);
-        if(result.type()==QVariant::Double && factor.type()==QVariant::Double)
-        {
-            if(op=='*') result=result.toDouble() * factor.toDouble();
-            else
-            {
-                if(factor.toDouble()==0.0) result=QVariant::Invalid;
-                else result =result.toDouble() / factor.toDouble();
-            }
-        }
-        else
-         {
-            result = QVariant::Invalid;
-        }
-
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-QVariant TpulseProgram::evalFactor(const QString &str, int &pos) const
-{
-    QVariant result;
-    bool negative=false;
-
-    if(str[pos]=='-') {negative=true; ++pos;}
-    if(str[pos]=='(')
-    {
-        ++pos;
-        result=evalExpression(str,pos);
-        if(str[pos]!=')') result=QVariant::Invalid;
-        ++pos;
-    }
-    else
-    {
-        QString token;
-        while (str[pos].isLetterOrNumber() || str[pos]=='.') {token+=str[pos]; ++pos;}
-        int vIndex=-1;
-        for(int k=0; k< variables.size(); k++)
-          if(0==QString::compare(token,variables.at(k)->name(),Qt::CaseInsensitive)) vIndex=k;
-        if(vIndex>-1)  // TODO: variable search
-        {
-            // TODO variable to number
-            switch(variables.at(vIndex)->type()){
-              case TVariable::timeVariable:
-              case TVariable::ampVariable:
-              case TVariable::phaseVariable:
-              case TVariable::freqVariable:
-              case TVariable::dwVariable:
-              case TVariable::doubleVariable:
-                result = variables.at(vIndex)->value().toDouble();
-
-              case TVariable::intVariable:
-              case TVariable::loopVariable:
-              case TVariable::naVariable:
-              case TVariable::alVariable:
-                result = (double) variables.at(vIndex)->value().toInt();
-              default:
-                result = QVariant::Invalid;
-            }
-        }
-        else if(token.at(token.size()-1).isLetter()) // number+unit of time
-        {
-             double ex=1.0;
-             switch(token.at(token.size()-1).toUpper().toLatin1()){
-               case 'N': ex=pow(10,-9); break;
-               case 'U': ex=pow(10,-6); break;
-               case 'M': ex=pow(10,-3); break;
-               case 'S': ex=1.0; break;
-               default: result=QVariant::Invalid; break;
-             }
-
-             bool ok;
-             token.chop(1);
-             result = token.toDouble(&ok)*ex;
-             if(!ok) result=QVariant::Invalid;
-
-        }
-        else  //  token should be a number
-        {
-            bool ok;
-            result = token.toDouble(&ok);
-            if(!ok) result=QVariant::Invalid;
-        }
-
-    } // else
-
-    if(negative)
-    {
-        if(result.type()==QVariant::Double) result=-result.toDouble();
-        else result=QVariant::Invalid;
-    }
-    return result;
-}
-
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
@@ -5689,7 +5564,7 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
 
         int fIndex=-1;
         QStringList functions=QStringList()<<"sin"<<"cos"<<"sqrt"<<"sinc"<<"abs"<<"exp"<<"tanh"<<"cosh"<<"sinh"
-                                          <<"log"<<"log10"<<"sech"<<"acos"<<"asin"<<"round";
+                                              <<"log"<<"log10"<<"sech"<<"acos"<<"asin"<<"round"<<"ceil"<<"floor";
         for(int k=0; k<functions.size(); k++)
             if(0==QString::compare(token,functions.at(k),Qt::CaseInsensitive)) fIndex=k;
 
@@ -5795,6 +5670,8 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
               case 12: result=acos(a); break;
               case 13: result=asin(a); break;
               case 14: result=round(a); break;
+              case 15: result=ceil(a); break;
+              case 16: result=floor(a); break;
               default:
                 errorMessage=QString(Q_FUNC_INFO)+": unknown function"; ok=false; return 0;
           }
@@ -5879,152 +5756,5 @@ bool TpulseProgram::evalTime(QString &str)
   return true;
 
 }
-//-----------------------------------------------------------------------------
-double TpulseProgram::evalTimeExpression(const QString &str, int &pos, bool &ok)
-{
-    double result=evalTimeTerm(str,pos,ok);
-    if(!ok) return 0;
 
-    while(str[pos]!=QChar::Null)
-    {
-        QChar op=str[pos];
-        if(op != '+' && op != '-') return result;
-        ++pos;
-
-        double term=evalTimeTerm(str,pos,ok);
-        if(!ok) return 0;
-            if(op=='+') result=result+term;
-            else result=result-term;
-    } // while
-    return result;
-}
-//-----------------------------------------------------------------------------
-double TpulseProgram::evalTimeTerm(const QString &str, int &pos, bool &ok)
-{
-    double result=evalTimeFactor(str,pos,ok);
-    if(!ok) return 0;
-
-    while(str[pos]!=QChar::Null)
-    {
-        QChar op=str[pos];
-        if(op!='*' && op!='/') return result;
-        ++pos;
-
-        double factor=evalTimeFactor(str,pos,ok);
-        if(!ok) return 0;
-
-        if(op=='*') result=result * factor;
-        else
-        {
-            if(factor==0.0) {ok=false;
-                errorMessage=QString(Q_FUNC_INFO)+": Division by zero is not allowed."; return 0;}
-            else result = result / factor;
-        }
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-double TpulseProgram::evalTimeFactor(const QString &str, int &pos, bool &ok)
-{
-    double result=0;
-    ok=true;
-    bool negative=false;
-
-    if(str[pos]=='-') {negative=true; ++pos;}
-    if(str[pos]=='(')
-    {
-        ++pos;
-        result=evalTimeExpression(str,pos,ok);
-        if(str[pos]!=')') {errorMessage=QString(Q_FUNC_INFO)+": Parenthesis is not closed"; ok=false; return 0;}
-        ++pos;
-    }
-    else
-    {
-        QString token;
-        while (str[pos].isLetterOrNumber() || str[pos]=='.' || str[pos]=='_') {token+=str[pos]; ++pos;}
-
-        // We check if token might be in the form of, e.g., 1.234e-5, etc.
-        if (str[pos]=='-' || str[pos]=='+')
-        {
-            if(token.endsWith('e',Qt::CaseInsensitive))
-            {
-                QString choppedToken=token; choppedToken.chop(1);
-                //double tempDouble=
-                choppedToken.toDouble(&ok);
-                if(ok)
-                {
-                    token+=str[pos]; // Add '-' or '+' to token
-                    ++pos;
-                    while (str[pos].isNumber()) {token+=str[pos]; ++pos;}
-                }
-            }
-        }
-
-
-        int vIndex=-1;
-        for(int k=0; k< variables.size(); k++)
-          if(0==QString::compare(token,variables.at(k)->name(),Qt::CaseInsensitive)) vIndex=k;
-
-     //   qDebug() << token << ": " <<vIndex;
-
-        if(vIndex>-1)  // TODO: variable search
-        {
-//            variables[vIndex]->addresses[currentCH].append(compiledPPG.at(currentCH)->size());
-//            variables[vIndex]->gateIndex[currentCH].append(-1);
-               // time has nothing to do with the gate   --->   -1
-//            variables[vIndex]->expressions[currentCH].append(str);
-
-            // TODO variable to number
-            switch(variables.at(vIndex)->type()){
-              case TVariable::timeVariable:
-              case TVariable::ampVariable:
-              case TVariable::phaseVariable:
-              case TVariable::freqVariable:
-              case TVariable::dwVariable:
-              case TVariable::doubleVariable:
-                result = variables.at(vIndex)->value().toDouble(); break;
-
-              case TVariable::intVariable:
-              case TVariable::loopVariable:
-              case TVariable::naVariable:
-              case TVariable::alVariable:
-              case TVariable::pdVariable:
-                result = (double) variables.at(vIndex)->value().toInt(); break;
-              default:
-                errorMessage=QString(Q_FUNC_INFO)+": unknown variable"; ok=false; break;
-            }
-        }
-        else if(token.at(token.size()-1).isLetter()) // number+unit of time
-        {
-             double ex=1.0;
-             switch(token.at(token.size()-1).toUpper().toLatin1()){
-               case 'N': ex=pow(10,-9); break;
-               case 'U': ex=pow(10,-6); break;
-               case 'M': ex=pow(10,-3); break;
-               case 'S': ex=1.0; break;
-               default: errorMessage=QString(Q_FUNC_INFO)+": Invalid unit of time."; ok=false; break;
-             }
-
-            // qDebug()<<token;
-
-             bool ok2;
-             token.chop(1);
-             result = token.toDouble(&ok2)*ex;
-             if(!ok2) {errorMessage=errorMessage=QString(Q_FUNC_INFO)+": Invalid number: " + token; ok=false;}
-
-        }
-        else  //  token should be a number
-        {
-            bool ok2;
-            result = token.toDouble(&ok2);
-            if(!ok2) {errorMessage=errorMessage=QString(Q_FUNC_INFO)+": Invalid number."; ok=false;}
-        }
-
-    } // else
-
-    if(negative) result=-result;
-
-    return result;
-
-}
 //-----------------------------------------------------------------------------

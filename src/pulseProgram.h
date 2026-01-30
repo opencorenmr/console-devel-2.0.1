@@ -14,7 +14,7 @@
 
 #include "gates.h"
 #include "variables.h"
-#include "intToHex.h"
+// #include "intToHex.h"  commented out as it is not used here (20260129)
 #include "rcvrcom.h"
 #include "digitalfilter.h"
 
@@ -274,15 +274,15 @@ class TpulseProgram
   private:
  //   bool updateVariable_private(QString vName, QVariant qv, TUnit uni);
 
-    QVariant evalExpression(const QString &str, int &pos) const;
-    QVariant evalTerm(const QString &str, int &pos) const;
-    QVariant evalFactor(const QString &str, int &pos) const;
+//    QVariant evalExpression(const QString &str, int &pos) const;
+//    QVariant evalTerm(const QString &str, int &pos) const;
+//    QVariant evalFactor(const QString &str, int &pos) const;
 
 
     bool evalTime(QString &str);
-    double evalTimeExpression(const QString &str, int &pos, bool &ok);
-    double evalTimeTerm(const QString &str, int &pos, bool &ok);
-    double evalTimeFactor(const QString &str, int &pos, bool &ok);
+//    double evalTimeExpression(const QString &str, int &pos, bool &ok);
+//    double evalTimeTerm(const QString &str, int &pos, bool &ok);
+//    double evalTimeFactor(const QString &str, int &pos, bool &ok);
 
     bool isShapedPulseUsed; // set by m_pulse and read by processGate
     int sharpK;  // # -> int
