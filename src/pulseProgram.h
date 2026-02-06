@@ -84,12 +84,14 @@ protected:
 
 };
 
+enum TasyncMode {asyncContinue,asyncStandby,notAsync};
 
 class TppgLines{
   public:
     TppgLines()
     {
        source.clear(); fileIndex.clear(); lineIndex.clear();
+       asyncMode=notAsync; // default
        // qDebug()<<"constructor of TppgLines";
     }
     virtual ~TppgLines()
@@ -111,6 +113,8 @@ class TppgLines{
     bool getStr(QChar qc1, QChar qc2, int *p);
     bool getStr(QString qs);
     bool getStr(QString qs1, QString qs2);
+
+    TasyncMode asyncMode;
 
   protected:
 
@@ -187,7 +191,6 @@ class TexpandManager
 
 };
 
-enum TasyncMode {asyncContinue,asyncStandby};
 
 
 class TasyncPPG: public TppgLines {
@@ -204,7 +207,6 @@ class TasyncPPG: public TppgLines {
     QString name() {return Fname;}
     void setName(QString s) {Fname=s;}
     bool called;
-    TasyncMode asyncMode;
     QList<int> whereIs;
     int startAddress;
 
@@ -214,6 +216,7 @@ class TasyncPPG: public TppgLines {
         pl.source=source;
         pl.fileIndex=fileIndex;
         pl.lineIndex=lineIndex;
+        pl.asyncMode=asyncMode;
         return pl;
     }
 

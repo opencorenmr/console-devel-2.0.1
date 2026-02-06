@@ -300,14 +300,30 @@ void TppgEdit::ppgSave()
 //----------------------------------------------------------------------------
 void TppgEdit::onPPGCompiled()
 {
+    compilerReport->clear();
+    QTextCharFormat format;
+
+    for(int k=0; k<ppg->interpretation.size();k++)
+    {
+        compilerReport->appendPlainText(ppg->interpretation.at(k));
+        //          compilerReport->moveCursor(QTextCursor::End);
+    }
 
     if(ppg->warning)
     {
+      format.setForeground(Qt::red);
+      compilerReport->mergeCurrentCharFormat(format);
       compilerReport->appendPlainText(tr("Warninig(s):\n"));
       compilerReport->appendPlainText(ppg->warningMessage);
+      format.setForeground(Qt::black);
+      compilerReport->mergeCurrentCharFormat(format);
     }
+    format.setForeground(Qt::blue);
+    compilerReport->mergeCurrentCharFormat(format);
     compilerReport->appendPlainText("Compilation successful.\n");
     compilerReport->moveCursor(QTextCursor::End);
+    format.setForeground(Qt::black);
+    compilerReport->mergeCurrentCharFormat(format);
 
     while (ppgPartListWidget->count()>0) delete ppgPartListWidget->takeItem(ppgPartListWidget->count()-1);
     ppgPartListWidget->addItem(tr("Source"));
@@ -330,6 +346,7 @@ void TppgEdit::onPPGCompiled()
 //----------------------------------------------------------------------------
 void TppgEdit::ppgCompile()
 {
+    QTextCharFormat format;
 
     ppgSave();
 
@@ -340,25 +357,17 @@ void TppgEdit::ppgCompile()
     ppgPartListWidget->setCurrentRow(0);
     while (ppgPartListWidget->count()>1) delete ppgPartListWidget->takeItem(ppgPartListWidget->count()-1);
 
-
     if(!ppg->compilePPG())
     {
-        for(int k=0; k<ppg->interpretation.size();k++)
-        {
-            compilerReport->appendPlainText(ppg->interpretation.at(k));
-//            compilerReport->moveCursor(QTextCursor::End);
-        }
-
+        format.setForeground(Qt::red);
+        compilerReport->mergeCurrentCharFormat(format);
         compilerReport->appendPlainText(ppg->errorMessage);
         compilerReport->moveCursor(QTextCursor::End);
+        format.setForeground(Qt::black);
+        compilerReport->mergeCurrentCharFormat(format);
     }
     else
     {
-        for(int k=0; k<ppg->interpretation.size();k++)
-        {
-            compilerReport->appendPlainText(ppg->interpretation.at(k));
-  //          compilerReport->moveCursor(QTextCursor::End);
-        }
 
         onPPGCompiled();
 

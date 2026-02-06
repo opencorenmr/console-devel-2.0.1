@@ -2022,6 +2022,23 @@ bool TpulseProgram::m_endExpand(TppgLines &ppgLines)
 //-----------------------------------------------------------------------------
 bool TpulseProgram::m_let(TppgLines &ppgLines)
 {
+
+    if(loopManager.contains(1) || loopManager.contains(2))
+    {
+        errorMessage="let cannot work inside a loop";
+        return false;
+    }
+
+    if(ppgLines.asyncMode==asyncContinue)
+    {
+        if(expandManagers.isEmpty())
+        {
+          errorMessage="let cannot work in asychronous operation";
+          errorMessage+= " that ends with 'continue'.";
+          return false;
+        }
+    }
+
     int pos;
     if(!ppgLines.getStr(';',&pos))
     {
@@ -3888,7 +3905,7 @@ bool TpulseProgram::m_endFreqSweep(TppgLines &ppgLines)
         AD9858GateIndex=gIndex;
         if(!sweepManager.contains(currentCH) || !loopManager.contains(1000+currentCH))
         {
-            qDebug() << sweepManager << loopManager;
+            // qDebug() << sweepManager << loopManager;
             errorMessage=QString(Q_FUNC_INFO) + ": Frequency sweep on channel "
                            + QString::number(currentCH+1) + " has not started.";
             return false;
@@ -4254,31 +4271,8 @@ bool TpulseProgram::m_loop(TppgLines &ppgLines)
         return false;
     }
 
-
-    /*
-     *
-    bool parenthesisClosed=false;
-    while (!parenthesisClosed && (ppgLines.currentPosition<ppgLines.source.size()))
-    {
-        if(ppgLines.currentLine.count('(') <= ppgLines.currentLine.count(')')) parenthesisClosed=true;
-        else
-        {
-            ppgLines.currentPosition++;
-            if(ppgLines.currentPosition<ppgLines.source.size()-1)
-            {
-               ppgLines.currentLine+=ppgLines.source.at(ppgLines.currentPosition).trimmed();
-            }
-        }
-    }
-
-     *
-     */
-
     // remove '('
     ppgLines.currentLine=ppgLines.currentLine.remove(0,1).trimmed();
-
-
-
 
     QString arg; arg.clear();
     int pos=0;
@@ -4304,17 +4298,6 @@ bool TpulseProgram::m_loop(TppgLines &ppgLines)
 
     int index;
     QString q1=arg;
-
-/*
-    int index;
-    if(!ppgLines.getStr(')',&index))
-    {
-        errorMessage=QString(Q_FUNC_INFO) + ": \")\" was not found.";
-        return false;
-    }
-    QString q1 = ppgLines.currentLine.left(index).trimmed();
-    ppgLines.currentLine=ppgLines.currentLine.remove(0,index+1).trimmed();
-*/
 
     //
     // If the currentCH is in the asynchronous operation, we do nothing and return,
