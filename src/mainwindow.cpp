@@ -55,10 +55,6 @@ TwelcomeWidget::TwelcomeWidget(QWidget *parent) :
                                      )
                           );
 
-    //topLayout2->addWidget(new QLabel(tr("http://kuchem.kyoto-u.ac.jp/bun/indiv/takezo/opencorenmr2/index.html")
-    //                                 )
-    //                      );
-
     topLayout2->addStretch();
 
     QWidget *ppgWidget = new QWidget;

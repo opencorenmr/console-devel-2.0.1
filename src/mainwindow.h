@@ -10,7 +10,7 @@
 #include <QComboBox>
 #include "ppgEdit.h"
 #include "fpgaTerminal.h"
-#include "fid.h"
+//#include "fid.h"
 #include "plotter.h"
 #include "runStopButton.h"
 //#include "dataProcess.h"
@@ -19,12 +19,12 @@
 //#include "dataProcess/processPanelWidget.h"
 
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 0
-#define VERSION_PATCH 8
-#define BUILD_NUMBER 20250829
-#define RELEASE_YEAR 2025
-#define RELEASE_MONTH "Aug"
-#define RELEASE_DATE 29
+#define VERSION_MINOR 1
+#define VERSION_PATCH 0
+#define BUILD_NUMBER 20260206
+#define RELEASE_YEAR 2026
+#define RELEASE_MONTH "Feb"
+#define RELEASE_DATE 6
 
 class TwelcomeWidget;
 

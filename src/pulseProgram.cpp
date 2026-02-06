@@ -69,16 +69,17 @@ QString TcompiledPPG::lineWord(TcompiledPPG *tc)
   return myHex(line,16);
 }
 //-----------------------------------------------------------------------------
-    bool TppgLines::getStr() {
-      while (   (currentLine.size()==0)
+bool TppgLines::getStr()
+{
+    while (   (currentLine.size()==0)
              && (currentPosition < source.size()-1)   )
-        {
-          currentPosition++;
-          currentLine=source.at(currentPosition).trimmed();
-        }
-      if (currentLine.size()==0) return false; // empty
-      else return true;
+    {
+        currentPosition++;
+        currentLine=source.at(currentPosition).trimmed();
     }
+    if (currentLine.size()==0) return false; // empty
+    else return true;
+}
 
     bool TppgLines::getStr(QChar qc) {
         while (   (!currentLine.contains(qc,Qt::CaseInsensitive))
@@ -210,7 +211,9 @@ TpulseProgram::TpulseProgram(int channels) {
 
   ppgCommands << "pulse" << "delay" << "burst" << "ready" << "loop"
               << "endlp" << "endLoop" << "async" << "sync" << "wait_h" << "wait_l"
-              << "exttrig" << "import" << "init" << "relax" << "sweep" << "endSweep";
+              << "exttrig" << "import" << "init" << "relax" << "sweep" << "endSweep"
+              << "expand" << "endExpand" << "let ";
+                      //  "let" followed by a space, that is "let " !
 
   asyncPPGCommands << ppgCommands << "continue" << "standby";
 
@@ -256,6 +259,7 @@ TpulseProgram::TpulseProgram(int channels) {
 
 
 
+
 //  while (!compiledPPG.isEmpty()) delete compiledPPG.takeFirst();
   compiledPPG.clear();
   QList<TcompiledPPG*> a;
@@ -275,6 +279,9 @@ TpulseProgram::TpulseProgram(int channels) {
   loopZero=false;
 
   isInsertActive=false;
+
+  expandManagers.clear();
+
 }
 
 //-----------------------------------------------------------------------------
@@ -288,6 +295,7 @@ TpulseProgram::~TpulseProgram() {
   while (!NOfLinesPerCommand.isEmpty()) delete NOfLinesPerCommand.takeFirst();
   while (!asyncPPG.isEmpty()) delete asyncPPG.takeFirst();
   while (!variables.isEmpty()) delete variables.takeFirst();
+  while (!volatileVariables.isEmpty()) delete volatileVariables.takeFirst();
   while (!insertionCompiledPPG.isEmpty()) delete insertionCompiledPPG.takeFirst();
 
   loadedFiles.clear();
@@ -312,6 +320,7 @@ TpulseProgram& TpulseProgram::operator=(const TpulseProgram& src)
   while (!NOfLinesPerCommand.isEmpty()) delete NOfLinesPerCommand.takeFirst();
   while (!asyncPPG.isEmpty()) delete asyncPPG.takeFirst();
   while (!variables.isEmpty()) delete variables.takeFirst();
+  while (!volatileVariables.isEmpty()) delete volatileVariables.takeFirst();
 
   loadedFiles.clear();
   gateFilePaths.clear();
@@ -1104,6 +1113,8 @@ bool TpulseProgram::p_aux() {
       setOrigNA(i);
         // We keep the value, so that we can restore it whenever it is modified
         // for multi-dimensional experiments (hypercomplex, etc.)
+      preambleInfo.append("NA "  +  varName + "(" + caption +"): " + QString::number(i) );
+
     }
   else if (QString::compare(varName,"ND",Qt::CaseInsensitive)==0) // Number of Dummy scans (New 2015 Jan)
     { int i;
@@ -1114,6 +1125,8 @@ bool TpulseProgram::p_aux() {
       variables[variables.size()-1]->setDeclarationPosition(preamble.currentPosition);
       variables[variables.size()-1]->setCaption(caption);
       NDDefined=true;
+      preambleInfo.append("ND "  +  varName + "(" + caption +"): " + QString::number(i) );
+
     }
   else if (QString::compare(varName,"AL",Qt::CaseInsensitive)==0)
     {
@@ -1126,6 +1139,8 @@ bool TpulseProgram::p_aux() {
       variables[variables.size()-1]->setDeclarationPosition(preamble.currentPosition);
       variables[variables.size()-1]->setCaption(caption);
       ALDefined=true;
+      preambleInfo.append("AL "  +  varName + "(" + caption +"): " + QString::number(i) );
+
   }
   else if (QString::compare(varName,"DW",Qt::CaseInsensitive)==0)
   {
@@ -1159,6 +1174,7 @@ bool TpulseProgram::p_aux() {
       variables[variables.size()-1]->setDeclarationPosition(preamble.currentPosition);
       variables[variables.size()-1]->setCaption(caption);
       DWDefined=true;
+      preambleInfo.append("DW "  +  varName + "(" + caption +"): " + QString::number(d) + unitOfTime );
 
   }
   else if (QString::compare(varName,"PD",Qt::CaseInsensitive)==0)
@@ -1198,6 +1214,7 @@ bool TpulseProgram::p_aux() {
       variables[variables.size()-1]->setDeclarationPosition(preamble.currentPosition);
       variables[variables.size()-1]->setCaption(caption);
       PDDefined=true;
+      preambleInfo.append("PD "  +  varName + "(" + caption +"): " + QString::number(d) + unitOfTime );
 
   }
   else
@@ -1222,9 +1239,12 @@ bool TpulseProgram::checkVariableNameExpression(QString vn)
 {
     if(vn.isEmpty()) {errorMessage="Empty variable name."; return false;}
 
-    //
-    // TODO: if vn contains weird characters, begins with a number, etc.
-    //
+    QChar c=vn.at(0);
+    if(c.isDigit())
+    {
+        errorMessage= vn + ": variable cannot start with a digit.";
+        return false;
+    }
 
     return true;
 }
@@ -1256,6 +1276,7 @@ bool TpulseProgram::checkMultipleDeclaration(QString vn){
 bool TpulseProgram::processPreamble() {
 
   while (!variables.isEmpty()) delete variables.takeFirst();
+  while (!volatileVariables.isEmpty()) delete volatileVariables.takeFirst();
   gates.initialize();
   acqPhaseList.clear();
   preambleInfo.clear();
@@ -1293,7 +1314,7 @@ bool TpulseProgram::processPreamble() {
     }
     if(index<0) {
       error=true;
-      errorMessage=QString(Q_FUNC_INFO)+": Unknown command: " + pCom + ".";
+      errorMessage=": Unknown command: " + pCom + ".";
       return false;
     }
 
@@ -1324,7 +1345,7 @@ bool TpulseProgram::processPreamble() {
       case 13: e=p_version(); break; // version
       case 14: e=p_transform(); break;
       case 15: e=p_double(); break;
-      default: e=false; errorMessage=QString(Q_FUNC_INFO)+": Unknown declaration."; break;
+      default: e=false; errorMessage=": Unknown declaration."; break;
     }
 
     if (!e) return false;
@@ -1455,7 +1476,7 @@ bool TpulseProgram::processAsyncPPG()
                 if (pl.currentLine.startsWith(asyncPPGCommands.at(m),Qt::CaseInsensitive)) {index=m; break;}
             }
             if(index<0) {
-              errorMessage=QString(Q_FUNC_INFO)+": Syntax error (unknown command).";
+              errorMessage=": Syntax error (unknown command).";
               return false;
             }
 
@@ -1517,16 +1538,25 @@ bool TpulseProgram::processAsyncPPG()
             case 16: // endSweep
               ok=m_endFreqSweep(pl); break;
 
+            case 17: // expand
+              ok=m_expand(pl);
+              break;
+            case 18: // endExpand
+              ok=m_endExpand(pl);
+              break;
 
+            case 19: // let
+              ok=m_let(pl);
+              break;
 
-              case 17: // continue
+            case 20: // continue
                 if(!errorCheckOnly)
                 {
                   compiledPPG[currentCH].append(new TcompiledPPG(com_JUMP,myHex(asyncPPG.at(k)->startAddress,10)));
                 }
                 ok=true;
                 break;
-              case 18: // standby
+            case 21: // standby
                 if(!errorCheckOnly)
                 {
                   compiledPPG[currentCH].append(new TcompiledPPG(com_JUMP,myHex(compiledPPG.at(currentCH).size()-1,10)));
@@ -1545,6 +1575,26 @@ bool TpulseProgram::processAsyncPPG()
 
           } // while
 
+
+          if(!expandManagers.isEmpty())
+          {
+              errorMessage="expand command is not closed.";
+              error=true;
+              return false;
+          }
+          if(!sweepManager.isEmpty()) // We check if the loops are closed.
+          {
+              errorMessage="Frequency sweep is not closed.";
+              error=true;
+              return false;
+          }
+          if(!loopManager.isEmpty()) // We check if the loops are closed.
+          {
+              errorMessage="Loop is not closed.";
+              error=true;
+              return false;
+          }
+
         }  // if
       } // k
 
@@ -1561,6 +1611,9 @@ for(int ch=0; ch<channels(); ch++) {
   asyncManager.clear(); sweepManager.clear();
   elapsedTime.clear();
   elapsedTime.append(0);
+  expandManagers.clear();
+
+  interpretation.append("++++++++++ channel " + QString::number(ch+1) + " ++++++++++" );
 
   // Read the 1st line
   mainPPG.currentPosition=0; mainPPG.currentLine.clear();
@@ -1581,7 +1634,7 @@ for(int ch=0; ch<channels(); ch++) {
         if (mainPPG.currentLine.startsWith(ppgCommands.at(k),Qt::CaseInsensitive)) {index=k; break;}
     }
     if(index<0) {
-      errorMessage=QString(Q_FUNC_INFO)+": Syntax error (unknown command): " + mainPPG.currentLine;
+      errorMessage=": Syntax error (unknown command): " + mainPPG.currentLine;
       return false;
     }
 
@@ -1590,8 +1643,8 @@ for(int ch=0; ch<channels(); ch++) {
 
 //    ppgCommands << "pulse" << "delay" << "burst" << "ready" << "loop"
 //                << "endlp" << "endLoop" << "async" << "sync" << "wait_h" << "wait_l"
-//                << "exttrig" << "import" << "init" << "relax" << "sweep" << "endSweep";
-
+//                << "exttrig" << "import" << "init" << "relax" << "sweep" << "endSweep"
+//                << "expand" << "endExpand" << "let ";
 
     bool ok; // error detector
 
@@ -1641,6 +1694,15 @@ for(int ch=0; ch<channels(); ch++) {
       case 16: // endSweep
         ok=m_endFreqSweep(mainPPG);
         break;
+      case 17: // expand
+        ok=m_expand(mainPPG);
+        break;
+      case 18: // endExpand
+        ok=m_endExpand(mainPPG);
+        break;
+      case 19: // "let "
+        ok=m_let(mainPPG);
+        break;
 
       default: ok=false; errorMessage=QString(Q_FUNC_INFO)+"A bug occured. Please report to Takeda."; break;
     }
@@ -1651,6 +1713,12 @@ for(int ch=0; ch<channels(); ch++) {
 
   }
 
+  if(!expandManagers.isEmpty())
+  {
+      errorMessage="expand command is not closed.";
+      error=true;
+      return false;
+  }
   //qDebug() << loopManager << sweepManager;
   if(!sweepManager.isEmpty()) // We check if the loops are closed.
   {
@@ -1719,7 +1787,7 @@ bool TpulseProgram::getTime(QString q)
         if((variables.at(varIndex)->type()!=TVariable::timeVariable) &&
                 (variables.at(varIndex)->type()!=TVariable::dwVariable))
         {
-            errorMessage=QString(Q_FUNC_INFO)+ ": "+ q + " is not a time variable.";
+            errorMessage=": "+ q + " is not a time variable.";
             return false;
         }
 
@@ -1759,7 +1827,7 @@ bool TpulseProgram::getTime(QString q)
           case 'S': //uni=Unity;
                     ex=1.0;break;
           default:
-            error=true; errorMessage=QString(Q_FUNC_INFO)+": Unit of time (n,u,m, or s) is required.";return false;
+            error=true; errorMessage=": Unit of time (n,u,m, or s) is required.";return false;
             break;
         }
 
@@ -1768,23 +1836,283 @@ bool TpulseProgram::getTime(QString q)
         q=q.trimmed();
 
         d=q.toDouble(&ok);
-        if(!ok) {error=true; errorMessage=QString(Q_FUNC_INFO)+": Invalid number."; return false;}
+        if(!ok) {error=true; errorMessage=": Invalid number."; return false;}
         d*=ex;
 
     }
 
    // negative check;
-   if(d<0) {error=true; errorMessage=QString(Q_FUNC_INFO)+": time cannot be negative."; return false;}
+   if(d<0) {error=true; errorMessage=": time cannot be negative."; return false;}
 
    getTimeResult=d*1E6; // in microseconds
    return true;
 }
 
 //-----------------------------------------------------------------------------
-bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
+bool TpulseProgram::m_expand(TppgLines &ppgLines)
+{
+
+    if(!ppgLines.currentLine.startsWith('('))
+    {
+        errorMessage = "Invalid expand expression";
+        errorMessage += ": expand(par,ini,inc,n) is expected.";
+        return false;
+    }
+
+    // remove '('
+    ppgLines.currentLine=ppgLines.currentLine.remove(0,1).trimmed();
+
+    QString arg; arg.clear();
+    int pos=0;
+
+    while(arg.count(')')<arg.count('(')+1 && pos<ppgLines.currentLine.size())
+    {
+        arg.append(ppgLines.currentLine.at(pos));
+        pos++;
+    }
+    if(arg.count(')')!=arg.count('(')+1)
+    {
+      errorMessage=": expand command's parenthesis is not closed.";
+        return false;
+    }
+
+    // We remove the current texts from currentLine, and then,...
+    ppgLines.currentLine.remove(0,arg.size());
+    // We remove the last ')' in arg.
+    arg.chop(1);
+
+
+    QStringList sl=arg.split(',');
+    if(sl.size()!=4)
+    {
+        errorMessage=": expand need 4 arguments";
+        return false;
+    }
+
+    QString localVariable=sl.at(0);
+    if (!checkReservedWordDeclaration(localVariable)) return false;
+    if (!checkMultipleDeclaration(localVariable)) return false;
+    if (!checkVariableNameExpression(localVariable)) return false;
+
+    // error check
+    QString iniStr=sl.at(1);
+    QString incStr=sl.at(2);
+    QString countStr=sl.at(3);
+
+    int ini,inc,count;
+
+    bool ok;
+    ok=evalArg(iniStr);
+    if(!ok)
+    {
+        errorMessage = sl.at(1) + ": invalid expression";
+        return false;
+    }
+    else
+    {
+        ini=round(evalArgResult);
+        iniStr=sl.at(1);
+    }
+
+    ok=evalArg(incStr);
+    if(!ok)
+    {
+        errorMessage = sl.at(2) + ": invalid expression";
+        return false;
+    }
+    else
+    {
+        inc=round(evalArgResult);
+        incStr=sl.at(2);
+    }
+
+    ok=evalArg(countStr);
+    if(!ok)
+    {
+        errorMessage = sl.at(3) + ": invalid expression";
+        return false;
+    }
+    else
+    {
+        count=round(evalArgResult);
+        countStr=sl.at(3);
+    }
+    if(count<1)
+    {
+        errorMessage = sl.at(3) + ": cannot be zero or negative";
+        return false;
+    }
+
+    // We proceed if we detect no error,
+    // adding a TexpandManager object
+    expandManagers.append(new TexpandManager());
+    expandManagers.last()->setPosition(ppgLines.currentPosition);
+    expandManagers.last()->setLocalVariableStr(localVariable);
+    expandManagers.last()->setInitialValueStr(iniStr);
+    expandManagers.last()->setIncrementStr(incStr);
+    expandManagers.last()->setCountStr(countStr);
+    expandManagers.last()->setInitialValue(ini);
+    expandManagers.last()->setIncrement(inc);
+    expandManagers.last()->setCount(count);
+
+    expandManagers.last()->setCurrentCount(0);
+
+    variables.append(new TVariable(localVariable,TVariable::intVariable,QVariant(ini),TVariable::Unity));
+    variables.last()->setNumeric(QVariant(ini));
+
+    QString qs="[Line "
+                 + QString::number(ppgLines.lineIndex.at(ppgLines.currentPosition) + 1 )
+                 + "] ";
+
+    qs += "Expansion of pulse program lines. ";
+    qs += "counter " + localVariable
+       +  ", initial value " + iniStr + "=" + QString::number(ini)
+       +  ", increment " + incStr + "=" + QString::number(inc)
+       +  ", counts " + countStr + "=" + QString::number(count);
+    interpretation.append(qs);
+
+    return true;
+}
+//-----------------------------------------------------------------------------
+bool TpulseProgram::m_endExpand(TppgLines &ppgLines)
+{
+
+    if(expandManagers.isEmpty())
+    {
+      errorMessage=": trying to close non-existing expand.";
+      return false;
+    }
+
+    QString qs="[Line "
+                 + QString::number(ppgLines.lineIndex.at(ppgLines.currentPosition) + 1 )
+         + "] ";
+
+    QString stndth;
+
+    if(expandManagers.last()->currentCount()<expandManagers.last()->count()-1)
+    {
+      // increment temp parameter
+      expandManagers.last()->toggle();
+      if(expandManagers.last()->currentCount()==1) {stndth="st";}
+      else if(expandManagers.last()->currentCount()==2) {stndth="nd";}
+      else if(expandManagers.last()->currentCount()==3) {stndth="rd";}
+      else {stndth="th";}
+      variables.last()->setNumeric(expandManagers.last()->currentValue());
+      ppgLines.currentPosition=expandManagers.last()->position();
+      qs += "Expansion parameter "
+            + expandManagers.last()->localVariableStr() + " has counted up to "
+            + QString::number(expandManagers.last()->currentCount()) + stndth + " valuse of "
+            + QString::number(expandManagers.last()->currentValue());
+      interpretation.append(qs);
+    }
+    else
+    {
+      // We remove the temp parameter
+      qs += "Expansion closed. Parameter "
+           + expandManagers.last()->localVariableStr()
+           + " has been removed.";
+      interpretation.append(qs);
+      variables.removeLast();
+      expandManagers.removeLast();
+
+    }
+
+    return true;
+}
+//-----------------------------------------------------------------------------
+bool TpulseProgram::m_let(TppgLines &ppgLines)
+{
+    int pos;
+    if(!ppgLines.getStr(';',&pos))
+    {
+        errorMessage= ": let must end with ';', which was not found. ";
+        return false;
+    }
+    QString arg; arg.clear();
+
+    int i=0;
+    while(i<=pos)
+    {
+        arg.append(ppgLines.currentLine.at(i));
+        i++;
+    }
+
+    // We remove the current texts from currentLine, and then,...
+    ppgLines.currentLine.remove(0,arg.size());
+    // We remove the last ';' in arg.
+    arg.chop(1);
+
+    // qDebug() << "let : " + arg;
+
+    QStringList sl;
+    sl=arg.split('=');
+    if(sl.size()<2)
+    {
+        errorMessage=
+            + ": let requires =.";
+        return false;
+    }
+    else if (sl.size()>2)
+    {
+        errorMessage= ": too many =.";
+        return false;
+    }
+
+    QString tvar=sl.at(0).trimmed();
+    QString texp=sl.at(1).trimmed();
+    QString qs="[Line "
+                 + QString::number(ppgLines.lineIndex.at(ppgLines.currentPosition) + 1 )
+                 + "] ";
+
+    qs += "Volatile variable " + tvar + " defined as " + texp;
+
+    if (!checkReservedWordDeclaration(tvar))
+    {
+        errorMessage= tvar + "is a reserved word.";
+        return false;
+    }
+    if (!checkMultipleDeclaration(tvar))
+    {
+        errorMessage= tvar + "is already declared as a regular variable.";
+        return false;
+    }
+    if (!checkVariableNameExpression(tvar))
+    {
+
+        return false;
+    }
+
+    if(!evalArg(texp))
+    {
+      errorMessage=": Invalid expression: " + texp;
+      return false;
+    }
+
+    double d=evalArgResult;
+    int ind=volatileVariableIndex(tvar);
+    if(ind==-1) // new
+    {
+      volatileVariables.append(new TVariable(tvar,TVariable::doubleVariable,
+                                               QVariant(d),TVariable::Unity));
+      qs += " has been created and set to " + QString::number(d);
+    }
+    else // change
+    {
+      volatileVariables[ind]->setNumeric(QVariant(d));
+      qs += " has been updated to " + QString::number(d);
+    }
+
+    interpretation.append(qs);
+
+    return true;
+}
+//-----------------------------------------------------------------------------
+bool TpulseProgram::m_pulse(TppgLines &ppgLines)
+{
     bool iteration=false;
     unsigned int nOfIteration=1;
     bool ok=true;
+//    QString proc;
 
     if(ppgLines.currentLine.startsWith('['))
     {
@@ -1796,7 +2124,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
         int i;
         if(!ppgLines.getStr(']', &i))
         {
-            errorMessage=QString(Q_FUNC_INFO)+": ']' was not found.";
+            errorMessage=": ']' was not found.";
             return false;
         }
         QString ni=ppgLines.currentLine.left(i).trimmed();
@@ -1805,21 +2133,25 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
 
         ok=evalArg(ni);
         //nOfIteration=ni.toInt(&ok);
-        if(!ok) {errorMessage=QString(Q_FUNC_INFO)+": invalid iteration number."; return false;}
-        if(evalArgResult<1) {errorMessage=QString(Q_FUNC_INFO)+": iteration number must be positive."; return false;}
+        if(!ok) {errorMessage=": invalid iteration number."; return false;}
+        if(evalArgResult<1) {errorMessage=": iteration number must be positive."; return false;}
         nOfIteration=static_cast<unsigned int> (round(evalArgResult));
-        if(nOfIteration<1) {errorMessage=QString(Q_FUNC_INFO)+": iteration number must be larger than 0."; return false;}
+        if(nOfIteration<1) {errorMessage=": iteration number must be larger than 0."; return false;}
+    //    proc += "pulse (shaped. with "
+    //            + QString::number(nOfIteration)
+    //            + "elements): ";
     }
     else
     {
         isShapedPulseUsed=false;
+    //    proc += "pulse: ";
     }
 
 
     if(!ppgLines.currentLine.startsWith('('))
     {
-        if(iteration) errorMessage=QString(Q_FUNC_INFO) + ": \"(\" is expected after \"pulse[int]\".";
-            else errorMessage=QString(Q_FUNC_INFO) + ": \"(\" is expected after \"pulse\".";
+        if(iteration) errorMessage= ": \"(\" is expected after \"pulse[int]\".";
+            else errorMessage= ": \"(\" is expected after \"pulse\".";
         return false;
     }
 
@@ -1841,7 +2173,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
 
     if(!parenthesisClosed)
     {
-          errorMessage=QString(Q_FUNC_INFO) + "Parenthesis is not closed: " + ppgLines.currentLine;
+          errorMessage= "Parenthesis is not closed: " + ppgLines.currentLine;
           return false;
     }
 
@@ -1852,7 +2184,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
     // We evaluate time expression.
     if (!evalTime(ppgLines.currentLine)) {
       //  qDebug() << getTimeResult << " us";
-        errorMessage=QString(Q_FUNC_INFO) + ppgLines.currentLine;
+       // errorMessage += QString(Q_FUNC_INFO) + ppgLines.currentLine;
         return false;
     }
     // The result is stored in TpulseProgram::getTimeResult "IN MICROSECONDS".
@@ -1875,50 +2207,27 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
     }
     else
     {
-        errorMessage=QString(Q_FUNC_INFO) + "Invalid expression.";
+        errorMessage= "Invalid expression.";
         return false;
     }
 
     lineSet.clear();
 
-
-
     QString currentLine_backup=ppgLines.currentLine;
     int currentPosition_backup=ppgLines.currentPosition;
 
-    //int NOfTables=ppgLines.currentLine.count("table",Qt::CaseInsensitive);
-    // qDebug() << "NOfTables: " << NOfTables;
-
-    //qDebug() << nOfIteration;
-
     int k=0;
     while(k<(int)nOfIteration)
-    //for (int k=0; k<nOfIteration; k++)
     {
         sharpK=k; // read by processGate
-
-     //   qDebug() << "iteration "<< k << "ch " << currentCH;
         ppgLines.currentLine=currentLine_backup;
         ppgLines.currentPosition=currentPosition_backup;
-
-       // qDebug() << QString(Q_FUNC_INFO) << "ch " << currentCH << " " <<ppgLines.currentLine;
-
-  //DONE: move to processGate
-  // ppgLines.currentLine.replace(QChar('#'),QString::number(k));
-
         int index0,index1,index2;
-        // parenthesisClosed=false;  (commented out as it is not read below, 20260129)
-
         while(ppgLines.currentLine.count("table",Qt::CaseInsensitive)>0)
         {
-      //      qDebug() << ppgLines.currentLine;
-
             index0=ppgLines.currentLine.indexOf("table",Qt::CaseInsensitive);
             index1=ppgLines.currentLine.indexOf('(',index0);
             index2=index1;
-
-      //      qDebug() << index0 << index1 << index2;
-
             QString qs0; qs0.clear(); parenthesisClosed=false;
             while(!parenthesisClosed && index2<ppgLines.currentLine.size())
             {
@@ -1926,7 +2235,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
               if(qs0.count('(')==qs0.count(')')) parenthesisClosed=true;
               else index2++;
             }
-            if(!parenthesisClosed) {errorMessage=QString(Q_FUNC_INFO)+": table parenthesis is not closed."; return false;}
+            if(!parenthesisClosed) {errorMessage=": table parenthesis is not closed."; return false;}
 
             qs0.chop(1); // We remove the last ')'
             qs0.remove(0,1); // We remove the first '('
@@ -1947,7 +2256,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
                     bunch=qs0.mid(lIndex+1).toInt(&ok);
                     if(!ok)
                     {  error=true;
-                       errorMessage=QString(Q_FUNC_INFO)+": invalid table expression.";
+                       errorMessage=": invalid table expression.";
                        return false;
                     }
                 }
@@ -1967,8 +2276,8 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
                QFile file(ppgFilePath()+"/"+candidateFileName);
                if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
                    error=true;
-                   errorMessage=QString(Q_FUNC_INFO)
-                           + ": Failed to open file " + candidateFileName +".";
+                   errorMessage=
+                            ": Failed to open file " + candidateFileName +".";
                 //   qDebug() << k << c;
                    return false;
                }
@@ -2010,7 +2319,7 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
 
             if(sl0.size()!=(int)nOfIteration*bunch)
             {
-                errorMessage=QString(Q_FUNC_INFO)+ ": Table length does not match with the number of iteration ("+
+                errorMessage= ": Table length does not match with the number of iteration ("+
                         QString::number(nOfIteration)+").";
                //qDebug() << sl0;
                 return false;
@@ -2031,30 +2340,18 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
 
             // if(bunch>1) qDebug() << ppgLines.currentLine;
         }  // while (table)
-
-//        qDebug()<<"B";
-
       //
       //  Now, we examine gates.
       //
       if(!equivToDelay) if (!processGate(ppgLines)) return false;
-
-//      qDebug()<<"C";
-
-
       //
       // If shaped pulse is not used for the current CH, we do not need to iterate.
       //  
       if(!isShapedPulseActive) nOfIteration=1;
-
-
-      //qDebug()<<"D";
-
       //
       // If the currentCH is in the asynchronous operation, we do nothing and return,
       //
       if(asyncManager.contains(currentCH)) return true;
-
 
       // We get the number of clock counts
       quint64 i64=quint64(round(getTimeResult*CLK/nOfIteration));
@@ -2063,13 +2360,8 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
       // 31 July 2019 (K. Takeda)
       if(nOfIteration>1 && k==(int)nOfIteration-1)
       {
-        i64 = quint64(round(getTimeResult*CLK))
-                - i64*(nOfIteration-1);
-
-
+        i64 = quint64(round(getTimeResult*CLK)) - i64*(nOfIteration-1);
       } // nOfIteration>1 && k==nOfIteration-1
-
-
 
       // We check range
       if(i64==0)
@@ -2080,19 +2372,17 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
       }
       else if(i64<4)
       {
-        errorMessage=QString(Q_FUNC_INFO) + ": time is too short.";
+        errorMessage= ": time is too short.";
         return false;
       }
       if(i64-4>(quint64(pow(2,40)-1)))
       {
-        errorMessage=QString(Q_FUNC_INFO) + ": time is too long.";
+        errorMessage=": time is too long.";
         return false;
       }
 
       QString s1;
- //   quint64 line;
       int nl=5;
-
       //  check if containsAD9858 is true or not.   -> set noflinespercommand
       if(containsAD9858)
       {
@@ -2109,7 +2399,6 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
 
         for(int cl=0; cl<nl; cl++)
         {
-  //        line=0;
           if(cl<nl-1) s1=myHex(CLK_COUNT_AD9858_COMMAND,10); // 6+4 -> 10 CLK
           else s1=myHex(i64-minCount,10); // (10*4)+4 -> 44 CLK
 
@@ -2131,7 +2420,6 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
       } // containAD9858
       else
       {
-       // nl=1;
         s1=myHex(i64-4,10);        
 
         if(!errorCheckOnly)
@@ -2157,13 +2445,21 @@ bool TpulseProgram::m_pulse(TppgLines &ppgLines) {
       if(!elapsedTime.isEmpty()) elapsedTime.last()+=getTimeResult;
       else
       {
-        errorMessage=QString(Q_FUNC_INFO) +
+        errorMessage=
                 ": elapsedTime (QList<double>) is empty. Please report to Takeda.";
         return false;
       }
     }
 
-    return true;
+    if(compiledPPG[currentCH].size() > MAX_LENGTH)
+    {
+        errorMessage=": too many lines.";
+        return false;
+    }
+    else
+    {
+      return true;
+    }
 }
 //-----------------------------------------------------------------------------
 bool TpulseProgram::processGate(TppgLines &ppgLines)
@@ -2183,6 +2479,8 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
 {
     int index,gIndex;
     containsAD9858=false;
+    isCurrentChannelRelevant=false;
+    bool logicToLogicVector;
     bool ok;
     double d;
     int q;
@@ -2199,6 +2497,8 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
 
     while(!finished)
     {
+      logicToLogicVector=false;
+
       while (   (!ppgLines.currentLine.contains(','))
              && (!ppgLines.currentLine.contains('('))
              && (!ppgLines.currentLine.contains(')'))
@@ -2282,7 +2582,10 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
           return false;
       }
 
-
+      if(gates.Items.at(gIndex)->channel()==currentCH)
+      {
+          isCurrentChannelRelevant=true;
+      }
 
       int nlp; // number of left parenthesis
       int nrp;
@@ -2290,127 +2593,136 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
       QString argumentString;
 
 
-         // We obtain argument.
-          bool parenthesisClosed=false;
-          switch(gates.Items.at(gIndex)->KindOfGate())
-          {
-            case GAmplitude:
-            case GPhase:
-            case GLogicVector:
-            case GInteger:
-            case GAD9858:
-            case GRFIQ:
-              if(ppgLines.currentLine.at(0)!='(') {errorMessage="An argument is missing."; return false;}
-              while (!parenthesisClosed && (ppgLines.currentPosition<ppgLines.source.size()))
-              {
-                  if(ppgLines.currentLine.count('(') <= ppgLines.currentLine.count(')')) parenthesisClosed=true;
-                  else
-                  {
-                      ppgLines.currentPosition++;
-                      if(ppgLines.currentPosition<ppgLines.source.size())
-                      {
-                         ppgLines.currentLine+=ppgLines.source.at(ppgLines.currentPosition).trimmed();
-                      }
-                  }
-              }
+      // We obtain argument.
+      bool parenthesisClosed=false;
+      switch(gates.Items.at(gIndex)->KindOfGate())
+      {
+        case GAmplitude:
+        case GPhase:
+        case GLogicVector:
+        case GInteger:
+        case GAD9858:
+        case GRFIQ:
+        case GLogic:
+            if(ppgLines.currentLine.at(0)!='(')
+            {
+                if(gates.Items.at(gIndex)->KindOfGate()==GLogic)
+                {
+                  logicToLogicVector=false;
+                  break;
+                }
+                else
+                {
+                  errorMessage="An argument is missing.";
+                  return false;
+                }
+            } // if(ppgLines.currentLine.at(0)!='(')
+            if(gates.Items.at(gIndex)->KindOfGate()==GLogic)
+            {
+                logicToLogicVector=true;
+            }
+            while (!parenthesisClosed && (ppgLines.currentPosition<ppgLines.source.size()))
+            {
+                if(ppgLines.currentLine.count('(') <= ppgLines.currentLine.count(')')) parenthesisClosed=true;
+                else
+                {
+                    ppgLines.currentPosition++;
+                    if(ppgLines.currentPosition<ppgLines.source.size())
+                    {
+                        ppgLines.currentLine+=ppgLines.source.at(ppgLines.currentPosition).trimmed();
+                    }
+                }
+            } // while
 
-              if(ppgLines.currentPosition>ppgLines.source.size()-1) ppgLines.currentPosition=ppgLines.source.size()-1;
+            if(ppgLines.currentPosition>ppgLines.source.size()-1) ppgLines.currentPosition=ppgLines.source.size()-1;
 
-              if(!parenthesisClosed)
-              {
-                    errorMessage=QString(Q_FUNC_INFO) + "Parenthesis is not closed.";
-                    return false;
-              }
-
-
-              //TODO: QString argumentString
-                      nlp=1; // number of left parenthesis
-                      nrp=0;
-                      kk=0;
-                      argumentString=ppgLines.currentLine.at(kk);
-  ppgLines.currentLine.remove(kk,1);
-                      while(nlp>nrp)
-                      {
-                         // kk++;
-                          argumentString+=ppgLines.currentLine.at(kk);
-  ppgLines.currentLine.remove(kk,1);
-
-                          nlp=argumentString.count('(');
-                          nrp=argumentString.count(')');
-                      }
-
-              // We remove the first '('.
-   //  ppgLines.currentLine.remove(0,1).remove(QChar(' '));
-   argumentString.remove(0,1).remove(QChar(' '));
+            if(!parenthesisClosed)
+            {
+                errorMessage=QString(Q_FUNC_INFO) + "Parenthesis is not closed.";
+                return false;
+            }
 
 
-              if(argumentString.contains('#'))
-//              if(ppgLines.currentLine.contains('#'))
-              {
-                  //qDebug() << QString(Q_FUNC_INFO) << "argumentString:" << argumentString;
+            //TODO: QString argumentString
+            nlp=1; // number of left parenthesis
+            nrp=0;
+            kk=0;
+            argumentString=ppgLines.currentLine.at(kk);
+            ppgLines.currentLine.remove(kk,1);
+            while(nlp>nrp)
+            {
+                // kk++;
+                argumentString+=ppgLines.currentLine.at(kk);
+                ppgLines.currentLine.remove(kk,1);
+                nlp=argumentString.count('(');
+                nrp=argumentString.count(')');
+            }
 
-                 if(!isShapedPulseUsed)
+            // We remove the first '('.
+            argumentString.remove(0,1).remove(QChar(' '));
+            if(argumentString.contains('#'))
+            {
+                //qDebug() << QString(Q_FUNC_INFO) << "argumentString:" << argumentString;
+                if(!isShapedPulseUsed)
                  {
                      errorMessage=QString(Q_FUNC_INFO)+": # cannot be used here, because shaped pulse is not active.";
                      return false;
                  }
                //  qDebug() << gates.Items.at(gIndex)->name << gates.Items.at(gIndex)->channel() << currentCH;
 
-                 if(gates.Items.at(gIndex)->channel()==currentCH) {isShapedPulseActive=true;}
-           argumentString.replace(QChar('#'),QString::number(sharpK));
+                if(gates.Items.at(gIndex)->channel()==currentCH) {isShapedPulseActive=true;}
+                argumentString.replace(QChar('#'),QString::number(sharpK));
                            //  ppgLines.currentLine.replace(
                            //  ppgLines.currentLine.indexOf(QChar('#')),1,QString::number(sharpK));
-
 
                //  qDebug() << QString(Q_FUNC_INFO) << "ch:" << currentCH << ppgLines.currentLine;
               }
 
-
               while(argumentString.contains('!'))
-//              while(ppgLines.currentLine.contains('!'))
               {
-                  if(!isShapedPulseUsed)
-                  {
-                      errorMessage=QString(Q_FUNC_INFO)+": table cannot be used here, because shaped pulse is not active.";
-                      return false;
-                  }
-                 if(gates.Items.at(gIndex)->channel()==currentCH) {isShapedPulseActive=true;}
-// ppgLines.currentLine.remove(ppgLines.currentLine.indexOf('!'),1); // We remove '!' added in m_pulse for table operation.
-                 argumentString.remove(argumentString.indexOf('!'),1);
-                 //     ppgLines.currentLine.remove(0,1); // We remove '!' added in m_pulse for table operation.
-                 //qDebug() << ppgLines.currentLine;
+                if(!isShapedPulseUsed)
+                {
+                    errorMessage=QString(Q_FUNC_INFO)+": table cannot be used here, because shaped pulse is not active.";
+                    return false;
+                }
+                if(gates.Items.at(gIndex)->channel()==currentCH) {isShapedPulseActive=true;}
+                argumentString.remove(argumentString.indexOf('!'),1);
+                // We remove '!' added in m_pulse for table operation.
+                //qDebug() << ppgLines.currentLine;
               }
-
-
-              break;
+             break;
             default: break;
           }
 
+    if(gates.Items.at(gIndex)->channel()==currentCH)
+    {
           // We evaluate argument.
           int pos=0;
           double re=0; double im=0; double phaseOffset=0;
 
           switch(gates.Items.at(gIndex)->KindOfGate())
           {
+            case GLogic:
+              if(!logicToLogicVector){break;}
+              else
+              {
+                if(!evalArg(argumentString))
+                {
+                    errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + ppgLines.currentLine;
+                    return false;
+                }
+              }
+              break;
+
             case GAmplitude:
             case GPhase:
             case GLogicVector:
             case GInteger:
-// TODO (argumentString)
               if(!evalArg(argumentString))
               {
                   errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + ppgLines.currentLine;
                   return false;
               }
- //             if (ppgLines.currentLine.startsWith(')'))
- //             {
- //                 ppgLines.currentLine.remove(0,1); // We remove ')'
- //             }
- //             else
- //             {
- //                 errorMessage=QString(Q_FUNC_INFO)+": Parenthesis is not closed?";
- //                 return false;
- //             }
               break;
 
             case GAD9858:
@@ -2420,12 +2732,8 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
 
                 gates.Items.at(gIndex)->setLogicVector(false);
 
-// TODO (argumentString)
-
                 if(argumentString.contains(';'))
-                  //  if(ppgLines.currentLine.contains(';'))
                 {
-//                    lhs=ppgLines.currentLine.left(ppgLines.currentLine.indexOf(';',0)).trimmed();
                     lhs=argumentString.left(argumentString.indexOf(';',0)).trimmed();
 
                     if(0==QString::compare(lhs,"setup",Qt::CaseInsensitive))
@@ -2449,7 +2757,6 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
                       }
                     }
 
-   // ppgLines.currentLine.remove(0,ppgLines.currentLine.indexOf(';',0)+1).remove(QChar(' '));
                    argumentString.remove(0,argumentString.indexOf(';',0)+1).remove(QChar(' '));
                 }
                 else
@@ -2459,35 +2766,20 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
                     argumentString.remove(QChar(' '));
                 }
 
-         //       rhs=ppgLines.currentLine;
                 rhs=argumentString;
 
-//                if(!evalArg(ppgLines.currentLine))
                 if(!evalArg(argumentString))
                 {
                     errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + rhs;
                     return false;
                 }
-//                if (ppgLines.currentLine.startsWith(')'))
-//                {
-//                    ppgLines.currentLine.remove(0,1); // We remove ')'
-//                }
-//                else
- //               {
- //                   errorMessage=QString(Q_FUNC_INFO)+": Parenthesis is not closed?";
- //                   return false;
- //               }
-
-            //  }
               break;
 
             case GRFIQ:
             {
               arg.clear();pos=0;
-//              while(arg.count(')')<arg.count('(')+1 && pos<ppgLines.currentLine.size())
               while(arg.count(')')<arg.count('(')+1 && pos<argumentString.size())
               {
-             //     arg.append(ppgLines.currentLine.at(pos));
                   arg.append(argumentString.at(pos));
                   pos++;
               }
@@ -2515,18 +2807,7 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
                           + gates.Items.at(gIndex)->name + ".";
                   return false;
               }
-
-
-//              if (arg.count(',')!=1)
-//              {
-//                  errorMessage=QString(Q_FUNC_INFO) // + "In " + ppgLines.currentLine + " "
-//                          +": 2 parameters are required for "
-//                          + gates.Items.at(gIndex)->name + ".";
-//                  return false;
-//              }
-
               // We remove the current gate from currentLine, and then,...
-//              ppgLines.currentLine.remove(0,arg.size());
               argumentString.remove(0,arg.size());
               // We remove the last ')' in arg.
               arg.chop(1);
@@ -2534,24 +2815,33 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
               lhs=sl.at(0).trimmed();
               rhs=sl.at(1).trimmed();
 
-//              lhs=arg.left(arg.indexOf(',')).trimmed();
-//              rhs=arg.mid(arg.indexOf(',')+1).trimmed();
-
               if(!evalArg(lhs)) {errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + lhs; return false;}
               re=evalArgResult;
               if(!evalArg(rhs)) {errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + rhs; return false;}
               im=evalArgResult;
 
+              lhs=sl.at(0).trimmed();
+              rhs=sl.at(1).trimmed();
+
+              QString translatedGate;
+              QString qs="[Line "
+                           + QString::number(ppgLines.lineIndex.at(ppgLines.currentPosition) + 1 )
+                           + "] ";
+              qs+=gates.Items.at(gIndex)->name+"(" + arg + ")";
               if(sl.size()==2)
               {
-                  ppgLines.currentLine.prepend("," + gates.Items.at(gIndex)->translate(re,im));
+                translatedGate=gates.Items.at(gIndex)->translate(re,im);
+                ppgLines.currentLine.prepend("," + translatedGate);
+                interpretation.append(qs + " has been ranslated into "+ translatedGate);
               }
               else if(sl.size()==3)
               {
-                  opt=sl.at(2).trimmed();
-                  if(!evalArg(opt)) {errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + opt; return false;}
-                  phaseOffset=evalArgResult;
-                  ppgLines.currentLine.prepend("," + gates.Items.at(gIndex)->translate(re,im,phaseOffset));
+                opt=sl.at(2).trimmed();
+                if(!evalArg(opt)) {errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + opt; return false;}
+                phaseOffset=evalArgResult;
+                translatedGate=gates.Items.at(gIndex)->translate(re,im,phaseOffset);
+                ppgLines.currentLine.prepend("," + translatedGate);
+                interpretation.append(qs + " has been ranslated into "+ translatedGate);
                  // qDebug()<<QString(Q_FUNC_INFO) << re << im << phaseOffset;
               }
 
@@ -2562,14 +2852,13 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
             default: break;
           }
 
-
           switch(gates.Items.at(gIndex)->KindOfGate())
           {
             case GAmplitude:
             case GPhase:
             case GLogicVector:
             case GInteger:
-            case GAD9858:
+            case GAD9858:                
             // We apply transformation (if defined)
             // By defaut, transformation function is "#" (something like "y=x"),
             // which does nothing.
@@ -2629,7 +2918,17 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
 
           case GLogic:
               if(gates.Items.at(gIndex)->channel()==currentCH)
+              {
+                if(logicToLogicVector)
+                {
+                  int i1 = round(evalArgResult);
+                  if((i1 & 1) == 1){lineSet += gates.Items.at(gIndex)->output();}
+                }
+                else
+                {
                   lineSet += gates.Items.at(gIndex)->output();
+                }
+              }
               break;
           case GPhaselist:
               if(gates.Items.at(gIndex)->channel()==currentCH)
@@ -2687,28 +2986,28 @@ bool TpulseProgram::processGate(TppgLines &ppgLines)
               return false;
               break;
           } // switch
-//      } // if(gates.Items.at(gIndex)->channel()==currentCH)
+    } // if(gates.Items.at(gIndex)->channel()==currentCH)
 
 
 
-      if(!ppgLines.getStr()) {errorMessage=QString(Q_FUNC_INFO)+": Parenthesis is not closed."; return false;}
+    if(!ppgLines.getStr()) {errorMessage=QString(Q_FUNC_INFO)+": Parenthesis is not closed."; return false;}
     //  qDebug()<<ppgLines.currentLine;
 
-      if(ppgLines.currentLine.at(0)==')') // parenthesis closed.
-      {
-          ppgLines.currentLine=ppgLines.currentLine.remove(0,1).trimmed();
-          finished=true;
-      }
-      else if(ppgLines.currentLine.at(0)==',') // next gate item!
-      {
-          ppgLines.currentLine=ppgLines.currentLine.remove(0,1).trimmed();
-      }
-      else
-      {
-          errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + ppgLines.currentLine.at(0);
-          return false;
-      }
-    } // while(!finished)
+    if(ppgLines.currentLine.at(0)==')') // parenthesis closed.
+    {
+        ppgLines.currentLine=ppgLines.currentLine.remove(0,1).trimmed();
+        finished=true;
+    }
+    else if(ppgLines.currentLine.at(0)==',') // next gate item!
+    {
+        ppgLines.currentLine=ppgLines.currentLine.remove(0,1).trimmed();
+    }
+    else
+    {
+        errorMessage=QString(Q_FUNC_INFO)+": Invalid expression: " + ppgLines.currentLine.at(0);
+        return false;
+    }
+  } // while(!finished)
 
   return true;
 }
@@ -3904,7 +4203,7 @@ bool TpulseProgram::m_freqSweepLateAssign(TppgLines &ppgLines)
           if (ppgLines.currentLine.startsWith(ppgCommands.at(k),Qt::CaseInsensitive)) {index=k; break;}
       }
       if(index<0) {
-        errorMessage=QString(Q_FUNC_INFO)+": Syntax error (unknown command): " + ppgLines.currentLine;
+        errorMessage=QString(Q_FUNC_INFO)+"Syntax error (unknown command): " + ppgLines.currentLine;
         return false;
       }
    //   qDebug() << QString(Q_FUNC_INFO)<< "2";
@@ -4798,6 +5097,7 @@ bool TpulseProgram::compilePPG()
 
     userDefinedFunctions.clear();
     loadedFiles.clear();
+    interpretation.clear();
 
     for(int ch=0; ch<channels(); ch++)
     {
@@ -4818,20 +5118,20 @@ bool TpulseProgram::compilePPG()
     if(!analyzePPG()) {error=true; return false;}
     if(!processPreamble()) //{error=true; return false;}
     {
-        errorMessage = "In line " + QString::number(preamble.lineIndex.at(preamble.currentPosition) +1 )
+        errorMessage = "ERROR in line " + QString::number(preamble.lineIndex.at(preamble.currentPosition) +1 )
                 + ": " +errorMessage;
         return false;
     }
     if(!processPhaseCycle()) {error=true; return false;}
     if(!processMainPPG())
     {
-        errorMessage = "In line " + QString::number(mainPPG.lineIndex.at(mainPPG.currentPosition) +1 )
+        errorMessage = "ERROR in line " + QString::number(mainPPG.lineIndex.at(mainPPG.currentPosition) + 1 )
                 + ": " +errorMessage;
         return false;
     }
     if(!processAsyncPPG())
     {
-        errorMessage = "In line "
+        errorMessage = "ERROR in line "
                 + QString::number(
                     asyncPPG.at(currentAsyncPPGIndex)->lineIndex.at(asyncPPG.at(currentAsyncPPGIndex)->currentPosition) +1 )
                 +": " + errorMessage;
@@ -4864,6 +5164,13 @@ bool TpulseProgram::compilePPG()
 
     for(int ch=0; ch<channels(); ch++)
     {
+
+      if(compiledPPG.at(ch).size() > MAX_LENGTH)
+      {
+        errorMessage=QString(Q_FUNC_INFO)+": too many lines.";
+        return false;
+      }
+
       toFPGA.append("ch"+QString::number(ch+1));
       compiledPPG_str[ch]->clear();
       for(int k=0; k<compiledPPG.at(ch).size(); k++)
@@ -4905,6 +5212,7 @@ bool TpulseProgram::analyzePPG()
 
     while (!asyncPPG.isEmpty()) delete asyncPPG.takeFirst();
     while (!variables.isEmpty()) delete variables.takeFirst();
+    while (!volatileVariables.isEmpty()) delete volatileVariables.takeFirst();
 
   //
   //  Empty check
@@ -5573,10 +5881,15 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
         for(int k=0; k<functions2.size(); k++)
             if(0==QString::compare(token,functions2.at(k),Qt::CaseInsensitive)) f2Index=k;
 
-
         int vIndex=-1;
         for(int k=0; k< variables.size(); k++)
           if(0==QString::compare(token,variables.at(k)->name(),Qt::CaseInsensitive)) vIndex=k;
+
+        int vvIndex=-1;
+        for(int k=0; k< volatileVariables.size(); k++)
+            if(0==QString::compare(token,volatileVariables.at(k)->name(),Qt::CaseInsensitive)) vvIndex=k;
+
+
         double a=0; double b=0;
 
 
@@ -5697,6 +6010,10 @@ double TpulseProgram::evalArgFactor(const QString &str, int &pos, bool &ok)
                 errorMessage=QString(Q_FUNC_INFO)+": unknown variable"; ok=false; break;
             }
         }
+        else if(vvIndex>-1)
+        {
+            result = volatileVariables.at(vvIndex)->value().toDouble();
+        }
         else if(token.at(token.size()-1).isLetter()) // number+unit of time
         {
              double ex=1.0;
@@ -5749,7 +6066,13 @@ bool TpulseProgram::evalTime(QString &str)
   str.remove(0,pos);
 
   // negative check;
-  if(d<0) {error=true; errorMessage=QString(Q_FUNC_INFO)+": time cannot be negative."; return false;}
+  if(d<0)
+  {
+    //  qDebug() << QString(Q_FUNC_INFO) << " negative time";
+      error=true;
+      errorMessage=QString(Q_FUNC_INFO)+": time cannot be negative.";
+      return false;
+  }
 
   getTimeResult=d*1E6; // in microseconds
 

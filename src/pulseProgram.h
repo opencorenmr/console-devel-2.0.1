@@ -20,7 +20,7 @@
 
 
 
-#define CURRENT_VERSION 2.0
+#define CURRENT_VERSION 2.1
 
 #define MAX_PHASELIST_ITEMS 15   // phase list per channel
                                  //( 7 for build<=2004 , 15 for build >= 2005)
@@ -29,6 +29,7 @@
 
 #define CLK_COUNT_AD9858_COMMAND 6
 
+#define MAX_LENGTH 2048
 
 
 /*
@@ -115,6 +116,77 @@ class TppgLines{
 
 };
 
+class TexpandManager
+{
+  public:
+    TexpandManager()
+    {
+        // source.clear(); fileIndex.clear(); lineIndex.clear();
+        // qDebug() << "constructor of TexpandManager";
+    }
+    TexpandManager(QString rule)
+    {
+        setExpandRule(rule);
+    }
+    virtual ~TexpandManager()
+    {
+        // qDebug()<<"destructor of TexpandManager";
+    }
+
+    int position() {return Fposition;}
+    void setPosition(int p)
+    {
+        Fposition=p;
+    }
+    void toggle() {if(currentCount()<count()-1) setCurrentCount(currentCount()+1);}
+    int currentCount() {return FcurrentCount;}
+    void setCurrentCount(int i) {FcurrentCount=i;}
+    int initialValue() {return FinitialValue;}
+    void setInitialValue(int i) {FinitialValue=i;}
+    int increment() {return Fincrement;}
+    void setIncrement(int i) {Fincrement=i;}
+    int count() {return Fcount;}
+    void setCount(int i) {Fcount=i;}
+    int currentValue()
+    {
+        return initialValue()+currentCount()*increment();
+    }
+    QString expandRule() {return FexpandRule;}
+    void setExpandRule(QString qs) {FexpandRule=qs;}
+    bool setup()
+    {
+        if(expandRule().isEmpty()) {setMessage("expand rule is empty."); return false;}
+        QStringList sl=expandRule().split(',');
+        if(sl.count()!=4) {setMessage("expand need 4 arguments."); return false;}
+        setLocalVariableStr(sl.at(0));
+        setInitialValueStr(sl.at(1));
+        setIncrementStr(sl.at(2));
+        setCountStr(sl.at(3));
+        return true;
+    }
+    QString message() {return Fmessage;}
+    QString localVariableStr() {return FlocalVariableStr;}
+    void setLocalVariableStr(QString qs) {FlocalVariableStr=qs;}
+    QString initialValueStr() {return FinitialValueStr;}
+    void setInitialValueStr(QString qs) {FinitialValueStr=qs;}
+    QString incrementStr() {return FincrementStr;}
+    void setIncrementStr(QString qs) {FincrementStr=qs;}
+    QString countStr() {return FcountStr;}
+    void setCountStr(QString qs) {FcountStr=qs;}
+
+  private:
+    int Fposition; // address of the expand command
+    int FinitialValue,Fincrement,Fcount;
+    QString FexpandRule;
+    QString FlocalVariableStr,FinitialValueStr,FincrementStr,FcountStr;
+    QString Fmessage;
+    void setMessage(QString qs) {Fmessage=qs;}
+    int FcurrentCount;
+
+  protected:
+
+};
+
 enum TasyncMode {asyncContinue,asyncStandby};
 
 
@@ -165,6 +237,7 @@ class TpulseProgram
 
     bool warning;
     QString warningMessage;
+    QStringList interpretation;
 
     double version() {return FVersion;}
     void setVersion(double v) {FVersion=v;}
@@ -206,6 +279,7 @@ class TpulseProgram
     TppgLines preamble; // !!!
     TppgLines mainPPG;// !!!
 
+
     QList<TasyncPPG*> asyncPPG;
     QList<QStringList *> compiledPPG_str;
     QList<QStringList *> compiledPhaseCycle;
@@ -215,7 +289,7 @@ class TpulseProgram
     QList<TcompiledPPG*> insertionCompiledPPG;
     QList<QList<int> *> NOfLinesPerCommand;
     QList<TVariable*> variables;
-
+    QList<TVariable*> volatileVariables; // introduced (2026 Feb)
     QStringList userDefinedFunctions;
 
     double CLK; // !!!
@@ -242,6 +316,20 @@ class TpulseProgram
 
         return k;
     }
+
+
+    int volatileVariableIndex(QString s)
+    {
+        int k=-1;
+        for(int i=0; i<volatileVariables.size(); i++)
+        {
+            QString s1=volatileVariables.at(i)->name();
+            if(0==QString::compare(s,volatileVariables.at(i)->name(),Qt::CaseInsensitive)) k=i;
+        }
+
+        return k;
+    }
+
 
     bool errorCheckOnly; // !!!
 
@@ -339,6 +427,8 @@ protected:
 
     bool processPhaseCycle();
 
+//    bool m_expand(TppgLines &ppgLines);
+
     bool m_pulse(TppgLines &ppgLines);
     bool m_pulse(TppgLines &ppgLines, int insersionAddress);
     TppgLines freqSweepPPGLines;
@@ -360,6 +450,9 @@ protected:
     bool m_import(TppgLines &ppgLines);
     bool m_init();
     bool m_relax();
+    bool m_expand(TppgLines &ppgLines);
+    bool m_endExpand(TppgLines &ppgLines);
+    bool m_let(TppgLines &ppgLines);
 
     bool analyzeGate(TppgLines &ppgLines);
     bool processGate(TppgLines &ppgLines);  // analyzeGate -> eventually change over to "processGate"
@@ -378,8 +471,9 @@ protected:
     QSet<int> asyncManager;
     QSet<int> sweepManager;
     QList<double> elapsedTime;
+    QList<TexpandManager *> expandManagers;
 
-
+    bool isCurrentChannelRelevant;
 
     bool containsAD9858;
     QList<QSet<int> > AD9858Buffer;
@@ -395,5 +489,7 @@ protected:
     int zeroLoopCounter;
     int zeroLoopAddress;
 };
+
+
 
 #endif // PULSEPROGRAM_H
