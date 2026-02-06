@@ -203,7 +203,7 @@ void TppgEdit::ppgReadFromFile(QString fileName)
       ppg->setppgFileName(fileName);
       if(!(ppg->loadPPG()))
       {
-         compilerReport->insertPlainText(ppg->errorMessage);
+         compilerReport->appendPlainText(ppg->errorMessage);
          compilerReport->moveCursor(QTextCursor::End);
          return;
       }
@@ -274,7 +274,7 @@ void TppgEdit::ppgSaveAs()
     ppg->sourcePPG=ppgPartTextEdit->toPlainText().split('\n');
     ppg->setppgFileName(fileName);
     if(!ppg->savePPG()) {
-        compilerReport->insertPlainText(ppg->errorMessage);
+        compilerReport->appendPlainText(ppg->errorMessage);
         compilerReport->moveCursor(QTextCursor::End);
     }
     ppgPartListWidget->clear();
@@ -292,7 +292,7 @@ void TppgEdit::ppgSave()
     if(ppgPartListWidget->currentRow()>0) return;
     ppg->sourcePPG=ppgPartTextEdit->toPlainText().split('\n');
     if(!ppg->savePPG()) {
-        compilerReport->insertPlainText(ppg->errorMessage);
+        compilerReport->appendPlainText(ppg->errorMessage);
         compilerReport->moveCursor(QTextCursor::End);
     }
     ppgSaveButton->setEnabled(false);
@@ -300,12 +300,13 @@ void TppgEdit::ppgSave()
 //----------------------------------------------------------------------------
 void TppgEdit::onPPGCompiled()
 {
+
     if(ppg->warning)
     {
-      compilerReport->insertPlainText(tr("Warninig(s):\n"));
-      compilerReport->insertPlainText(ppg->warningMessage);
+      compilerReport->appendPlainText(tr("Warninig(s):\n"));
+      compilerReport->appendPlainText(ppg->warningMessage);
     }
-    compilerReport->insertPlainText("Compilation successful.\n");
+    compilerReport->appendPlainText("Compilation successful.\n");
     compilerReport->moveCursor(QTextCursor::End);
 
     while (ppgPartListWidget->count()>0) delete ppgPartListWidget->takeItem(ppgPartListWidget->count()-1);
@@ -339,13 +340,26 @@ void TppgEdit::ppgCompile()
     ppgPartListWidget->setCurrentRow(0);
     while (ppgPartListWidget->count()>1) delete ppgPartListWidget->takeItem(ppgPartListWidget->count()-1);
 
+
     if(!ppg->compilePPG())
     {
-        compilerReport->insertPlainText(ppg->errorMessage);
+        for(int k=0; k<ppg->interpretation.size();k++)
+        {
+            compilerReport->appendPlainText(ppg->interpretation.at(k));
+//            compilerReport->moveCursor(QTextCursor::End);
+        }
+
+        compilerReport->appendPlainText(ppg->errorMessage);
         compilerReport->moveCursor(QTextCursor::End);
     }
     else
     {
+        for(int k=0; k<ppg->interpretation.size();k++)
+        {
+            compilerReport->appendPlainText(ppg->interpretation.at(k));
+  //          compilerReport->moveCursor(QTextCursor::End);
+        }
+
         onPPGCompiled();
 
         // expSettings->showWindow();

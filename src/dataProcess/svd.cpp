@@ -20,7 +20,8 @@ typedef lapack_complex_double cdouble;
 
 KSVD::KSVD()
 {
-    setAxisDomain(fidDomain::ToggleDomain);
+    FAxisDomain=fidDomain::ToggleDomain;
+    //setAxisDomain(fidDomain::ToggleDomain);
 }
 
 KSVD::~KSVD()
@@ -115,15 +116,20 @@ bool KSVD::svdProcess(TFID_2D *fid_2d)
 
     //-----singular value decomposition of general complex matrix------
     //qDebug() << "SVD calculating.....";
-    zgesvd_(&jobu, &jobvt, &m, &n, a, &lda, s, u, &ldu, vt, &ldvt, work, &lwork, rwork, &info);
 
-    delete a;
-    delete u;
-    delete work;
-    delete rwork;
+#ifdef __APPLE__
+    zgesvd_(&jobu, &jobvt, &m, &n, a, &lda, s, u, &ldu, vt, &ldvt, work, &lwork, rwork, &info);
+#else  // recent lapack
+    zgesvd_(&jobu, &jobvt, &m, &n, a, &lda, s, u, &ldu, vt, &ldvt, work, &lwork, rwork, &info,1,1);
+#endif
+
+    delete[] a;
+    delete[] u;
+    delete[] work;
+    delete[] rwork;
 
     //s is until fidsize
-    for(int i=fidsize;i<fidal;i++){s[i] = 0.0;}
+    for(int i=fidsize; i<fidal; i++){s[i] = 0.0;}
 
     //copy vt
     tempvt = new cdouble[fidal*fidal];
@@ -156,7 +162,7 @@ bool KSVD::svdProcess(TFID_2D *fid_2d)
             }
 
         }
-    delete s;
+    delete[] s;
     //cblas_zgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, fidal,
     //            fidal, fidal, &alpha, ss, fidal, tempvt, fidal, &beta, result1, fidal);
     //--------------------------------------------------
@@ -177,9 +183,9 @@ bool KSVD::svdProcess(TFID_2D *fid_2d)
     cblas_zgemm(CblasColMajor, CblasConjTrans, CblasNoTrans, fidal,
                 fidal, fidal, &alpha, vt, fidal, result1, fidal, &beta, result, fidal);
 
-    delete tempvt;
-    delete vt;
-    delete result1;
+    delete[] tempvt;
+    delete[] vt;
+    delete[] result1;
 
     //---------------------------------------------------
     //qDebug() << "plotter updating.....";
@@ -211,6 +217,6 @@ bool KSVD::svdProcess(TFID_2D *fid_2d)
         fid_2d->FID[i]->updateAbs();
     }
 
-    delete result;
+    delete[] result;
     return true;
 }
