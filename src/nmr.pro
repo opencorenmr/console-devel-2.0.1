@@ -173,20 +173,16 @@ mac: LIBS += -L/usr/local/lib -lftd2xx
 mac: LIBS += -framework Accelerate
 #mac:LIBS += -L/usr/local/lib -llapacke -lrefblas -lcblas
 
-win32: LIBS += -L"c:\lib" -lftd2xx #-lgpib488
-win32: INCLUDEPATH += c:\lib
 # (Windows:) We assume that the downloaded ftd2xx.lib and ftd2xx.h (from FTDI)
 #            have been copied to c:\lib
-
-win32: LIBS += -L"c:\lib" -llapack -llapacke -lblas -lcblas -lm
+win32: LIBS += -L"c:\lib" -lftd2xx #-lgpib488
+win32: INCLUDEPATH += c:\lib
+win32: LIBS += -L"c:\lib" -llapack -llapacke -lrefblas -lcblas -lm -lgfortran
 win32: RC_ICONS = images/opencoreNMR.ico
 
 linux: INCLUDEPATH += /usr/local/include/gpib /usr/local/include
 linux: LIBS += -L/usr/local/lib -lftd2xx -lgpib
-
 linux: LIBS += -L/usr/local/lib -llapack -llapacke -lrefblas -lcblas -lgfortran -lm
-
-
 
 RESOURCES += \
     opencoreNMR.qrc
