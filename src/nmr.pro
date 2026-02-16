@@ -165,13 +165,13 @@ HEADERS  += mainwindow.h \
 
 linux: HEADERS += gpib488console.h
 
-#mac: QMAKE_MAC_SDK = macosx10.14
-mac: QMAKE_APPLE_DEVICE_ARCHS=x86_64 arm64
+#mac: QMAKE_MAC_SDK = macosx14.5
 mac: ICON = images/opencoreNMR.icns
 mac: INCLUDEPATH += /usr/local/include
-mac: LIBS += -L/usr/local/lib -lftd2xx
-mac: LIBS += -framework Accelerate
+mac:LIBS += -L/usr/local/lib -lftd2xx
+mac:LIBS += -framework Accelerate
 #mac:LIBS += -L/usr/local/lib -llapacke -lrefblas -lcblas
+#mac: QMAKE_APPLE_DEVICE_ARCHS=arm64 x86_64
 
 # (Windows:) We assume that the downloaded ftd2xx.lib and ftd2xx.h (from FTDI)
 #            have been copied to c:\lib
