@@ -42,3 +42,5 @@ src/.DS_Store
 .DS_Store
 
 deploy/
+
+src/build/
