@@ -42,3 +42,5 @@ src/.DS_Store
 .DS_Store
 
 deploy/
+
+src/build/Desktop_Qt_6_11_1_MinGW_64_bit-Release/
