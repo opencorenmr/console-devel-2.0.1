@@ -2,6 +2,23 @@
 #include <QDebug>
 
 
+#include "fft.h"
+#include "ifft.h"
+//#include "fidDomain.h"
+#include "axisStyle.h"
+#include "arraySum.h"
+#include "transpose.h"
+#include "flatten.h"
+#include "addCutPoints.h"
+#include "apodization.h"
+#include "phase.h"
+//#include "replaceRealWithAbsolute.h"
+#include "cartesianMap.h"
+#include "fidMath.h"
+#include "reshape.h"
+#include "hyperComplex.h"
+
+
 TProcessOperations::TProcessOperations(QObject *parent) : QObject(parent)
 {
    while(!processElements.isEmpty()) processElements.removeLast();
@@ -107,6 +124,10 @@ bool TProcessOperations::saveToFile(QString filename)
         case TProcessElement::FFT3D:
           processSettings->setValue("n1",processElements.at(index)->FFT3D_n1());
           processSettings->setValue("n2",processElements.at(index)->FFT3D_n2());
+          break;
+
+        case TProcessElement::HyperComplexCompression:
+          processSettings->setValue("phaseReverse",processElements.at(index)->phaseReverse());
           break;
 
         case TProcessElement::Math:
@@ -265,6 +286,11 @@ bool TProcessOperations::loadFromFile(QString filename)
             processElements.append(new TFFT3D);
             processElements.last()->FFT3D_setN1(settings.value("n1",0).toInt());
             processElements.last()->FFT3D_setN2(settings.value("n2",0).toInt());
+            break;
+
+          case TProcessElement::HyperComplexCompression:
+              processElements.append(new THyperComplex);
+              processElements.last()->setPhaseReverse(settings.value("phaseReverse",false).toBool());
             break;
 
           case TProcessElement::Math:

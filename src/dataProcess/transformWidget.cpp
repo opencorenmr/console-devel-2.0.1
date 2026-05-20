@@ -3,6 +3,8 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QMessageBox>
+#include "fft.h"
+#include "ifft.h"
 
 //TTransformWidget::TTransformWidget(QWidget *parent) : TProcessPanelBase(parent)
 TTransformWidget::TTransformWidget() : TProcessBase()

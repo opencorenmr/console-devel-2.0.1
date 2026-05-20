@@ -5,6 +5,9 @@
 #include "metricPrefix.h"
 #include "math.h"
 #include "float.h"
+//#include "dataProcess/processOperations.h"
+#include "dataProcess/fft.h"
+//#include "dataProcess/ifft.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -1885,7 +1888,9 @@ void Plotter::drawHalfFID(THalfFID *hFID, QPainter *painter, QColor color)
     }
     else
     {
-       for(double q=1; q<=width()-(leftMargin+rightMargin); q+=((double)(width()-(leftMargin+rightMargin)))/(xfin-xini+1))
+       double q=1;
+       while(q<=width()-(leftMargin+rightMargin))
+      // for(double q=1; q<=width()-(leftMargin+rightMargin); q+=((double)(width()-(leftMargin+rightMargin)))/(xfin-xini+1))
        {
            int p=round(xini+(xfin-xini+1)*q/(width()-(leftMargin+rightMargin)));
            if(p>xfin) p=xfin;
@@ -1894,6 +1899,9 @@ void Plotter::drawHalfFID(THalfFID *hFID, QPainter *painter, QColor color)
            painter->drawLine(round(x1),round(y1),round(x2),round(y2));
          //  qDebug()<<QString(Q_FUNC_INFO)<< hFID->sig.at(p);
            x1=x2;y1=y2;
+
+
+           q+=((double)(width()-(leftMargin+rightMargin)))/(xfin-xini+1);
        }
 
     }

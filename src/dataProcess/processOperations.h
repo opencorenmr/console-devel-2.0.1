@@ -4,20 +4,7 @@
 #include <QObject>
 #include <QSettings>
 #include "processElement.h"
-#include "axisStyle.h"
-#include "arraySum.h"
-#include "transpose.h"
-#include "flatten.h"
-#include "addCutPoints.h"
-#include "apodization.h"
-#include "fft.h"
-#include "fidDomain.h"
-#include "ifft.h"
-#include "phase.h"
-#include "replaceRealWithAbsolute.h"
-#include "cartesianMap.h"
-#include "fidMath.h"
-#include "reshape.h"
+
 
 class TProcessOperations : public QObject
 {

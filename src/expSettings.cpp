@@ -346,8 +346,7 @@ void TExpSettings::readJob(QString fileName)
 {
     disconnect(obsFreqLineEdit,SIGNAL(textChanged(QString)),this,SLOT(setCarrierFreq()));
     disconnect(obsFreqCheckBox,SIGNAL(toggled(bool)),this,SLOT(setCarrierFreq()));
-    disconnect(obsFreqComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setCarrierFreq()));
-
+    disconnect(obsFreqComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setCarrierFreq()));    
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {

@@ -21,7 +21,6 @@
 #include <QPushButton>
 
 #include "fid.h"
-#include "dataProcess/processOperations.h"
 //#include "dataProcess/processPanelWidget.h"
 
 class QPushButton;

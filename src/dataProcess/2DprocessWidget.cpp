@@ -356,6 +356,22 @@ bool T2DProcessWidget::Readsm2pFileforAdd(QString fn)
         }
 
     }
+
+    file.close();
+
+    if(!pointDefined)
+    {
+        ancestor()->FID_2D->errorMessage="point=xxx is missing."; return false;
+    }
+    if(!dwDefined)
+    {
+        ancestor()->FID_2D->errorMessage="dw=xxx is missing."; return false;
+    }
+    if(!sf1Defined)
+    {
+        ancestor()->FID_2D->errorMessage="sf1=xxx is missing."; return false;
+    }
+
     return true;
 }
 

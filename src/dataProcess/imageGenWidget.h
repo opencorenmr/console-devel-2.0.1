@@ -74,7 +74,7 @@ public:
     bool drawEPSHalfFID(THalfFID *hf);
     bool drawEPSXAxis(TFID *fid);
 
-    bool EPSCartesian(TFID *fid);
+  //  bool EPSCartesian(TFID *fid);
   //  bool EPSPolar(TFID *fid);
 
 signals:

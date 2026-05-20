@@ -48,6 +48,7 @@ public:
                        CartesianMap3D,
                        FFT3D,
                        Math,
+                       HyperComplexCompression,
                        InvalidType
                       };
 
@@ -169,6 +170,10 @@ public:
     virtual void FFT3D_setN2(int) {;}
     virtual int FFT3D_n1() {return 0;}
     virtual int FFT3D_n2() {return 0;}
+
+    //virtual functions for THyperComplex
+    virtual void setPhaseReverse(bool) {;}
+    virtual bool phaseReverse() {return false;}
 
     //virtual functions for math
     virtual TFIDMathOperationWith FIDMathOperationWith(){return TProcessElement::Number;}

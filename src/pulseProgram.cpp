@@ -5553,9 +5553,19 @@ void TpulseProgram::updateSourcePPG()
 
         if(variables.at(k)->isConst()) newLine += "const ";
 
+        QString numStr;
+        if(0!=QString::compare(variables.at(k)->name(),"NA",Qt::CaseInsensitive))
+        {
+          numStr=variables.at(k)->numericString();
+        }
+        else
+        {
+          numStr=QString::number(origNA()); // Bug fix: 20260208 (for separate acquisition > 1)
+        }
+
         newLine += variables.at(k)->typeString() + ' '
                   + variables.at(k)->name() + '='
-                    + variables.at(k)->numericString()
+                    + numStr
                     + variables.at(k)->unitString();
 
         if(!variables.at(k)->caption().isEmpty())

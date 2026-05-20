@@ -6,7 +6,8 @@
 
 KCovariance::KCovariance()
 {
-    setAxisDomain(fidDomain::ToggleDomain);
+    FAxisDomain=fidDomain::ToggleDomain;
+    // setAxisDomain(fidDomain::ToggleDomain);
 }
 
 KCovariance::~KCovariance()
@@ -32,12 +33,18 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
   n_al = fid_2d->defaultAL(); //number of points DIRECT FID
   n_ind = fid_2d->FID.size(); //number of INDIRECT FID
 
-  double avr[n_al], avi[n_al];
+  QVector<double> qavr,qavi;
+  qavr.clear();
+  qavr.clear();
+
+//  double avr[n_al], avi[n_al];
 
   for(i=0;i<n_al;i++)
   {
-      avr[i] = 0.0;
-      avi[i] = 0.0;
+      qavr.append(0.0);
+      qavi.append(0.0);
+//      avr[i] = 0.0;
+//      avi[i] = 0.0;
   }
 
   // -----save original FID------
@@ -104,12 +111,12 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
         {
             for(k=0;k<n_ind;k++)
             {
-                avr[i] += originalFID2D->FID.at(k)->real->sig.at(i);
-                avi[i] += originalFID2D->FID.at(k)->imag->sig.at(i);
+                qavr[i] += originalFID2D->FID.at(k)->real->sig.at(i);
+                qavi[i] += originalFID2D->FID.at(k)->imag->sig.at(i);
             }
 
-            avr[i] /= n_ind;
-            avi[i] /= n_ind;
+            qavr[i] /= n_ind;
+            qavi[i] /= n_ind;
         }
     } // until here
 
@@ -123,10 +130,10 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
         {
             for(k=0;k<n_ind;k++)
             {
-                real1 = originalFID2D->FID.at(k)->real->sig.at(i) - avr[i];
-                imag1 = originalFID2D->FID.at(k)->imag->sig.at(i) - avi[i];
-                real2 = originalFID2D->FID.at(k)->real->sig.at(j) - avr[j];
-                imag2 = originalFID2D->FID.at(k)->imag->sig.at(j) - avi[j];
+                real1 = originalFID2D->FID.at(k)->real->sig.at(i) - qavr[i];
+                imag1 = originalFID2D->FID.at(k)->imag->sig.at(i) - qavi[i];
+                real2 = originalFID2D->FID.at(k)->real->sig.at(j) - qavr[j];
+                imag2 = originalFID2D->FID.at(k)->imag->sig.at(j) - qavi[j];
                 re +=  real1*real2 + imag1*imag2;
                 if(imagKeep()){im += -real1*imag2 + imag1*real2;}
             }
@@ -154,6 +161,8 @@ bool KCovariance::covarianceProcess(TFID_2D *fid_2d)
       fid_2d->FID[i]->updateAbs();
     }
 
+    qavr.clear();
+    qavi.clear();
  //   end = clock();
 
     //qDebug() << "calculation time is" << end - start;

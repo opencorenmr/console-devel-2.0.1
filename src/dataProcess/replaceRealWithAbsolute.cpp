@@ -23,6 +23,7 @@ bool TReplaceRealWithAbsolute::process(TFID_2D *fid_2d, int k)
 
 bool TReplaceRealWithAbsolute::process(TFID_2D *fid_2d)
 {
-
-    return true;
+    bool ok=true;
+    for(int k=0; k<fid_2d->FID.size(); k++) ok=process(fid_2d,k);
+    return ok;
 }

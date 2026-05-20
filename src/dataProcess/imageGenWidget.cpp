@@ -196,11 +196,11 @@ bool TImageGenWidget::setParams()
     return true;
 }
 
-bool TImageGenWidget::EPSCartesian(TFID *fid)
-{
-
-  return true;
-}
+//bool TImageGenWidget::EPSCartesian(TFID *fid)
+//{
+//
+//  return true;
+//}
 
 void TImageGenWidget::createEPS()
 {

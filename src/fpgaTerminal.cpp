@@ -1608,7 +1608,9 @@ bool TfpgaTerminal::accumulation()
 
 //    transferPPG(ppg->receiverInfo.receiverCommands());
 
-    QString fn=expSettings->pathLineEdit->text().trimmed() + '/' + expSettings->nameLineEdit->text() + ".nmrjob";
+    QString fn=expSettings->pathLineEdit->text().trimmed()
+            //    + '/' + expSettings->nameLineEdit->text() // <- added (bug fix 20260217)
+                + '/' + expSettings->nameLineEdit->text() + ".nmrjob";
     jobQueueWidget->currentJobLineEdit->setText(fn);
 
 

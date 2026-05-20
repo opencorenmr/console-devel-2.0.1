@@ -2,7 +2,8 @@
 
 THyperComplex::THyperComplex()
 {
-  setPhaseReverse(false);
+    setProcessType(TProcessType::HyperComplexCompression);
+    FPhaseReverse=false;
 }
 
 bool THyperComplex::process(TFID_2D *fid_2d)
@@ -17,19 +18,23 @@ bool THyperComplex::process(TFID_2D *fid_2d)
 
     int nCol=fid_2d->FID.at(0)->al();  //qDebug() << QString(Q_FUNC_INFO) << "nCol: " <<nCol;
 
+    int sgn;
+    if(phaseReverse()) {sgn=-1;} else {sgn=1;}
+
     for(int k=0; k<nRow; k+=2)
     {
         for(int i=0; i<nCol; i++)
         {
-            if(!phaseReverse())
-            {
-                fid_2d->FID[k]->imag->sig[i]=fid_2d->FID[k+1]->real->sig.at(i);
-            }
-            else // phaseReverse() == true
-            {
-                fid_2d->FID[k]->imag->sig[i]=fid_2d->FID[k]->real->sig.at(i);
-                fid_2d->FID[k]->real->sig[i]=fid_2d->FID[k+1]->real->sig.at(i);
-            }
+            fid_2d->FID[k]->imag->sig[i] = sgn * fid_2d->FID[k+1]->real->sig.at(i);
+           //if(!phaseReverse())
+           // {
+           //     fid_2d->FID[k]->imag->sig[i]=fid_2d->FID[k+1]->real->sig.at(i);
+           // }
+           // else // phaseReverse() == true
+           // {
+           //     fid_2d->FID[k]->imag->sig[i]=fid_2d->FID[k]->real->sig.at(i);
+           //     fid_2d->FID[k]->real->sig[i]=fid_2d->FID[k+1]->real->sig.at(i);
+           // }
         }
     }
 
@@ -50,10 +55,10 @@ bool THyperComplex::process(TFID_2D *fid_2d)
 
 QStringList THyperComplex::processInformation()
 {
-    return QStringList() << "process=hypercomplex";
+    return QStringList() << "process=HyperComplexCompression";
 }
 
 QString THyperComplex::command()
 {
-    return "hypercomplex";
+    return "HyperComplexCompression";
 }

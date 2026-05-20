@@ -4,9 +4,12 @@
 TApodization::TApodization()
 {
   setProcessType(TProcessType::Apodization);
-  setApodizationType(Gaussian); // default type
-  setWidth(0);
-  setInverse(false);
+  FApodizationType=Gaussian;  // default type
+  // setApodizationType(Gaussian);
+  FWidth=0;
+  // setWidth(0);
+  FInverse=false;
+  //setInverse(false);
 }
 
 
