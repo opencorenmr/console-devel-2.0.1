@@ -304,7 +304,7 @@ void ComRxThread::run()
       }
 
      file.close();
-   //  msleep(100);
+     msleep(10);
 
     }
 
