@@ -1,7 +1,7 @@
 #include "fpgaTerminal.h"
 #include "dataProcess/fft.h"
 #include "dataProcess/replaceRealWithAbsolute.h"
-#include "dataProcess/fiddomain.h"
+#include "dataProcess/fidDomain.h"
 #include <QEventLoop>
 #include <QLabel>
 #include <QLayout>
